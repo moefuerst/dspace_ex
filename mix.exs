@@ -43,6 +43,7 @@ defmodule Dspace.MixProject do
   defp deps do
     [
       {:nimble_options, "~> 1.1"},
+      {:stream_data, "~> 0.6", only: [:test, :dev]},
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ex_doc, ">= 0.19.0", only: :dev}
