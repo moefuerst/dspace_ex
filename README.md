@@ -19,3 +19,5 @@ Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_do
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at <https://hexdocs.pm/dspace>.
 
+## License
+This project is licensed under the AGPL-3.0. See the [LICENSE](./LICENSE) file for details.
