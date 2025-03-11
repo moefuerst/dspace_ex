@@ -1,9 +1,6 @@
 defmodule DSpace.Api.Client do
   @moduledoc """
   Specifies the behaviour for a HTTP client to interact with the DSpace API.
-
-
-  TODO: Default implementation, this will be done using `Req`.
   """
 
   @typedoc """
