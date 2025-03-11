@@ -28,7 +28,7 @@ defmodule DSpace.Api.Metadata.Value do
   * `securityLevel` - Access restriction level (0 = Public, 1 = "Trusted" group, 2 = Admin/Owner)
   """
   @type t :: %__MODULE__{
-          value: String.t(),
+          value: binary(),
           language: language_code() | nil,
           authority: authority_key() | nil,
           confidence: confidence_score() | nil,
@@ -36,14 +36,14 @@ defmodule DSpace.Api.Metadata.Value do
           securityLevel: security_level() | nil
         }
 
-  @type language_code :: String.t()
+  @type language_code :: binary()
 
   @typedoc """
   Authority key identifies controlled vocabulary terms or entities:
   * UUID - For internal DSpace entities (items, collections etc)
   * String - For external authority controls (ORCID, funders etc)
   """
-  @type authority_key :: String.t()
+  @type authority_key :: binary()
 
   @typedoc """
   Authority matching confidence values:

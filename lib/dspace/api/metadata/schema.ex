@@ -52,17 +52,6 @@ defmodule DSpace.Api.Metadata.Schema do
 
   @doc """
   Validates a metadata map against the schema.
-
-  ## Examples
-
-  iex> Schema.validate(%{
-  ...>   key: "dc.title",
-  ...>   values: [%{value: "Test Title", language: "en"}]
-  ...> })
-  {:ok, %{key: "dc.title", values: [%{value: "Test Title", language: "en", confidence: -1}]}}
-
-  iex> Schema.validate(%{key: "dc.title", values: [%{language: "en"}]})
-  {:error, "required :value option not found, received options: [:language]"}
   """
   @spec validate(map()) :: {:ok, map()} | {:error, NimbleOptions.ValidationError.t()}
   def validate(metadata) when is_map(metadata) do

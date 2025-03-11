@@ -22,7 +22,7 @@ defmodule DSpace.Api.Items.Item do
           in_archive: boolean(),
           discoverable: boolean(),
           withdrawn: boolean(),
-          entity_type: String.t(),
+          entity_type: binary(),
           metadata: DSpace.Api.Metadata.t()
         }
 
@@ -42,7 +42,7 @@ defmodule DSpace.Api.Items.Item do
 
   The /core/items endpoint bypasses SOLR (?), giving us the item data directly.
   """
-  @spec fetch(DSpace.Api.t(), Ecto.UUID.t()) :: {:ok, t()} | {:error, term()}
+  @spec fetch(DSpace.Api.t(), binary()) :: {:ok, t()} | {:error, term()}
   def fetch(%DSpace.Api{} = client, uuid) when is_binary(uuid) do
     case DSpace.Api.request(client, url: "/core/items/#{uuid}") do
       {:ok, response} ->
@@ -71,6 +71,4 @@ defmodule DSpace.Api.Items.Item do
   end
 
   def from_response(_), do: %__MODULE__{}
-
-  ### Private helpers
 end
