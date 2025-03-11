@@ -1,4 +1,4 @@
-defmodule Dspace.MetadataTest do
+defmodule DSpace.Api.MetadataTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
 

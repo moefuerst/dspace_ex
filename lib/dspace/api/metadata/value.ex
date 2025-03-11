@@ -2,6 +2,8 @@ defmodule DSpace.Api.Metadata.Value do
   @moduledoc """
   Represents a single DSpace REST API metadata value.
 
+  Provides runtime validation of metadata values according to DSpace's constraints.
+
   A metadata value in DSpace can have additional properties like language, an authority key, and security level alongside its main content.
 
   ## Example
@@ -21,14 +23,14 @@ defmodule DSpace.Api.Metadata.Value do
 
   ## Fields
   * `value` - The actual content (required)
-  * `language` - language code (optional)
-  * `authority` - Authority key for controlled values; UUID or controlled vocabulary key (optional)
+  * `language` - language code
+  * `authority` - Authority key for controlled values; UUID or controlled vocabulary key
   * `confidence` - Authority matching confidence (-1 to 600)
   * `place` - Position in multi-value fields (0-based)
   * `securityLevel` - Access restriction level (0 = Public, 1 = "Trusted" group, 2 = Admin/Owner)
   """
   @type t :: %__MODULE__{
-          value: String.t(),
+          value: binary(),
           language: language_code() | nil,
           authority: authority_key() | nil,
           confidence: confidence_score() | nil,
@@ -36,14 +38,14 @@ defmodule DSpace.Api.Metadata.Value do
           securityLevel: security_level() | nil
         }
 
-  @type language_code :: String.t()
+  @type language_code :: binary()
 
   @typedoc """
   Authority key identifies controlled vocabulary terms or entities:
   * UUID - For internal DSpace entities (items, collections etc)
   * String - For external authority controls (ORCID, funders etc)
   """
-  @type authority_key :: String.t()
+  @type authority_key :: binary()
 
   @typedoc """
   Authority matching confidence values:
@@ -83,6 +85,36 @@ defmodule DSpace.Api.Metadata.Value do
     :securityLevel
   ]
 
+  @schema NimbleOptions.new!(
+            value: [
+              type: :map,
+              required: true,
+              keys: [
+                value: [
+                  type: :string,
+                  required: true
+                ],
+                language: [
+                  type: :string
+                ],
+                authority: [
+                  type: :string
+                ],
+                confidence: [
+                  type: {:in, [-1, 0, 100, 200, 300, 400, 500, 600]},
+                  default: -1
+                ],
+                place: [
+                  type: :non_neg_integer
+                ],
+                # sic! camelcase
+                securityLevel: [
+                  type: {:in, [0, 1, 2]}
+                ]
+              ]
+            ]
+          )
+
   # Public API
 
   @doc """
@@ -91,5 +123,24 @@ defmodule DSpace.Api.Metadata.Value do
   @spec new(map()) :: t()
   def new(attrs) when is_map(attrs) do
     struct!(__MODULE__, attrs)
+  end
+
+  @doc """
+  Returns the metadata value schema.
+  """
+  @spec schema() :: NimbleOptions.t() | NimbleOptions.ValidationError.t()
+  def schema, do: @schema
+
+  @doc """
+  Validates a metadata value map against the schema.
+  """
+  @spec validate(map()) :: {:ok, map()} | {:error, NimbleOptions.ValidationError.t()}
+  def validate(metadata) when is_map(metadata) do
+    NimbleOptions.validate(metadata, @schema)
+  end
+
+  @spec validate!(map()) :: map() | NimbleOptions.ValidationError.t()
+  def validate!(metadata) when is_map(metadata) do
+    NimbleOptions.validate!(metadata, @schema)
   end
 end
