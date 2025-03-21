@@ -1,14 +1,12 @@
 defmodule DSpace.Api.Item do
   @moduledoc """
-  Represents a DSpace Item, which is a type of DSpace Object that represents a discrete record with
-  metadata, files ("bitstreams"), permissions and policies (who can view, edit, or manage the item) and relations to collections (an item must belong to at least one collection).
+  Represents a DSpace Item, which is a type of DSpace Object that represents a discrete record with metadata, files ("bitstreams"), permissions and policies (who can view, edit, or manage the item) and relations to collections (an item must belong to at least one collection).
 
-  In DSpace-CRIS, items represent different entity types (Publication, Person,
-  Project, etc.) as defined by the `entityType` field.
+  In DSpace-CRIS, items represent different entity types (Publication, Person, Project, etc.) as defined by the `entityType` field.
   """
 
   @typedoc """
-  A DSpace Item structure.
+  A DSpace Item struct.
 
   ## Fields:
   * `object`: `t:DSpace.Api.Object.t/0` with common attributes like UUID, name and modification date
@@ -36,23 +34,7 @@ defmodule DSpace.Api.Item do
     :metadata
   ]
 
-  ### Public API
-
-  @doc """
-  Fetches a DSpace item by UUID.
-
-  The /core/items endpoint bypasses SOLR (?), giving us the item data directly.
-  """
-  @spec fetch(DSpace.Api.t(), binary()) :: {:ok, t()} | {:error, term()}
-  def fetch(%DSpace.Api{} = client, uuid) when is_binary(uuid) do
-    case DSpace.Api.request(client, url: "/api/core/items/#{uuid}") do
-      {:ok, response} ->
-        {:ok, from_response(response.body)}
-
-      {:error, _} = error ->
-        error
-    end
-  end
+  # Public API
 
   @doc """
   Creates an Item struct from API response data.
@@ -72,4 +54,20 @@ defmodule DSpace.Api.Item do
   end
 
   def from_response(_), do: %__MODULE__{}
+
+  @doc """
+  Fetches a DSpace item by UUID.
+
+  The /core/items endpoint bypasses SOLR (?), giving us the item data directly.
+  """
+  @spec fetch(DSpace.Api.t(), binary()) :: {:ok, t()} | {:error, term()}
+  def fetch(%DSpace.Api{} = client, uuid) when is_binary(uuid) do
+    case DSpace.Api.request(client, url: "/api/core/items/#{uuid}") do
+      {:ok, response} ->
+        {:ok, from_response(response.body)}
+
+      {:error, _} = error ->
+        error
+    end
+  end
 end

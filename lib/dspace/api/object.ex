@@ -4,16 +4,16 @@ defmodule DSpace.Api.Object do
   """
 
   @typedoc """
-  _links structure.
+  _links structure. ("HAL" "convention")
 
   Example link relations:
-  - `self`: Direct URL to this object
-  - `bundles`: List of bundles (for items)
-  - `owningCollection`: Parent collection (for items)
-  - `mappedCollections`: Additional collections this object appears in (for items)
-  - `relationships`: Entity relationships (for items)
-  - `version`: Version information
-  - `thumbnail`: A thumbnail image
+  * `self`: Direct URL to this object
+  * `bundles`: List of bundles (for items)
+  * `owningCollection`: Parent collection (for items)
+  * `mappedCollections`: Additional collections this object appears in (for items)
+  * `relationships`: Entity relationships (for items)
+  * `version`: Version information
+  * `thumbnail`: A thumbnail image
   """
   @type links :: %{binary() => %{href: binary()}}
 
@@ -21,12 +21,12 @@ defmodule DSpace.Api.Object do
   Base DSpace object structure shared by all repository objects.
 
   Fields:
-  - `uuid`: Unique identifier
-  - `name`: Human-readable name/title
-  - `handle`: Persistent identifier in the handle system
-  - `type`: Object type ("community", "collection", "item")
-  - `last_modified`: Last modification timestamp
-  - `links`: links to related resources
+  * `uuid`: Unique identifier
+  * `name`: Human-readable name/title
+  * `handle`: URI
+  * `type`: Object type ("community", "collection", "item")
+  * `last_modified`: Modification timestamp
+  * `links`: Link relations
   """
   @type t :: %__MODULE__{
           uuid: binary(),
