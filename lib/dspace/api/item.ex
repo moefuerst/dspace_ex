@@ -1,4 +1,4 @@
-defmodule DSpace.Api.Items.Item do
+defmodule DSpace.Api.Item do
   @moduledoc """
   Represents a DSpace Item, which is a type of DSpace Object that represents a discrete record with
   metadata, files ("bitstreams"), permissions and policies (who can view, edit, or manage the item) and relations to collections (an item must belong to at least one collection).
@@ -16,6 +16,7 @@ defmodule DSpace.Api.Items.Item do
   * `discoverable`: Whether the item is discoverable in search/browse/OAI results
   * `withdrawn`: Whether the item has been withdrawn (if true, only accessible to admins)
   * `entity_type`: Type of entity this item represents ("Publication", "Person", etc.)
+  * `metadata`: `t:DSpace.Api.Metadata.t/0` map where keys are metadata field names and values are lists of metadata value and props
   """
   @type t :: %__MODULE__{
           object: DSpace.Api.Object.t(),
@@ -44,7 +45,7 @@ defmodule DSpace.Api.Items.Item do
   """
   @spec fetch(DSpace.Api.t(), binary()) :: {:ok, t()} | {:error, term()}
   def fetch(%DSpace.Api{} = client, uuid) when is_binary(uuid) do
-    case DSpace.Api.request(client, url: "/core/items/#{uuid}") do
+    case DSpace.Api.request(client, url: "/api/core/items/#{uuid}") do
       {:ok, response} ->
         {:ok, from_response(response.body)}
 
@@ -54,7 +55,7 @@ defmodule DSpace.Api.Items.Item do
   end
 
   @doc """
-  Casts a `t:DSpace.Api.Items.Item.t/0` struct from API response data.
+  Creates an Item struct from API response data.
   """
   @spec from_response(map()) :: t()
   def from_response(body) when is_map(body) do

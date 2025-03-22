@@ -4,7 +4,7 @@ defmodule DSpace.Api.Object do
   """
 
   @typedoc """
-  HAL _links structure.
+  _links structure.
 
   Example link relations:
   - `self`: Direct URL to this object
@@ -13,7 +13,7 @@ defmodule DSpace.Api.Object do
   - `mappedCollections`: Additional collections this object appears in (for items)
   - `relationships`: Entity relationships (for items)
   - `version`: Version information
-  - `thumbnail`: Object thumbnail if available
+  - `thumbnail`: A thumbnail image
   """
   @type links :: %{binary() => %{href: binary()}}
 
@@ -26,7 +26,7 @@ defmodule DSpace.Api.Object do
   - `handle`: Persistent identifier in the handle system
   - `type`: Object type ("community", "collection", "item")
   - `last_modified`: Last modification timestamp
-  - `links`: HAL links to related resources
+  - `links`: links to related resources
   """
   @type t :: %__MODULE__{
           uuid: binary(),

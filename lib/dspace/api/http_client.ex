@@ -1,4 +1,4 @@
-defmodule DSpace.Api.Client do
+defmodule DSpace.Api.HttpClient do
   @moduledoc """
   Specifies the behaviour for a HTTP client to interact with the DSpace API.
   """
@@ -6,11 +6,11 @@ defmodule DSpace.Api.Client do
   @typedoc """
   Required options implementations have to support.
 
-  * `:auth` - Sets the correct authorization header
-  * `:base_url` - If set, prepend the `url` with this base URL
+  * `:auth` - Contains a bearer token. Implementation needs to set the correct authorization header.
+  * `:base_url` - If set, implementation needs to prepend the `url` with this base URL.
   * `:body` - request body
   * `:headers` - request headers
-  * `:method` - verb as atom (`:get`, `:post`, etc.) Implementation must default to GET request if none given.
+  * `:method` - verb as atom (`:get`, `:post`, etc.). Implementation must default to GET request if none given.
   * `:url` - request URL / path
   """
   @type required_options :: [
@@ -35,8 +35,18 @@ defmodule DSpace.Api.Client do
   """
   @callback request(options()) :: {:ok, response()} | {:error, Exception.t()}
 
+  @doc false
+  def request(module, options) do
+    module.request(options)
+  end
+
   @doc """
     Executes a HTTP request and returns a response or raises on errors.
   """
   @callback request!(options()) :: response() | Exception.t()
+
+  @doc false
+  def request!(module, options) do
+    module.request!(options)
+  end
 end
