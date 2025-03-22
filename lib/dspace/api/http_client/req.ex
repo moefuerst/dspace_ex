@@ -6,7 +6,7 @@ defmodule DSpace.Api.HttpClient.Req do
   @behaviour DSpace.Api.HttpClient
 
   @doc """
-    Executes a HTTP request and returns a response or an error.
+  Executes an HTTP request and returns a response or an error.
   """
   @impl true
   @spec request(keyword()) :: {:ok, map()} | {:error, Exception.t()}
@@ -15,7 +15,7 @@ defmodule DSpace.Api.HttpClient.Req do
   end
 
   @doc """
-    Executes a HTTP request and returns a response or raises on errors.
+  Executes an HTTP request and returns a response or raises on errors.
   """
   @impl true
   @spec request!(keyword()) :: map() | Exception.t()

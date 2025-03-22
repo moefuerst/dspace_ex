@@ -1,13 +1,12 @@
 defmodule DSpace.Api.Metadata.Value do
   @moduledoc """
-  Represents a single DSpace REST API metadata value.
-
-  Provides runtime validation of metadata values according to DSpace's constraints.
+  Represents a single DSpace API metadata value.
 
   A metadata value in DSpace can have additional properties like language, an authority key, and security level alongside its main content.
 
   ## Example
 
+  ```elixir
   %DSpace.Api.Metadata.Value{
     value: "Telefonaktiebolaget LM Ericsson",
     language: "se",
@@ -15,7 +14,9 @@ defmodule DSpace.Api.Metadata.Value do
     confidence: 600,
     place: 0
   }
+  ```
 
+  The module provides runtime validation of metadata values according to DSpace's constraints.
   """
 
   @typedoc """
@@ -132,13 +133,16 @@ defmodule DSpace.Api.Metadata.Value do
   def schema, do: @schema
 
   @doc """
-  Validates a metadata value map against the schema.
+  Validates a metadata value map against the schema and returns the map or an error.
   """
   @spec validate(map()) :: {:ok, map()} | {:error, NimbleOptions.ValidationError.t()}
   def validate(metadata) when is_map(metadata) do
     NimbleOptions.validate(metadata, @schema)
   end
 
+  @doc """
+  Validates a metadata value map against the schema and returns the map or raises on errors.
+  """
   @spec validate!(map()) :: map() | NimbleOptions.ValidationError.t()
   def validate!(metadata) when is_map(metadata) do
     NimbleOptions.validate!(metadata, @schema)
