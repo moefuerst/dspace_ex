@@ -3,6 +3,15 @@ defmodule DSpace.Api.Object do
   Common attributes shared by all DSpace Objects (communities, collections, items, bundles, bitstreams, e-persons, groups, policies, etc.)
   """
 
+  defstruct [
+    :uuid,
+    :name,
+    :handle,
+    :type,
+    :last_modified,
+    links: %{}
+  ]
+
   @typedoc """
   _links structure. ("HAL" "convention")
 
@@ -37,16 +46,7 @@ defmodule DSpace.Api.Object do
           links: links()
         }
 
-  defstruct [
-    :uuid,
-    :name,
-    :handle,
-    :type,
-    :last_modified,
-    links: %{}
-  ]
-
-  ### Public API
+  # Public API
 
   @doc """
   Creates an Object struct from a DSpace API response.

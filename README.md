@@ -38,7 +38,7 @@ At the moment, this library doesn't abstract this uncommon requirement. You must
 2. Use that token to authenticate via login (if necessary)
 3. Keep using the token (which may be refreshed) for all subsequent unsafe methods
 
-For your convenience, the request building pipeline will fail fast if a CSRF token is not provided for modifying operations (i.e. before actually making the request). Additionally, the `DSpace.Api` module provides the helper functions `with_token_from_response/2` and `extract_csrf/1` (see docs) to help you manage the token.
+For your convenience, the request building pipeline will fail fast if a CSRF token is not provided for modifying operations (i.e. before actually making the request). Additionally, the helper functions `DSpace.Api.with_token_from_response/2` and `DSpace.Api.Response.extract_csrf/1` (see docs) are provided to help you manage the token.
 
 ### Compatibility
 

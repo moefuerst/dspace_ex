@@ -19,6 +19,17 @@ defmodule DSpace.Api.Metadata.Value do
   The module provides runtime validation of metadata values according to DSpace's constraints.
   """
 
+  @enforce_keys [:value]
+  defstruct [
+    :value,
+    :language,
+    :authority,
+    :confidence,
+    :place,
+    # sic! camelcase
+    :securityLevel
+  ]
+
   @typedoc """
   DSpace API metadata value
 
@@ -74,17 +85,6 @@ defmodule DSpace.Api.Metadata.Value do
   * 2 - Admin/Owner: Available only to administrators and entity owner
   """
   @type security_level :: 0 | 1 | 2
-
-  @enforce_keys [:value]
-  defstruct [
-    :value,
-    :language,
-    :authority,
-    :confidence,
-    :place,
-    # sic! camelcase
-    :securityLevel
-  ]
 
   @schema NimbleOptions.new!(
             value: [

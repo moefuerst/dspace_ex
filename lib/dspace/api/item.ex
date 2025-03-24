@@ -5,6 +5,15 @@ defmodule DSpace.Api.Item do
   In DSpace-CRIS, items represent different entity types (Publication, Person, Project, etc.) as defined by the `entityType` field.
   """
 
+  defstruct [
+    :object,
+    :in_archive,
+    :discoverable,
+    :withdrawn,
+    :entity_type,
+    :metadata
+  ]
+
   @typedoc """
   A DSpace Item struct.
 
@@ -24,15 +33,6 @@ defmodule DSpace.Api.Item do
           entity_type: binary(),
           metadata: DSpace.Api.Metadata.t()
         }
-
-  defstruct [
-    :object,
-    :in_archive,
-    :discoverable,
-    :withdrawn,
-    :entity_type,
-    :metadata
-  ]
 
   # Public API
 
@@ -58,7 +58,7 @@ defmodule DSpace.Api.Item do
   @doc """
   Fetches a DSpace item by UUID.
 
-  The /core/items endpoint bypasses SOLR (?), giving us the item data directly.
+  The /core/items endpoint bypasses SOLR, giving us the item data directly.
   """
   @spec fetch(DSpace.Api.t(), binary()) :: {:ok, t()} | {:error, term()}
   def fetch(%DSpace.Api{} = client, uuid) when is_binary(uuid) do

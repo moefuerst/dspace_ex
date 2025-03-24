@@ -16,15 +16,20 @@ defmodule DSpace.Api.HttpClient do
 
   Options passed to individual requests are merged with these defaults, with the former taking precedence.
 
-  ## Options
-  The implementation has to support the following options:
-
+  ## Options passed to requests
+  The implementation supports the following options:
   * `:auth` - Contains a bearer token. Implementation needs to set the correct authorization header.
   * `:base_url` - If set, implementation needs to prepend `url` with this base URL.
   * `:body` - request body
   * `:headers` - request headers
   * `:method` - verb as atom (`:get`, `:post`, etc.). Implementation must default to `:get` if none given.
   * `:url` - request URL or path
+
+  ## Response
+  The implementation returns the response as a map with the keys:
+  * `:status` - HTTP status code as integer
+  * `:headers` - response headers as as a map
+  * `:body` - response body is already parsed and decoded into a map
   """
 
   @typedoc """
@@ -41,11 +46,17 @@ defmodule DSpace.Api.HttpClient do
 
   @type options :: required_options() | keyword()
 
-  @type response :: %{
-          body: binary() | term(),
-          headers: %{optional(binary()) => [binary()]},
-          status: non_neg_integer()
-        }
+  @typedoc """
+  Response fields implementations have to support.
+  """
+  @type required_response ::
+          %{
+            status: non_neg_integer(),
+            headers: %{optional(binary()) => [binary()]},
+            body: map()
+          }
+
+  @type response :: required_response() | map()
 
   @doc """
   Executes an HTTP request and returns a response or an error.
