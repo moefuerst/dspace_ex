@@ -1,10 +1,11 @@
-defmodule DSpace.Api.HttpClient do
+defmodule DSpace.Api.Http do
   @moduledoc """
-  Specifies the behaviour for an HTTP client to interact with the DSpace API.
+  Specifies the behaviour for an HTTP client.
 
-  All request parameters and client configuration options are passed as a single keyword list to the `request/1` and `request!/1` functions.
+  The implementation comes with batteries included (JSON de/serialization, retry, connection pooling, timeouts, etc.) with sensible defaults provided. All request parameters and client configuration options are passed as a single keyword list to the `request/1` function.
 
   ## Client configuration
+
   Client defaults can be set in the `client_impl` tuple when injecting the implementation into a `DSpace.Api` struct:
 
   ```elixir
@@ -17,19 +18,22 @@ defmodule DSpace.Api.HttpClient do
   Options passed to individual requests are merged with these defaults, with the former taking precedence.
 
   ## Options passed to requests
+
   The implementation supports the following options:
   * `:auth` - Contains a bearer token. Implementation needs to set the correct authorization header.
   * `:base_url` - If set, implementation needs to prepend `url` with this base URL.
   * `:body` - request body
   * `:headers` - request headers
-  * `:method` - verb as atom (`:get`, `:post`, etc.). Implementation must default to `:get` if none given.
+  * `:method` - verb as atom (`:get`, `:post`, etc.). Implementation must default to `GET` request if none given.
   * `:url` - request URL or path
 
   ## Response
+
   The implementation returns the response as a map with the keys:
   * `:status` - HTTP status code as integer
-  * `:headers` - response headers as as a map
+  * `:headers` - HTTP response headers as a map
   * `:body` - response body is already parsed and decoded into a map
+  * `:trailers` - HTTP response trailers as a map
   """
 
   @typedoc """
@@ -53,7 +57,8 @@ defmodule DSpace.Api.HttpClient do
           %{
             status: non_neg_integer(),
             headers: %{optional(binary()) => [binary()]},
-            body: map()
+            body: map(),
+            trailers: %{optional(binary()) => [binary()]}
           }
 
   @type response :: required_response() | map()
@@ -63,18 +68,20 @@ defmodule DSpace.Api.HttpClient do
   """
   @callback request(options()) :: {:ok, response()} | {:error, Exception.t()}
 
+  # API for internal library use
+
   @doc false
+  @spec request(module(), options()) :: {:ok, response()} | {:error, Exception.t()}
   def request(module, options) do
     module.request(options)
   end
 
-  @doc """
-  Executes an HTTP request and returns a response or raises on errors.
-  """
-  @callback request!(options()) :: response() | Exception.t()
-
   @doc false
+  @spec request!(module(), options()) :: response() | Exception.t()
   def request!(module, options) do
-    module.request!(options)
+    case module.request(options) do
+      {:ok, response} -> response
+      {:error, error} -> raise error
+    end
   end
 end
