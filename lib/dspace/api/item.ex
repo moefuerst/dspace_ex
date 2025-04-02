@@ -34,6 +34,8 @@ defmodule DSpace.Api.Item do
           metadata: DSpace.Api.Metadata.t()
         }
 
+  @ep_url "/api/core/items"
+
   # Public API
 
   @doc """
@@ -62,7 +64,7 @@ defmodule DSpace.Api.Item do
   """
   @spec fetch(DSpace.Api.t(), binary()) :: {:ok, t()} | {:error, term()}
   def fetch(%DSpace.Api{} = client, uuid) when is_binary(uuid) do
-    case DSpace.Api.request(client, url: "/api/core/items/#{uuid}") do
+    case DSpace.Api.request(client, url: "#{@ep_url}/#{uuid}") do
       {:ok, response} ->
         {:ok, from_response(response.body)}
 

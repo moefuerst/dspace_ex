@@ -2,7 +2,7 @@ defmodule DSpace.Api.HttpTest do
   @moduledoc """
   Tests for Http behavior.
 
-  The behavior was basically designed by working backwards from Req's API. We verify that the default implementation maintains compatibility with the specific options defined in the contract to prevent regressions in case of a dependency breaking change.
+  The behavior basically aligns with Req's API. We verify that the default implementation maintains compatibility with the specific options defined in the contract to prevent regressions in case of a dependency breaking change.
   """
   use ExUnit.Case, async: true
 
@@ -72,10 +72,10 @@ defmodule DSpace.Api.HttpTest do
     @doc """
     Verifies that the client treats 5xx responses as regular responses and not exceptions.
 
-    Background: Many other HTTP clients raise exceptions for 5xx responses, Req (and therefore our implementation) returns them as regular response maps.
+    Background: Many other clients raise errors on HTTP 5xx responses, Req (and therefore our implementation) returns them as regular `{:ok, response}` tuples.
 
     Demonstrates that:
-    * 500 responses don't raise exceptions
+    * 500 responses don't raise errors
     * Response status and body are returned normally
     * JSON parsing still works for error responses
     """

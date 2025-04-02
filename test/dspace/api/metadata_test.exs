@@ -13,10 +13,10 @@ defmodule DSpace.Api.MetadataTest do
 
   @doc """
   Tests that metadata normalization:
-  - Removes bullshit placeholder values
-  - Removes empty/nil optional properties
-  - Handles place values correctly (removes place: 0 when single value)
-  - Maintains correct structure and required fields
+  * Removes bullshit placeholder values
+  * Removes empty/nil optional properties
+  * Handles place values correctly (removes place: 0 when single value)
+  * Maintains correct structure and required fields
   """
   @tag property: true
   test "normalizes DSpace metadata by filtering bullshit values and empty props", %{
@@ -24,14 +24,11 @@ defmodule DSpace.Api.MetadataTest do
   } do
     check all(
             values <- list_of(metadata_value(), min_length: 2)
-            # max_runs: 2
+            # max_runs: 100
           ) do
       metadata = setup_test_metadata(values)
-      # IO.puts("\nTest run with:")
-      # IO.inspect(metadata, label: "Input metadata", pretty: true)
 
       normalized = DSpace.Api.Metadata.normalize(metadata)
-      # IO.inspect(normalized, label: "Normalized output", pretty: true)
 
       assert_bullshit_removal(metadata, normalized)
       assert_value_properties(normalized)
@@ -73,7 +70,6 @@ defmodule DSpace.Api.MetadataTest do
 
     # Verify each normalized Metadata value and its props
     Enum.each(normalized_values, fn normalized_value ->
-      # Must ALWAYS have a value
       assert Map.has_key?(normalized_value, :value),
              "Normalized metadata value must have a :value field"
 
@@ -88,7 +84,7 @@ defmodule DSpace.Api.MetadataTest do
         # Special case for confidence where we remove the default
         {:confidence, v} ->
           refute v == -1,
-                 "Default confidence value of -1 should have been removed"
+                 "Default confidence value of -1 not removed by normalization"
 
         # All other fields
         {k, v} ->
@@ -105,7 +101,6 @@ defmodule DSpace.Api.MetadataTest do
     input_values = metadata[@metadata_key]
     normalized_values = normalized[@metadata_key]
 
-    # Place removal
     if length(normalized_values) == 1 and match?([%{"place" => 0}], input_values) do
       refute Map.has_key?(hd(normalized_values), :place),
              "Place field should be removed when it's the only value and place is 0"
@@ -148,12 +143,26 @@ defmodule DSpace.Api.MetadataTest do
 
   defp metadata_value do
     fixed_map(%{
-      "value" => string(:alphanumeric, min_length: 5, max_length: 50),
+      "value" =>
+        one_of([
+          string(:alphanumeric, min_length: 5, max_length: 50),
+          constant(" "),
+          constant("\t\n\r"),
+          string(:printable, min_length: 1)
+        ]),
       "authority" =>
-        one_of([string(:alphanumeric, min_length: 36, max_length: 50), constant(nil)]),
+        one_of([
+          string(:alphanumeric, min_length: 36, max_length: 50),
+          constant(nil)
+        ]),
       "confidence" => one_of(Enum.map(@valid_confidence_levels, &constant/1)),
       "place" => integer(-1..100),
-      "language" => one_of([constant(nil), constant(""), member_of(@valid_languages)])
+      "language" =>
+        one_of([
+          constant(""),
+          constant(nil),
+          member_of(@valid_languages)
+        ])
     })
   end
 end

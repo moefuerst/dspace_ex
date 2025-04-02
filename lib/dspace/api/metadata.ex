@@ -6,21 +6,22 @@ defmodule DSpace.Api.Metadata do
 
   ## Example
 
-  %{
-    "dc.title" => [
       %{
-        value: "Making reliable distributed systems in the presence of software errors",
-        language: "en"
+        "dc.title" => [
+          %{
+            value: "Making reliable distributed systems in the presence of software errors",
+            language: "en"
+          }
+        ],
+        "dc.contributor.author" => [
+          %{
+            value: "Armstrong, Joe",
+            authority: "550e8400-e29b-41d4-a716-446655440000",
+            confidence: 600
+          }
+        ]
       }
-    ],
-    "dc.contributor.author" => [
-      %{
-        value: "Armstrong, Joe",
-        authority: "550e8400-e29b-41d4-a716-446655440000",
-        confidence: 600
-      }
-    ]
-  }
+
   """
 
   @type t :: %{binary() => [%{binary() => binary() | integer() | nil}]}
@@ -43,36 +44,36 @@ defmodule DSpace.Api.Metadata do
 
   ## Examples
 
-  iex> DSpace.Api.Metadata.normalize(%{
-  ...>   "dc.contributor.author" => [
-  ...>     %{"value" => "Armstrong, Joe", "language" => nil, "authority" => "550e8400-e29b-41d4-a716-446655440000", "confidence" => 600, "place" => 0},
-  ...>     %{"value" => "Armstrong, Neil", "language" => nil, "authority" => nil, "confidence" => -1, "place" => 1},
-  ...>     %{"value" => "#PLACEHOLDER_PARENT_METADATA_VALUE#", "language" => nil, "authority" => nil, "confidence" => -1, "place" => 2}
-  ...>   ]
-  ...> })
-  %{"dc.contributor.author" => [
-      %{value: "Armstrong, Joe", authority: "550e8400-e29b-41d4-a716-446655440000", confidence: 600, place: 0},
-      %{value: "Armstrong, Neil", place: 1}
-    ]}
+      iex> DSpace.Api.Metadata.normalize(%{
+      ...>   "dc.contributor.author" => [
+      ...>     %{"value" => "Armstrong, Joe", "language" => nil, "authority" => "550e8400-e29b-41d4-a716-446655440000", "confidence" => 600, "place" => 0},
+      ...>     %{"value" => "Armstrong, Neil", "language" => nil, "authority" => nil, "confidence" => -1, "place" => 1},
+      ...>     %{"value" => "#PLACEHOLDER_PARENT_METADATA_VALUE#", "language" => nil, "authority" => nil, "confidence" => -1, "place" => 2}
+      ...>   ]
+      ...> })
+      %{"dc.contributor.author" => [
+            %{value: "Armstrong, Joe", authority: "550e8400-e29b-41d4-a716-446655440000", confidence: 600, place: 0},
+            %{value: "Armstrong, Neil", place: 1}
+          ]}
 
-  iex> DSpace.Api.Metadata.normalize(%{
-  ...>   "oairecerif.author.affiliation" => [
-  ...>     %{"value" => "Telefonaktiebolaget LM Ericsson", "language" => nil, "authority" => nil, "confidence" => -1, "place" => 0},
-  ...>     %{"value" => "#PLACEHOLDER_PARENT_METADATA_VALUE#", "language" => nil, "authority" => nil, "confidence" => -1, "place" => 1},
-  ...>     %{"value" => "#PLACEHOLDER_PARENT_METADATA_VALUE#", "language" => nil, "authority" => nil, "confidence" => -1, "place" => 2}
-  ...>   ]
-  ...> })
-  %{"oairecerif.author.affiliation" => [
-      %{value: "Telefonaktiebolaget LM Ericsson"}
-    ]}
+      iex> DSpace.Api.Metadata.normalize(%{
+      ...>   "oairecerif.author.affiliation" => [
+      ...>     %{"value" => "Telefonaktiebolaget LM Ericsson", "language" => nil, "authority" => nil, "confidence" => -1, "place" => 0},
+      ...>     %{"value" => "#PLACEHOLDER_PARENT_METADATA_VALUE#", "language" => nil, "authority" => nil, "confidence" => -1, "place" => 1},
+      ...>     %{"value" => "#PLACEHOLDER_PARENT_METADATA_VALUE#", "language" => nil, "authority" => nil, "confidence" => -1, "place" => 2}
+      ...>   ]
+      ...> })
+      %{"oairecerif.author.affiliation" => [
+            %{value: "Telefonaktiebolaget LM Ericsson"}
+          ]}
 
-  iex> DSpace.Api.Metadata.normalize(%{
-  ...>   "dc.title" => [
-  ...>     %{"value" => "Reliable systems", "language" => nil, "authority" => nil, "confidence" => nil, "place" => 0, "security_level" => nil,}]
-  ...> })
-  %{"dc.title" => [
-      %{value: "Reliable systems"}
-    ]}
+      iex> DSpace.Api.Metadata.normalize(%{
+      ...>   "dc.title" => [
+      ...>     %{"value" => "Reliable systems", "language" => nil, "authority" => nil, "confidence" => nil, "place" => 0, "security_level" => nil,}]
+      ...> })
+      %{"dc.title" => [
+            %{value: "Reliable systems"}
+          ]}
   """
   @spec normalize(map()) :: t()
   def normalize(metadata) when is_map(metadata) do

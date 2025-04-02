@@ -2,24 +2,22 @@ defmodule DSpace.Api.Http do
   @moduledoc """
   Specifies the behaviour for an HTTP client.
 
-  The implementation comes with batteries included (JSON de/serialization, retry, connection pooling, timeouts, etc.) with sensible defaults provided. All request parameters and client configuration options are passed as a single keyword list to the `request/1` function.
+  An implementation comes with batteries included (JSON de/serialization, retry, connection pooling, timeouts, etc.) with sensible defaults provided. All request parameters and client configuration options are passed as a single keyword list to the `request/1` function.
 
   ## Client configuration
 
   Client defaults can be set in the `client_impl` tuple when injecting the implementation into a `DSpace.Api` struct:
 
-  ```elixir
-  %DSpace.Api{
-    endpoint: "https://example.com/server",
-    client_impl: {My.Http.Client, [pool_timeout: 5000]}
-  }
-  ```
+      %DSpace.Api{
+        endpoint: "https://example.com/server",
+        client_impl: {My.Http.Client, [pool_timeout: 5000]}
+      }
 
   Options passed to individual requests are merged with these defaults, with the former taking precedence.
 
   ## Options passed to requests
 
-  The implementation supports the following options:
+  An implementation supports the following options:
   * `:auth` - Contains a bearer token. Implementation needs to set the correct authorization header.
   * `:base_url` - If set, implementation needs to prepend `url` with this base URL.
   * `:body` - request body
@@ -29,7 +27,7 @@ defmodule DSpace.Api.Http do
 
   ## Response
 
-  The implementation returns the response as a map with the keys:
+  An implementation returns the response as a map with the keys:
   * `:status` - HTTP status code as integer
   * `:headers` - HTTP response headers as a map
   * `:body` - response body is already parsed and decoded into a map
@@ -48,6 +46,7 @@ defmodule DSpace.Api.Http do
           url: URI.t() | binary()
         ]
 
+  @typedoc false
   @type options :: required_options() | keyword()
 
   @typedoc """
@@ -61,6 +60,7 @@ defmodule DSpace.Api.Http do
             trailers: %{optional(binary()) => [binary()]}
           }
 
+  @typedoc false
   @type response :: required_response() | map()
 
   @doc """
