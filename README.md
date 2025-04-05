@@ -52,6 +52,8 @@ The project documentation can be generated with `mix docs`. You can then open `d
 
 ```shell
 $ mix test
+
+$ mix test --include integration
 ```
 
 ## Contributing

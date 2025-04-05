@@ -19,12 +19,12 @@ defmodule DSpace.Api.Metadata.Value do
   @enforce_keys [:value]
   defstruct [
     :value,
-    :language,
-    :authority,
-    :confidence,
-    :place,
+    language: nil,
+    authority: nil,
+    confidence: -1,
+    place: nil,
     # sic! camelcase
-    :securityLevel
+    securityLevel: nil
   ]
 
   @typedoc """

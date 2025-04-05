@@ -4,6 +4,8 @@ defmodule DSpace.Api.Metadata do
 
   DSpace metadata consists of qualified key-value pairs, where each key has the actual value and additional properties.
 
+  Note: We use plain maps with only the necessary fields rather than full `DSpace.Api.Metadata.Value` structs for internal consumption— Handling large collections of items with many metadata fields can quickly lead to unnecessary bloat.
+
   ## Example
 
       %{
@@ -31,7 +33,7 @@ defmodule DSpace.Api.Metadata do
   # TODO: "Virtual" metadata *sigh*
   # @virtual_metadata_prefix "virtual::"
 
-  # TODO: Deal with item reference resolution values
+  # TODO: Deal with item reference resolution values?
   # @item_reference_prefix "will be referenced::"
 
   # Public API
@@ -99,6 +101,11 @@ defmodule DSpace.Api.Metadata do
   end
 
   def normalize_with_type(_), do: {%{}, nil}
+
+  @doc false
+  def placeholder_value do
+    @bullshit
+  end
 
   # Private Helpers
 
