@@ -12,7 +12,7 @@ defmodule DSpace.Api do
             access_token: nil,
             csrf_token: nil,
             api_version: @api_version,
-            client_impl: {DSpace.Api.HttpClient.Req, [json: true]}
+            client_impl: {DSpace.Api.Http.Req, [json: true]}
 
   @typedoc """
   The DSpace API client struct.
@@ -148,10 +148,12 @@ defmodule DSpace.Api do
         {current_api, request_options} ->
           case request(current_api, request_options) do
             {:ok, response} ->
-              resources = extract_fn.(response)
+              resources = extract_fn.(response.body)
               transformed = Enum.map(resources, transform_fn)
+
               updated_api = with_token_from_response(current_api, response)
               next_options = DSpace.Api.Response.Page.next(response, request_options)
+
               {transformed, {updated_api, next_options}}
 
             {:error, _} ->

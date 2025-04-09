@@ -76,18 +76,12 @@ defmodule DSpace.Api.Response.Page do
   """
   @spec next(map(), keyword()) :: keyword() | nil
   def next(response, options) do
-    case get_in(response.body, ["_links", "next", "href"]) do
-      next_url when is_binary(next_url) ->
-        uri = URI.parse(next_url)
-        page_params = URI.decode_query(uri.query || "") |> Map.to_list()
-        existing_params = Keyword.get(options, :params, [])
-
+    case from_response(response.body) do
+      %{next_page: next_page} when is_binary(next_page) and next_page != "" ->
         options
-        # Remove base endpoint to avoid concatenation
         |> Keyword.delete(:base_url)
-        # Full url from the response
-        |> Keyword.put(:url, next_url)
-        |> Keyword.put(:params, Keyword.merge(existing_params, page_params))
+        |> Keyword.put(:url, next_page)
+        |> Keyword.delete(:params)
 
       _ ->
         nil

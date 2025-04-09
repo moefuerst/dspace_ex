@@ -39,14 +39,6 @@ defmodule DSpace.Api.Response do
   end
 
   @doc """
-  Extracts Item resources from a standard collection response.
-  """
-  @spec extract_items(response :: map()) :: list()
-  def extract_items(response) do
-    extract_resources(response, ["_embedded", "items"])
-  end
-
-  @doc """
   Extracts pagination information from a response.
   """
   @spec pagination(response :: map()) :: DSpace.Api.Response.Page.t() | nil
@@ -61,7 +53,8 @@ defmodule DSpace.Api.Response do
   """
   @spec extract_csrf(response :: map()) :: binary() | nil
   def extract_csrf(%{headers: headers}) do
-    headers["dspace-xsrf-token"]
+    token = headers["dspace-xsrf-token"]
+    if is_list(token), do: List.first(token), else: token
   end
 
   @doc """
