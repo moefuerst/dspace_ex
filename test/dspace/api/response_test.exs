@@ -40,7 +40,7 @@ defmodule DSpace.Api.ResponseTest do
     end
 
     test "handles connection errors" do
-      conn_error = {:error, :econnrefused}
+      conn_error = {:error, %{reason: :econnrefused}}
 
       assert {:error, %Error{}} = Response.normalize(conn_error),
              "Expected connection error to be transformed to Error struct"

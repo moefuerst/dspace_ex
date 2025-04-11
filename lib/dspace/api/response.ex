@@ -95,7 +95,7 @@ defmodule DSpace.Api.Response do
   end
 
   # Other transport, protocol, etc. errors
-  def normalize({:error, reason}) do
+  def normalize({:error, %{reason: reason} = _exception}) do
     {:error, Error.connection_error(reason)}
   end
 

@@ -3,11 +3,10 @@ defmodule DSpace.Api.Error do
   Represents errors from the DSpace API.
   """
 
-  defstruct [:type, :status, :message, :response, :reason]
+  defstruct [:type, :message, :response, :reason]
 
   @type t :: %__MODULE__{
           type: error_type(),
-          status: non_neg_integer() | nil,
           message: String.t() | nil,
           response: map() | nil,
           reason: term() | nil
@@ -45,36 +44,32 @@ defmodule DSpace.Api.Error do
   @spec from_response(map()) :: t()
   def from_response(%{status: 403, body: body} = response) do
     type = if csrf_token_error?(body), do: :api_csrf_invalid, else: :forbidden
-    build(type, 403, body, response)
+    build(type, body, response)
   end
 
   def from_response(%{status: status, body: body} = response) when status in 400..499 do
     type = @client_error_status_map[status] || :bad_request
-    build(type, status, body, response)
+    build(type, body, response)
   end
 
   def from_response(%{status: status, body: body} = response) when status >= 500 do
-    build(:server_error, status, body, response)
+    build(:server_error, body, response)
   end
 
   # Responses without a body
   def from_response(%{status: status} = response) when status in 400..499 do
     type = @client_error_status_map[status] || :bad_request
-    build(type, status, %{}, response)
+    build(type, %{}, response)
   end
 
   def from_response(%{status: status} = response) when status >= 500 do
-    build(:server_error, status, %{}, response)
+    build(:server_error, %{}, response)
   end
 
   @doc """
   Creates a connection error.
   """
   @spec connection_error(term()) :: t()
-  def connection_error(%{reason: inner_reason} = _reason) do
-    %__MODULE__{type: :api_connection, message: "Connection error", reason: inner_reason}
-  end
-
   def connection_error(reason) do
     %__MODULE__{type: :api_connection, message: "Connection error", reason: reason}
   end
@@ -99,10 +94,9 @@ defmodule DSpace.Api.Error do
 
   # Private helpers
 
-  defp build(type, status, body, response) do
+  defp build(type, body, response) do
     %__MODULE__{
       type: type,
-      status: status,
       message: extract_message(body) || default_message(type),
       response: response
     }
