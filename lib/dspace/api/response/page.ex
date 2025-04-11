@@ -79,8 +79,9 @@ defmodule DSpace.Api.Response.Page do
     case from_response(response.body) do
       %{next_page: next_page} when is_binary(next_page) and next_page != "" ->
         options
-        |> Keyword.delete(:base_url)
         |> Keyword.put(:url, next_page)
+        # next_page is a full URL already including all necessary query parameters
+        |> Keyword.delete(:base_url)
         |> Keyword.delete(:params)
 
       _ ->

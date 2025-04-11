@@ -71,6 +71,10 @@ defmodule DSpace.Api.Error do
   Creates a connection error.
   """
   @spec connection_error(term()) :: t()
+  def connection_error(%{reason: inner_reason} = _reason) do
+    %__MODULE__{type: :api_connection, message: "Connection error", reason: inner_reason}
+  end
+
   def connection_error(reason) do
     %__MODULE__{type: :api_connection, message: "Connection error", reason: reason}
   end
@@ -78,8 +82,8 @@ defmodule DSpace.Api.Error do
   @doc """
   Creates a timeout error.
   """
-  @spec timeout_error(term()) :: t()
-  def timeout_error(reason) do
+  @spec timeout_error(term() | nil) :: t()
+  def timeout_error(reason \\ nil) do
     %__MODULE__{type: :api_timeout, message: "Request timed out", reason: reason}
   end
 

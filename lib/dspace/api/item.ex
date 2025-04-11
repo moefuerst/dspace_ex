@@ -55,6 +55,8 @@ defmodule DSpace.Api.Item do
   def from_response(body) when is_map(body) do
     {normalized_metadata, entity_type} = DSpace.Api.Metadata.normalize_with_type(body["metadata"])
 
+    # TODO: extract embeds
+
     %__MODULE__{
       object: DSpace.Api.Object.from_response(body),
       in_archive: Map.get(body, "inArchive", false),

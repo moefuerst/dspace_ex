@@ -85,13 +85,13 @@ defmodule DSpace.Api.Response do
   end
 
   # Req, Finch, Mint-style timeout
-  def normalize({:error, %{reason: :timeout} = exception}) do
-    {:error, Error.timeout_error(exception)}
+  def normalize({:error, %{reason: :timeout} = _exception}) do
+    {:error, Error.timeout_error()}
   end
 
   # Hackney-style timeout
   def normalize({:error, :connect_timeout}) do
-    {:error, Error.timeout_error(:connect_timeout)}
+    {:error, Error.timeout_error()}
   end
 
   # Other transport, protocol, etc. errors
