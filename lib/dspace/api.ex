@@ -5,7 +5,8 @@ defmodule DSpace.Api do
   Provides credentials and connection details for making requests to the API.
   """
 
-  @api_version "DSpace 7.6.1"
+  # DSpace 7.6.1
+  @api_version "7.6.1"
 
   @derive {Inspect, except: [:access_token, :csrf_token]}
   defstruct endpoint: nil,
@@ -24,7 +25,7 @@ defmodule DSpace.Api do
   * `:client_impl` - HTTP client implementation and options as {module, options}
   """
   @type t :: %__MODULE__{
-          endpoint: binary(),
+          endpoint: binary() | nil,
           access_token: binary() | nil,
           csrf_token: binary() | nil,
           api_version: binary(),
@@ -95,7 +96,7 @@ defmodule DSpace.Api do
 
   Generally intended to be used internally, but can be used by end-users to work around missing endpoints/functionality.
   """
-  @spec request(api :: t(), options :: keyword()) :: {:ok, map()} | {:error, term()}
+  @spec request(api :: t(), options :: keyword()) :: {:ok, map()} | {:error, DSpace.Api.Error.t()}
   def request(%__MODULE__{endpoint: endpoint} = api, options) when is_list(options) do
     {client_impl, client_options} = api.client_impl
 
@@ -165,17 +166,25 @@ defmodule DSpace.Api do
   end
 
   @doc """
+  Authenticates with the DSpace API using the provided credentials.
+
+  Returns a client with updated tokens or an error.
+
+  ## Examples
+
+      # Authenticate and get a client with auth tokens
+      {:ok, api_with_access_token} = DSpace.login(api, "user@example.com", "password")
+  """
+  @spec login(api :: t(), binary(), binary()) :: {:ok, t()} | {:error, DSpace.Api.Error.t()}
+  defdelegate login(api, username, password), to: DSpace.Api.Auth
+
+  @doc """
   Verifies if the current client is authenticated with the DSpace backend.
 
-  Also returns false if the check fails.
+  Also returns `false` if the check fails.
   """
   @spec authenticated?(api :: t()) :: boolean()
-  def authenticated?(%__MODULE__{} = api) do
-    case request(api, url: "/api/authn/status") do
-      {:ok, %{body: body}} -> Map.get(body, "authenticated", false)
-      {:error, _} -> false
-    end
-  end
+  defdelegate authenticated?(api), to: DSpace.Api.Auth
 
   # Private helpers
 

@@ -62,7 +62,7 @@ defmodule Dspace.MixProject do
 
   defp package do
     [
-      licenses: ["AGPL-3.0"],
+      licenses: ["AGPL-3.0-or-later"],
       links: %{"GitHub" => @source_url}
     ]
   end
