@@ -3,7 +3,7 @@ defmodule TestHelper do
   Loads a JSON fixture as a string (for use with Bypass)
   """
   def load_fixture(path) do
-    Path.join(["test", "fixtures", path])
+    Path.join(["test", "support", "fixtures", path])
     |> File.read!()
   end
 
