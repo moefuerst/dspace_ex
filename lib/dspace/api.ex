@@ -96,7 +96,8 @@ defmodule DSpace.Api do
 
   Generally intended to be used internally, but can be used by end-users to work around missing endpoints/functionality.
   """
-  @spec request(api :: t(), options :: keyword()) :: {:ok, map()} | {:error, DSpace.Api.Error.t()}
+  @spec request(api :: t(), options :: keyword()) ::
+          {:ok, map()} | {:error, DSpace.Api.Error.t() | Exception.t()}
   def request(%__MODULE__{endpoint: endpoint} = api, options) when is_list(options) do
     {client_impl, client_options} = api.client_impl
 
@@ -137,18 +138,16 @@ defmodule DSpace.Api do
           {:halt, nil}
 
         {current_api, request_options} ->
-          case request(current_api, request_options) do
-            {:ok, response} ->
-              resources = extract_fn.(response.body)
-              transformed = Enum.map(resources, transform_fn)
-
-              updated_api = with_token_from_response(current_api, response)
-              next_options = DSpace.Api.Response.Page.next(response, request_options)
-
-              {transformed, {updated_api, next_options}}
-
-            {:error, _} ->
-              {:halt, nil}
+          with {:ok, response} <- request(current_api, request_options),
+               resources = extract_fn.(response.body),
+               transformed = Enum.map(resources, transform_fn),
+               updated_api = with_token_from_response(current_api, response),
+               next_options = DSpace.Api.Response.Page.next(response, request_options) do
+            if next_options,
+              do: {transformed, {updated_api, next_options}},
+              else: {transformed, nil}
+          else
+            _ -> {:halt, nil}
           end
       end,
       fn _ -> :ok end
@@ -161,7 +160,7 @@ defmodule DSpace.Api do
   Returns a client with updated tokens or an error.
   """
   @spec login(api :: t(), username :: binary(), password :: binary()) ::
-          {:ok, t()} | {:error, DSpace.Api.Error.t()}
+          {:ok, t()} | {:error, DSpace.Api.Error.t() | Exception.t()}
   defdelegate login(api, username, password), to: DSpace.Api.Auth
 
   @doc """
