@@ -121,17 +121,7 @@ defmodule DSpace.Api do
   * `extract_fn` - Function that extracts resources from a response
   * `transform_fn` - Function that transforms each resource (optional)
 
-  ## Example
-
-      # Stream all items with extraction and transformation
-      DSpace.Api.stream(
-        api,
-        [url: "/api/core/items"],
-        &DSpace.Api.Response.extract_items/1,
-        &DSpace.Api.Item.from_response/1
-      )
-      |> Enum.take(10)
-
+  Generally intended to be used internally.
   """
   @spec stream(
           api :: t(),
@@ -169,17 +159,13 @@ defmodule DSpace.Api do
   Authenticates with the DSpace API using the provided credentials.
 
   Returns a client with updated tokens or an error.
-
-  ## Examples
-
-      # Authenticate and get a client with auth tokens
-      {:ok, api_with_access_token} = DSpace.login(api, "user@example.com", "password")
   """
-  @spec login(api :: t(), binary(), binary()) :: {:ok, t()} | {:error, DSpace.Api.Error.t()}
+  @spec login(api :: t(), username :: binary(), password :: binary()) ::
+          {:ok, t()} | {:error, DSpace.Api.Error.t()}
   defdelegate login(api, username, password), to: DSpace.Api.Auth
 
   @doc """
-  Verifies if the current client is authenticated with the DSpace backend.
+  Verifies if the current client is authenticated with the DSpace API.
 
   Also returns `false` if the check fails.
   """

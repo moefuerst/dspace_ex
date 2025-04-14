@@ -8,7 +8,7 @@ defmodule DSpace.Api.ResponseTest do
     test "passes through successful responses" do
       successful_response = {:ok, %{status: 200, body: %{"data" => "value"}}}
 
-      assert Response.normalize(successful_response) == successful_response,
+      assert successful_response == Response.normalize(successful_response),
              "Expected successful response to pass through unchanged"
     end
 
@@ -49,6 +49,14 @@ defmodule DSpace.Api.ResponseTest do
 
       assert error.type == :api_connection,
              "Expected error type to be :api_connection for connection error"
+    end
+
+    # Bubble up other errors
+    test "passes through ArgumentError" do
+      error = {:error, %ArgumentError{message: "Invalid argument"}}
+
+      assert error == Response.normalize(error),
+             "Expected ArgumentError to pass through unchanged"
     end
   end
 

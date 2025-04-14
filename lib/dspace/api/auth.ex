@@ -8,7 +8,7 @@ defmodule DSpace.Api.Auth do
   @ep_csrf_url "/api/security/csrf"
 
   @doc """
-  Verifies if the current client is authenticated with the DSpace backend.
+  Verifies if the current client is authenticated with the DSpace API.
 
   Also returns false if the check fails.
   """
@@ -33,7 +33,7 @@ defmodule DSpace.Api.Auth do
 
     api_with_csrf
     |> attempt_login(username, password)
-    |> process_login_response(api_with_csrf, username, password)
+    |> process_login_response(api_with_csrf)
   end
 
   @doc """
@@ -62,40 +62,29 @@ defmodule DSpace.Api.Auth do
   defp with_csrf_token_if_missing(api), do: refresh_csrf_token(api)
 
   defp attempt_login(api, username, password) do
-    {client_impl, _} = api.client_impl
-
-    # Bypass the standard request pipeline, because it's configured for JSON.
-    # This is the only time we need a form request.
     form_body = URI.encode_query(user: username, password: password)
 
-    result =
-      DSpace.Api.Http.request(client_impl,
-        method: :post,
-        base_url: api.endpoint,
-        url: @ep_login_url,
-        body: form_body,
-        headers: [
-          {"content-type", "application/x-www-form-urlencoded"},
-          {"x-xsrf-token", api.csrf_token}
-        ]
-      )
-
-    DSpace.Api.Response.normalize(result)
+    Api.request(api,
+      method: :post,
+      url: @ep_login_url,
+      body: form_body,
+      headers: [{"content-type", "application/x-www-form-urlencoded"}],
+      json: false
+    )
   end
 
-  defp process_login_response({:ok, response}, api, _username, _password) do
+  defp process_login_response({:ok, response}, api) do
     access_token = extract_access_token(response)
 
     updated_api =
-      %Api{}
-      |> Api.with_endpoint(api.endpoint)
+      api
       |> Api.with_token_from_response(response)
       |> Api.with_access_token(access_token)
 
     {:ok, updated_api}
   end
 
-  defp process_login_response(error, _api, _username, _password), do: error
+  defp process_login_response(error, _api), do: error
 
   defp extract_access_token(%{headers: headers}) do
     token = headers["authorization"]
