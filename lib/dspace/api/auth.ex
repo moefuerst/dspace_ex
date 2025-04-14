@@ -26,7 +26,7 @@ defmodule DSpace.Api.Auth do
   Returns a client with updated tokens or an error.
   """
   @spec login(api :: Api.t(), username :: binary(), password :: binary()) ::
-          {:ok, Api.t()} | {:error, DSpace.Api.Error.t()}
+          {:ok, Api.t()} | {:error, DSpace.Api.Error.t() | Exception.t()}
   def login(%Api{} = api, username, password)
       when is_binary(username) and is_binary(password) do
     api_with_csrf = with_csrf_token_if_missing(api)

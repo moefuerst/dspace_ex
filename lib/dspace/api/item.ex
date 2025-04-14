@@ -6,7 +6,7 @@ defmodule DSpace.Api.Item do
   """
 
   defstruct [
-    :object,
+    :dspace_object,
     :in_archive,
     :discoverable,
     :withdrawn,
@@ -18,7 +18,7 @@ defmodule DSpace.Api.Item do
   A DSpace Item struct.
 
   ## Fields:
-  * `object`: `t:DSpace.Api.Object.t/0` with common attributes like UUID, name and modification date
+  * `dspace_object`: `t:DSpace.Api.Object.t/0` with common attributes like UUID, name and modification date
   * `in_archive`: Whether the item is successfully deposited in the repository and has passed all workflow steps (i.e. not a draft or in submission anymore)
   * `discoverable`: Whether the item is discoverable in search/browse/OAI results
   * `withdrawn`: Whether the item has been withdrawn (if true, only accessible to admins)
@@ -26,7 +26,7 @@ defmodule DSpace.Api.Item do
   * `metadata`: `t:DSpace.Api.Metadata.t/0` map where keys are metadata field names and values are lists of metadata value and props
   """
   @type t :: %__MODULE__{
-          object: DSpace.Api.Object.t(),
+          dspace_object: DSpace.Api.Object.t(),
           in_archive: boolean(),
           discoverable: boolean(),
           withdrawn: boolean(),
@@ -58,7 +58,7 @@ defmodule DSpace.Api.Item do
     # TODO: extract embeds
 
     %__MODULE__{
-      object: DSpace.Api.Object.from_response(body),
+      dspace_object: DSpace.Api.Object.from_response(body),
       in_archive: Map.get(body, "inArchive", false),
       discoverable: Map.get(body, "discoverable", true),
       withdrawn: Map.get(body, "withdrawn", false),
@@ -72,7 +72,8 @@ defmodule DSpace.Api.Item do
   @doc """
   Fetches a single item by UUID.
   """
-  @spec fetch(DSpace.Api.t(), binary()) :: {:ok, t()} | {:error, DSpace.Api.Error.t()}
+  @spec fetch(DSpace.Api.t(), binary()) ::
+          {:ok, t()} | {:error, DSpace.Api.Error.t() | Exception.t()}
   def fetch(%DSpace.Api{} = client, uuid) when is_binary(uuid) do
     case DSpace.Api.request(client, url: "#{@ep_url}/#{uuid}") do
       {:ok, response} ->
@@ -102,7 +103,7 @@ defmodule DSpace.Api.Item do
     * `:all` - Include all related resources
   """
   @spec fetch_all(DSpace.Api.t(), fetch_all_opts()) ::
-          {:ok, [t()]} | {:error, DSpace.Api.Error.t()}
+          {:ok, [t()]} | {:error, DSpace.Api.Error.t() | Exception.t()}
   def fetch_all(%DSpace.Api{} = client, opts \\ []) do
     params =
       []
@@ -117,18 +118,10 @@ defmodule DSpace.Api.Item do
       &from_response/1
     )
     |> maybe_add_limit(opts[:limit])
-    |> collect_results()
+    |> then(&{:ok, Enum.to_list(&1)})
   end
 
   # Private Helpers
-
-  defp collect_results(stream) do
-    {:ok, Enum.to_list(stream)}
-  catch
-    kind, reason ->
-      error = DSpace.Api.Error.connection_error(%{type: kind, reason: reason})
-      {:error, error}
-  end
 
   defp maybe_add_filter(params, _key, nil), do: params
   defp maybe_add_filter(params, key, value), do: Keyword.put(params, key, value)

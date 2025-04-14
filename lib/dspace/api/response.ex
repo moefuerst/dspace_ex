@@ -79,7 +79,7 @@ defmodule DSpace.Api.Response do
   Errors are normalized using `DSpace.Api.Error`.
   """
   @spec normalize({:ok, map()} | {:error, term()}) ::
-          {:ok, map()} | {:error, DSpace.Api.Error.t()}
+          {:ok, map()} | {:error, DSpace.Api.Error.t() | Exception.t()}
   def normalize({:ok, %{status: status} = response}) when status >= 400 do
     {:error, Error.from_response(response)}
   end
@@ -94,7 +94,7 @@ defmodule DSpace.Api.Response do
     {:error, Error.timeout_error()}
   end
 
-  # Other transport, protocol, etc. errors
+  # Other transport, protocol, argument etc. errors bubble up
   def normalize({:error, %{reason: reason} = _exception}) do
     {:error, Error.connection_error(reason)}
   end
