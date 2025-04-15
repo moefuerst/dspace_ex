@@ -21,6 +21,7 @@ defmodule DSpace.Api.HttpTest do
     * supports method verb
     * supports URL concatenation when an endpoint is defined
     * supports setting an auth header from a given bearer token
+    * takes a JSON payload as an option and correctly sends it
     * parses JSON responses and encodes them into a map
     """
     test "makes a request using request/1", %{bypass: bypass} do
@@ -31,8 +32,13 @@ defmodule DSpace.Api.HttpTest do
         assert ["application/json"] == Plug.Conn.get_req_header(conn, "content-type"),
                "Content-Type header not set correctly"
 
+        {:ok, body, conn} = Plug.Conn.read_body(conn)
+
+        assert Jason.decode!(body) == %{"key" => "value"},
+               "JSON payload was not delivered correctly"
+
         conn = Plug.Conn.put_resp_header(conn, "content-type", "application/json")
-        Plug.Conn.resp(conn, 200, ~s({"key": "value"}))
+        Plug.Conn.resp(conn, 200, ~s({"key": "other_value"}))
       end)
 
       result =
@@ -41,13 +47,12 @@ defmodule DSpace.Api.HttpTest do
           base_url: url(bypass),
           url: "/some-post",
           auth: {:bearer, "my123bearer"},
-          # Option passed to the client per default in the `DSpace.Api` struct:
-          json: true,
+          json: %{key: "value"},
           # Disable retry to fail fast:
           retry: false
         )
 
-      assert {:ok, %{body: %{"key" => "value"}, status: 200}} = result
+      assert {:ok, %{body: %{"key" => "other_value"}, status: 200}} = result
     end
 
     @doc """

@@ -22,6 +22,9 @@ defmodule DSpace.Api.Http do
   * `:base_url` - If set, implementation needs to prepend `url` with this base URL.
   * `:body` - request body
   * `:headers` - request headers
+  * `:json` - If set, implementation needs to
+    - if `true`, set appropriate accept header
+    - if data, encode it, set it as body, and set appropriate content-type and accept headers
   * `:method` - verb as atom (`:get`, `:post`, etc.). Implementation must default to `GET` request if none given.
   * `:url` - request URL or path
 
@@ -42,6 +45,7 @@ defmodule DSpace.Api.Http do
           base_url: binary() | URI.t() | (-> term()),
           body: iodata() | Enumerable.t() | nil,
           headers: %{optional(binary()) => [binary()]},
+          json: map() | boolean() | nil,
           method: atom(),
           url: URI.t() | binary()
         ]
