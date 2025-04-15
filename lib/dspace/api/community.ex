@@ -97,8 +97,6 @@ defmodule DSpace.Api.Community do
 
   @doc """
   Creates a new sub-community under the specified parent community.
-
-  Requires admin authentication.
   """
   @spec create_sub(DSpace.Api.t(), map(), binary()) ::
           {:ok, t()} | {:error, DSpace.Api.Error.t() | Exception.t()}
@@ -117,24 +115,6 @@ defmodule DSpace.Api.Community do
 
   @doc """
   Updates a community's metadata.
-
-  ## Examples
-
-      # Add a new title
-      Community.update_metadata(client, uuid, %{
-        op: "add",
-        path: "/metadata/dc.title/-",
-        value: %{
-          value: "New Title",
-          language: "en"
-        }
-      })
-
-      # Remove a specific metadata value
-      Community.update_metadata(client, uuid, %{
-        op: "remove",
-        path: "/metadata/dc.title/0"
-      })
   """
   @spec update_metadata(DSpace.Api.t(), binary(), map()) ::
           {:ok, t()} | {:error, DSpace.Api.Error.t() | Exception.t()}
@@ -152,8 +132,6 @@ defmodule DSpace.Api.Community do
 
   @doc """
   Replaces a community with the provided data.
-
-  Requires admin authentication.
 
   Note: This is a full replacement operation. All fields must be included and non-editable fields (id, uuid, handle, type) must remain unchanged if specified. For updating metadata only, use `update_metadata/3` instead.
   """
