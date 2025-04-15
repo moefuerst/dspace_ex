@@ -1,0 +1,7 @@
+{
+  "timestamp": "2025-01-01T15:52:24.979+00:00",
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Authentication is required",
+  "path": "/server/actuator/info"
+}
