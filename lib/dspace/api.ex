@@ -133,23 +133,7 @@ defmodule DSpace.Api do
   def stream(api, options, extract_fn, transform_fn \\ & &1) do
     Stream.resource(
       fn -> {api, options} end,
-      fn
-        nil ->
-          {:halt, nil}
-
-        {current_api, request_options} ->
-          with {:ok, response} <- request(current_api, request_options),
-               resources = extract_fn.(response.body),
-               transformed = Enum.map(resources, transform_fn),
-               updated_api = with_token_from_response(current_api, response),
-               next_options = DSpace.Api.Response.Page.next(response, request_options) do
-            if next_options,
-              do: {transformed, {updated_api, next_options}},
-              else: {transformed, nil}
-          else
-            _ -> {:halt, nil}
-          end
-      end,
+      fn state -> handle_stream_state(state, extract_fn, transform_fn) end,
       fn _ -> :ok end
     )
   end
@@ -197,5 +181,42 @@ defmodule DSpace.Api do
   defp has_csrf_token?(options) do
     Keyword.get(options, :headers, [])
     |> Enum.any?(&match?({"x-xsrf-token", _}, &1))
+  end
+
+  defp handle_stream_state(nil, _, _), do: {:halt, nil}
+
+  defp handle_stream_state({current_api, request_options}, extract_fn, transform_fn) do
+    case request(current_api, request_options) do
+      {:ok, response} ->
+        context = %{
+          response: response,
+          api: current_api,
+          options: request_options,
+          extract_fn: extract_fn,
+          transform_fn: transform_fn
+        }
+
+        process_stream_response(context)
+
+      _error ->
+        {:halt, nil}
+    end
+  end
+
+  defp process_stream_response(context) do
+    %{
+      response: response,
+      api: api,
+      options: options,
+      extract_fn: extract_fn,
+      transform_fn: transform_fn
+    } = context
+
+    resources = extract_fn.(response.body) |> Enum.map(transform_fn)
+    updated_api = with_token_from_response(api, response)
+    next_options = DSpace.Api.Response.Page.next(response, options)
+    next_state = if next_options, do: {updated_api, next_options}, else: nil
+
+    {resources, next_state}
   end
 end
