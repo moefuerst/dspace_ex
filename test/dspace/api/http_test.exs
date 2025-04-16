@@ -34,11 +34,13 @@ defmodule DSpace.Api.HttpTest do
 
         {:ok, body, conn} = Plug.Conn.read_body(conn)
 
-        assert Jason.decode!(body) == %{"key" => "value"},
+        expected_json = ~s({"key":"value"})
+
+        assert body == expected_json,
                "JSON payload was not delivered correctly"
 
         conn = Plug.Conn.put_resp_header(conn, "content-type", "application/json")
-        Plug.Conn.resp(conn, 200, ~s({"key": "other_value"}))
+        Plug.Conn.resp(conn, 200, ~s({"key":"other_value"}))
       end)
 
       result =
