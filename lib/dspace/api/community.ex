@@ -122,7 +122,6 @@ defmodule DSpace.Api.Community do
     case DSpace.Api.request(client,
            method: :patch,
            url: "#{@ep_url}/#{uuid}",
-           headers: [{"content-type", "application/json-patch+json"}],
            json: [patch_op]
          ) do
       {:ok, response} -> {:ok, from_response(response.body)}
