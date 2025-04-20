@@ -34,7 +34,7 @@ A peculiarity of the DSpace REST API's design is the misapplication of CSRF prot
 
 At the moment, this library doesn't abstract this uncommon requirement too much. You must:
 
-1. Either log in with `DSpace.Api.login/3` or (if using an access token) make an initial `GET` request to any endpoint to receive a CSRF token
+1. Either log in with `DSpace.Api.login/3` or (if using an API key) make an initial `GET` request to any endpoint to receive a CSRF token
 2. Keep using that CSRF token (which may be refreshed) for all subsequent unsafe methods
 
 For your convenience, the request building pipeline will fail fast if a CSRF token is not provided for modifying operations (i.e. before actually making the request). Additionally, the helper functions `DSpace.Api.with_token_from_response/2` and `DSpace.Api.Response.extract_csrf/1` (see docs) are provided to help you manage the token.
@@ -57,7 +57,7 @@ $ mix test --include integration
 
 ## Contributing
 
-Pull requests to contribute new features or enhancements are most welcome. Please run `mix format` and an analysis with `mix credo` before committing your changes.
+Pull requests to contribute new features or enhancements are most welcome. Please run `mix format` and an analysis with `mix dialyzer` and `mix credo` before committing your changes.
 
 ## License
 
