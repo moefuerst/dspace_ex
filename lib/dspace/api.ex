@@ -19,7 +19,7 @@ defmodule DSpace.Api do
   The DSpace API client struct.
 
   * `:endpoint` - The DSpace REST endpoint, e.g. https://example.com/server
-  * `:access_token` - API key or login token used for authentication
+  * `:access_token` - API key or login token used for authentication. This is a standard JWT
   * `:csrf_token` - CSRF token. Needed for all modifying requests
   * `:api_version` - DSpace API version
   * `:client_impl` - HTTP client implementation and options as {module, options}
@@ -74,12 +74,15 @@ defmodule DSpace.Api do
   @doc """
   Updates the CSRF token from an API response if present.
   """
-  @spec with_token_from_response(api :: t(), response :: map()) :: t()
-  def with_token_from_response(api, response) do
-    case DSpace.Api.Response.extract_csrf(response) do
-      nil -> api
-      token -> with_csrf_token(api, token)
-    end
+  @spec with_csrf_from_response(api :: t(), response :: map()) :: t()
+  defdelegate with_csrf_from_response(api, response), to: DSpace.Api.Auth
+
+  @doc """
+  Updates the API version.
+  """
+  @spec with_api_version(api :: t(), version :: binary()) :: t()
+  def with_api_version(%__MODULE__{} = api, version) when is_binary(version) do
+    %{api | api_version: version}
   end
 
   @doc """
@@ -213,7 +216,7 @@ defmodule DSpace.Api do
     } = context
 
     resources = extract_fn.(response.body) |> Enum.map(transform_fn)
-    updated_api = with_token_from_response(api, response)
+    updated_api = with_csrf_from_response(api, response)
     next_options = DSpace.Api.Response.Page.next(response, options)
     next_state = if next_options, do: {updated_api, next_options}, else: nil
 
