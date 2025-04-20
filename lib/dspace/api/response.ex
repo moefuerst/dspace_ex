@@ -49,15 +49,6 @@ defmodule DSpace.Api.Response do
   def pagination(_), do: nil
 
   @doc """
-  Extracts CSRF token from response headers.
-  """
-  @spec extract_csrf(response :: map()) :: binary() | nil
-  def extract_csrf(%{headers: headers}) do
-    token = headers["dspace-xsrf-token"]
-    if is_list(token), do: List.first(token), else: token
-  end
-
-  @doc """
   Processes a single resource using the provided transformer function.
   """
   @spec transform_resource(map(), (map() -> struct())) :: struct()
