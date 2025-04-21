@@ -107,8 +107,8 @@ defmodule DSpace.Api do
     request_options =
       [base_url: endpoint]
       |> Keyword.merge(client_options)
-      |> maybe_add_auth(api.access_token)
       |> maybe_add_csrf(api.csrf_token)
+      |> maybe_add_auth(api.access_token)
       |> Keyword.merge(options)
       |> unsafe_methods_need_csrf!()
 
@@ -162,13 +162,19 @@ defmodule DSpace.Api do
 
   defp maybe_add_auth(options, nil), do: options
 
-  defp maybe_add_auth(options, token),
-    do: Keyword.put(options, :auth, {:bearer, token})
+  defp maybe_add_auth(options, token) do
+    Keyword.put(options, :auth, {:bearer, token})
+  end
 
   defp maybe_add_csrf(options, nil), do: options
 
-  defp maybe_add_csrf(options, token),
-    do: Keyword.put(options, :headers, [{"x-xsrf-token", token}])
+  defp maybe_add_csrf(options, token) do
+    Keyword.update(options, :headers, [{"x-xsrf-token", token}], fn existing ->
+      existing
+      |> Enum.reject(fn {name, _} -> String.downcase(name) == "x-xsrf-token" end)
+      |> then(fn filtered -> [{"x-xsrf-token", token} | filtered] end)
+    end)
+  end
 
   # A particular of the DSpace API's design.
   defp unsafe_methods_need_csrf!(options) do

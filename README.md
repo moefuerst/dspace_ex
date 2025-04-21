@@ -37,7 +37,7 @@ At the moment, this library doesn't abstract this uncommon requirement too much.
 1. Either log in with `DSpace.Api.login/3` or (if using an API key) make an initial `GET` request to any endpoint to receive a CSRF token
 2. Keep using that CSRF token (which may be refreshed) for all subsequent unsafe methods
 
-For your convenience, the request building pipeline will fail fast if a CSRF token is not provided for modifying operations (i.e. before actually making the request). Additionally, the helper functions `DSpace.Api.with_token_from_response/2` and `DSpace.Api.Response.extract_csrf/1` (see docs) are provided to help you manage the token.
+For your convenience, the request building pipeline will fail fast if a CSRF token is not provided for modifying operations (i.e. before actually making the request). Additionally, the helper function `DSpace.Api.with_csrf_from_response/2` (see docs) is provided to help you manage the token.
 
 ### Compatibility
 
@@ -51,8 +51,6 @@ The project documentation can be generated with `mix docs`. You can then open `d
 
 ```shell
 $ mix test
-
-$ mix test --include integration
 ```
 
 ## Contributing

@@ -71,7 +71,7 @@ defmodule DSpace.ApiTest do
         headers: %{"dspace-xsrf-token" => "abc123"}
       }
 
-      updated_api = Api.with_token_from_response(api, response)
+      updated_api = Api.with_csrf_from_response(api, response)
       assert updated_api.csrf_token == "abc123"
 
       Api.request(updated_api, url: "/test")

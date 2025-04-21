@@ -62,26 +62,6 @@ defmodule DSpace.Api.ResponseTest do
 
   # TODO: Test resource extraction (with fixtures)
 
-  describe "extract_csrf/1" do
-    test "extracts CSRF token from response headers" do
-      response = %{
-        headers: %{
-          "dspace-xsrf-token" => "token123"
-        }
-      }
-
-      assert Response.extract_csrf(response) == "token123",
-             "Expected CSRF token to be extracted from headers"
-    end
-
-    test "returns nil when no CSRF token in headers" do
-      response = %{headers: %{}}
-
-      assert Response.extract_csrf(response) == nil,
-             "Expected nil when no CSRF token in headers"
-    end
-  end
-
   describe "transform_resource and transform_collection" do
     test "transforms a single resource using provided function" do
       resource = %{"id" => "1", "name" => "Test"}

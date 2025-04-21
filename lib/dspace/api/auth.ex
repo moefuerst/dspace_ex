@@ -29,35 +29,30 @@ defmodule DSpace.Api.Auth do
   """
   @spec login(api :: Api.t(), username :: binary(), password :: binary()) ::
           {:ok, Api.t()} | {:error, DSpace.Api.Error.t() | Exception.t()}
-  def login(%Api{} = api, username, password)
-      when is_binary(username) and is_binary(password) do
-    api_with_csrf = with_csrf_token_if_missing(api)
-
-    api_with_csrf
-    |> attempt_login(username, password)
-    |> process_login_response(api_with_csrf)
+  def login(%Api{} = api, username, password) when is_binary(username) and is_binary(password) do
+    with {:ok, api_with_csrf} <- with_csrf_token_if_missing(api),
+         {:ok, response} <- attempt_login(api_with_csrf, username, password),
+         {:ok, {access_token, csrf_token}} <- process_token_response(response) do
+      {:ok, api |> Api.with_csrf_token(csrf_token) |> Api.with_access_token(access_token)}
+    else
+      {:error, _} = error -> error
+    end
   end
 
   @doc """
-  Updates the client with a fresh access token from the API.
+  Retrieves a fresh access token from the API.
 
   Access tokens obtained via login are only valid for an amount of time. The token is a standard JWT and contains an `exp` claim that you can use to manage session validity in your application.
 
-  Calling this function returns the client with a new freshly issued token with an extended expiration time. Managing token lifecycle (checking expiry, deciding when to refresh) is the responsibility of the consuming application.
+  Calling this function returns a new freshly issued token with an extended expiration time. Managing token lifecycle (checking expiry, deciding when to refresh) is the responsibility of the consuming application.
   """
   @spec refresh_access_token(api :: Api.t()) ::
-          Api.t() | {:error, DSpace.Api.Error.t() | Exception.t()}
+          {:ok, {access :: binary(), csrf :: binary()}}
+          | {:error, DSpace.Api.Error.t() | Exception.t()}
   def refresh_access_token(%Api{access_token: token} = api) when is_binary(token) do
-    case Api.request(api,
-           method: :post,
-           url: @ep_login_url,
-           auth: token
-         ) do
-      {:ok, response} ->
-        Api.with_access_token(api, extract_access_token(response))
-
-      {:error, _error} = error ->
-        error
+    case Api.request(api, method: :post, url: @ep_login_url) do
+      {:ok, response} -> process_token_response(response)
+      {:error, _} = error -> error
     end
   end
 
@@ -66,11 +61,12 @@ defmodule DSpace.Api.Auth do
   end
 
   @doc """
-  Updates the client with a fresh CSRF token from the API.
+  Retrieves a fresh CSRF token from the API.
 
   This is not a "real" refresh on DSpace < 7.6.2 where the `/api/security/csrf` endpoint doesn't exist and this function uses the `/api/authn/status` endpoint instead.
   """
-  @spec refresh_csrf_token(api :: Api.t()) :: Api.t()
+  @spec refresh_csrf_token(api :: Api.t()) ::
+          {:ok, csrf :: binary()} | {:error, DSpace.Api.Error.t() | Exception.t()}
   def refresh_csrf_token(%Api{api_version: version} = api) do
     endpoint =
       if Version.compare(version, "7.6.2") in [:gt, :eq] do
@@ -80,11 +76,8 @@ defmodule DSpace.Api.Auth do
       end
 
     case Api.request(api, url: endpoint) do
-      {:ok, response} ->
-        with_csrf_from_response(api, response)
-
-      {:error, _error} = error ->
-        error
+      {:ok, response} -> process_csrf_response(response)
+      {:error, _} = error -> error
     end
   end
 
@@ -94,8 +87,8 @@ defmodule DSpace.Api.Auth do
   @spec with_csrf_from_response(api :: Api.t(), response :: map()) :: Api.t()
   def with_csrf_from_response(api, response) do
     case extract_csrf(response) do
-      nil -> api
-      token -> Api.with_csrf_token(api, token)
+      {:ok, token} -> Api.with_csrf_token(api, token)
+      {:error, :csrf_token_missing} -> api
     end
   end
 
@@ -106,17 +99,18 @@ defmodule DSpace.Api.Auth do
   """
   @spec fetch_api_key(api :: Api.t()) ::
           {:ok, binary()} | {:error, DSpace.Api.Error.t() | Exception.t()}
-  def fetch_api_key(%Api{} = api) do
+  def fetch_api_key(%Api{access_token: token} = api) when is_binary(token) do
     case Api.request(api,
            method: :post,
            url: @ep_api_key_url
          ) do
-      {:ok, response} ->
-        extract_token_from_body(response)
-
-      {:error, _} = error ->
-        error
+      {:ok, response} -> extract_token_from_body(response)
+      {:error, _} = error -> error
     end
+  end
+
+  def fetch_api_key(%Api{} = _api) do
+    raise ArgumentError, "Generating API key operation needs an access token"
   end
 
   @doc """
@@ -126,14 +120,18 @@ defmodule DSpace.Api.Auth do
   """
   @spec delete_api_key(api :: Api.t()) ::
           :ok | {:error, DSpace.Api.Error.t() | Exception.t()}
-  def delete_api_key(%Api{} = api) do
+  def delete_api_key(%Api{access_token: token} = api) when is_binary(token) do
     case Api.request(api,
            method: :delete,
            url: @ep_api_key_url
          ) do
-      {:ok, _} -> :ok
+      {:ok, _response} -> :ok
       {:error, _} = error -> error
     end
+  end
+
+  def delete_api_key(%Api{} = _api) do
+    raise ArgumentError, "Deleting API key operation needs an access token"
   end
 
   @doc """
@@ -155,18 +153,22 @@ defmodule DSpace.Api.Auth do
            method: method,
            url: @ep_short_token_url
          ) do
-      {:ok, response} ->
-        extract_token_from_body(response)
-
-      {:error, _} = error ->
-        error
+      {:ok, response} -> extract_token_from_body(response)
+      {:error, _} = error -> error
     end
   end
 
   # Private helpers
 
-  defp with_csrf_token_if_missing(%Api{csrf_token: token} = api) when is_binary(token), do: api
-  defp with_csrf_token_if_missing(api), do: refresh_csrf_token(api)
+  defp with_csrf_token_if_missing(%Api{csrf_token: token} = api) when is_binary(token),
+    do: {:ok, api}
+
+  defp with_csrf_token_if_missing(api) do
+    case refresh_csrf_token(api) do
+      {:ok, token} -> {:ok, Api.with_csrf_token(api, token)}
+      {:error, _} = error -> error
+    end
+  end
 
   defp attempt_login(api, username, password) do
     form_body = URI.encode_query(user: username, password: password)
@@ -175,36 +177,62 @@ defmodule DSpace.Api.Auth do
       method: :post,
       url: @ep_login_url,
       body: form_body,
-      headers: [{"content-type", "application/x-www-form-urlencoded"}],
+      headers: [
+        {"content-type", "application/x-www-form-urlencoded"},
+        {"x-xsrf-token", api.csrf_token}
+      ],
       json: false
     )
   end
 
-  defp process_login_response({:ok, response}, api) do
-    access_token = extract_access_token(response)
-    csrf = extract_csrf(response)
-
-    updated_api =
-      api
-      |> Api.with_csrf_token(csrf)
-      |> Api.with_access_token(access_token)
-
-    {:ok, updated_api}
+  defp process_token_response(response) do
+    with {:ok, access_token} <- extract_access_token(response),
+         {:ok, csrf_token} <- extract_csrf(response) do
+      {:ok, {access_token, csrf_token}}
+    else
+      _ ->
+        {:error,
+         DSpace.Api.Error.response_validation_error(
+           response,
+           "Token response missing required tokens"
+         )}
+    end
   end
 
-  defp process_login_response(error, _api), do: error
+  defp process_csrf_response(response) do
+    case extract_csrf(response) do
+      {:ok, token} ->
+        {:ok, token}
 
-  defp extract_csrf(%{headers: headers}) do
-    token = headers["dspace-xsrf-token"]
-    if is_list(token), do: List.first(token), else: token
+      {:error, :csrf_token_missing} ->
+        {:error,
+         DSpace.Api.Error.response_validation_error(
+           response,
+           "Token refresh response missing CSRF token"
+         )}
+    end
   end
 
-  defp extract_access_token(%{headers: headers}) do
-    token = headers["authorization"]
-    if is_list(token), do: List.first(token), else: token
+  defp extract_csrf(%{headers: %{"dspace-xsrf-token" => [token | _]}}), do: {:ok, token}
+
+  defp extract_csrf(%{headers: %{"dspace-xsrf-token" => token}}) when is_binary(token),
+    do: {:ok, token}
+
+  defp extract_csrf(_), do: {:error, :csrf_token_missing}
+
+  defp extract_access_token(%{headers: %{"authorization" => auth}}) do
+    case normalize_auth_header(auth) do
+      "Bearer " <> token -> {:ok, token}
+      token when is_binary(token) -> {:ok, token}
+      _ -> {:error, :invalid_auth_header}
+    end
   end
 
-  defp extract_access_token(_), do: nil
+  defp extract_access_token(_), do: {:error, :missing_auth_header}
+
+  defp normalize_auth_header([auth | _]) when is_binary(auth), do: auth
+  defp normalize_auth_header(auth) when is_binary(auth), do: auth
+  defp normalize_auth_header(_), do: nil
 
   defp extract_token_from_body(%{body: %{"token" => token}} = _response) do
     {:ok, token}
