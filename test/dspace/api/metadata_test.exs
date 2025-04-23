@@ -5,10 +5,12 @@ defmodule DSpace.Api.MetadataTest do
   import StreamData
   import TestHelper, only: [parse_fixture: 1]
 
-  doctest DSpace.Api.Metadata
+  alias DSpace.Api.Metadata
+
+  doctest Metadata
 
   @metadata_key "dc.title"
-  @bullshit_value DSpace.Api.Metadata.placeholder_value()
+  @bullshit_value Metadata.placeholder_value()
   @valid_languages ["en", "en_US", "de", "fr", "it", "es", "se"]
   @valid_confidence_levels [-1, 0, 100, 200, 300, 400, 500, 600]
 
@@ -32,7 +34,7 @@ defmodule DSpace.Api.MetadataTest do
             ) do
         metadata = setup_test_metadata(values)
 
-        normalized = DSpace.Api.Metadata.normalize(metadata)
+        normalized = Metadata.normalize(metadata)
 
         assert_bullshit_removal(metadata, normalized)
         assert_value_properties(normalized)
@@ -48,7 +50,7 @@ defmodule DSpace.Api.MetadataTest do
       item = parse_fixture("get_item.json")
       original_metadata = item["metadata"]
 
-      normalized = DSpace.Api.Metadata.normalize(original_metadata)
+      normalized = Metadata.normalize(original_metadata)
 
       assert is_map(normalized), "Normalized result should be a map"
       assert map_size(normalized) > 0, "Normalized metadata should not be empty"
@@ -65,9 +67,9 @@ defmodule DSpace.Api.MetadataTest do
     end
 
     test "handles edge cases" do
-      assert %{} = DSpace.Api.Metadata.normalize(nil)
-      assert %{} = DSpace.Api.Metadata.normalize(%{})
-      assert %{} = DSpace.Api.Metadata.normalize("not a map")
+      assert %{} = Metadata.normalize(nil)
+      assert %{} = Metadata.normalize(%{})
+      assert %{} = Metadata.normalize("not a map")
     end
 
     test "normalize_with_type/1 extracts entity type correctly" do
@@ -77,12 +79,12 @@ defmodule DSpace.Api.MetadataTest do
         "dspace.entity.type" => [%{"value" => "Publication", "place" => 0}]
       }
 
-      {_normalized, type} = DSpace.Api.Metadata.normalize_with_type(metadata_with_type)
+      {_normalized, type} = Metadata.normalize_with_type(metadata_with_type)
       assert type == "Publication", "The entity type should be extracted"
 
       # No entity type
       metadata_no_type = %{"dc.title" => [%{"value" => "Title Only", "place" => 0}]}
-      {_, type} = DSpace.Api.Metadata.normalize_with_type(metadata_no_type)
+      {_, type} = Metadata.normalize_with_type(metadata_no_type)
       assert is_nil(type), "Type should be nil when no entity type is present"
 
       # Multiple entity types - take first
@@ -93,7 +95,7 @@ defmodule DSpace.Api.MetadataTest do
         ]
       }
 
-      {_, type} = DSpace.Api.Metadata.normalize_with_type(metadata_multiple_types)
+      {_, type} = Metadata.normalize_with_type(metadata_multiple_types)
 
       assert type == "Publication",
              "Should extract the first entity type when multiple are present"

@@ -48,9 +48,7 @@ defmodule DSpace.Api.Object do
 
   # Public API
 
-  @doc """
-  Creates an Object struct from a DSpace API response.
-  """
+  @doc false
   @spec from_response(map()) :: t()
   def from_response(body) when is_map(body) do
     %__MODULE__{

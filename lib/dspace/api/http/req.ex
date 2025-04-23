@@ -1,9 +1,10 @@
 defmodule DSpace.Api.Http.Req do
-  @moduledoc """
-  HTTP client implementation using Req.
-  """
+  @moduledoc false
 
+  # HTTP client implementation using Req.
   @behaviour DSpace.Api.Http
+
+  # Callbacks
 
   @doc """
   Executes an HTTP request and returns a response or an error.

@@ -5,6 +5,13 @@ defmodule DSpace.Api do
   Provides credentials and connection details for making requests to the API.
   """
 
+  alias DSpace.Api.Auth
+  alias DSpace.Api.Error
+  alias DSpace.Api.Http
+  alias DSpace.Api.Http.Req
+  alias DSpace.Api.Response
+  alias DSpace.Api.Response.Page
+
   # DSpace 7.6.1
   @api_version "7.6.1"
 
@@ -13,7 +20,7 @@ defmodule DSpace.Api do
             access_token: nil,
             csrf_token: nil,
             api_version: @api_version,
-            client_impl: {DSpace.Api.Http.Req, [json: true]}
+            client_impl: {Req, [json: true]}
 
   @typedoc """
   The DSpace API client struct.
@@ -75,7 +82,7 @@ defmodule DSpace.Api do
   Updates the CSRF token from an API response if present.
   """
   @spec with_csrf_from_response(api :: t(), response :: map()) :: t()
-  defdelegate with_csrf_from_response(api, response), to: DSpace.Api.Auth
+  defdelegate with_csrf_from_response(api, response), to: Auth
 
   @doc """
   Updates the API version.
@@ -100,7 +107,7 @@ defmodule DSpace.Api do
   Generally intended to be used internally, but can be used by end-users to work around missing endpoints/functionality.
   """
   @spec request(api :: t(), options :: keyword()) ::
-          {:ok, map()} | {:error, DSpace.Api.Error.t() | Exception.t()}
+          {:ok, map()} | {:error, Error.t() | Exception.t()}
   def request(%__MODULE__{endpoint: endpoint} = api, options) when is_list(options) do
     {client_impl, client_options} = api.client_impl
 
@@ -112,8 +119,8 @@ defmodule DSpace.Api do
       |> Keyword.merge(options)
       |> unsafe_methods_need_csrf!()
 
-    DSpace.Api.Http.request(client_impl, request_options)
-    |> DSpace.Api.Response.normalize()
+    Http.request(client_impl, request_options)
+    |> Response.normalize()
   end
 
   @doc """
@@ -147,8 +154,8 @@ defmodule DSpace.Api do
   Returns a client with updated tokens or an error.
   """
   @spec login(api :: t(), username :: binary(), password :: binary()) ::
-          {:ok, t()} | {:error, DSpace.Api.Error.t() | Exception.t()}
-  defdelegate login(api, username, password), to: DSpace.Api.Auth
+          {:ok, t()} | {:error, Error.t() | Exception.t()}
+  defdelegate login(api, username, password), to: Auth
 
   @doc """
   Verifies if the current client is authenticated with the DSpace API.
@@ -156,7 +163,7 @@ defmodule DSpace.Api do
   Also returns `false` if the check fails.
   """
   @spec authenticated?(api :: t()) :: boolean()
-  defdelegate authenticated?(api), to: DSpace.Api.Auth
+  defdelegate authenticated?(api), to: Auth
 
   # Private helpers
 
@@ -223,7 +230,7 @@ defmodule DSpace.Api do
 
     resources = extract_fn.(response.body) |> Enum.map(transform_fn)
     updated_api = with_csrf_from_response(api, response)
-    next_options = DSpace.Api.Response.Page.next(response, options)
+    next_options = Page.next(response, options)
     next_state = if next_options, do: {updated_api, next_options}, else: nil
 
     {resources, next_state}

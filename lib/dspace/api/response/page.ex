@@ -89,9 +89,7 @@ defmodule DSpace.Api.Response.Page do
     end
   end
 
-  @doc """
-  Creates a Page struct from an API response.
-  """
+  @doc false
   @spec from_response(map()) :: t()
   def from_response(%{"page" => page_info, "_links" => links}) do
     %__MODULE__{

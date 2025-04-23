@@ -26,17 +26,15 @@ defmodule DSpace.Api.HttpTest do
     """
     test "makes a request using request/1", %{bypass: bypass} do
       Bypass.expect_once(bypass, "POST", "/some-post", fn conn ->
-        assert ["Bearer my123bearer"] == Plug.Conn.get_req_header(conn, "authorization"),
+        assert Plug.Conn.get_req_header(conn, "authorization") == ["Bearer my123bearer"],
                "Authorization header not set correctly"
 
-        assert ["application/json"] == Plug.Conn.get_req_header(conn, "content-type"),
+        assert Plug.Conn.get_req_header(conn, "content-type") == ["application/json"],
                "Content-Type header not set correctly"
 
         {:ok, body, conn} = Plug.Conn.read_body(conn)
 
-        expected_json = ~s({"key":"value"})
-
-        assert body == expected_json,
+        assert body == ~s({"key":"value"}),
                "JSON payload was not delivered correctly"
 
         conn = Plug.Conn.put_resp_header(conn, "content-type", "application/json")

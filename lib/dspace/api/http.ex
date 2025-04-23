@@ -23,8 +23,8 @@ defmodule DSpace.Api.Http do
   * `:body` - request body
   * `:headers` - request headers
   * `:json` - If set, implementation needs to
-    - if `true`, set appropriate accept header
-    - if data, encode it, set it as body, and set appropriate content-type and accept headers
+    * if `true`, set appropriate accept header
+    * if data, encode it, set it as body, and set appropriate content-type and accept headers
   * `:method` - verb as atom (`:get`, `:post`, etc.). Implementation must default to `GET` request if none given.
   * `:url` - request URL or path
 

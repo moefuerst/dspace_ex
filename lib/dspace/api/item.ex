@@ -5,6 +5,12 @@ defmodule DSpace.Api.Item do
   In DSpace-CRIS, items represent different entity types (Publication, Person, Project, etc.) as defined by the `entityType` field.
   """
 
+  alias DSpace.Api
+  alias DSpace.Api.Error
+  alias DSpace.Api.Metadata
+  alias DSpace.Api.Object
+  alias DSpace.Api.Response
+
   defstruct [
     :dspace_object,
     :in_archive,
@@ -26,12 +32,12 @@ defmodule DSpace.Api.Item do
   * `metadata`: `t:DSpace.Api.Metadata.t/0` map where keys are metadata field names and values are lists of metadata value and props
   """
   @type t :: %__MODULE__{
-          dspace_object: DSpace.Api.Object.t(),
+          dspace_object: Object.t(),
           in_archive: boolean(),
           discoverable: boolean(),
           withdrawn: boolean(),
           entity_type: binary(),
-          metadata: DSpace.Api.Metadata.t()
+          metadata: Metadata.t()
         }
 
   @typedoc """
@@ -49,38 +55,13 @@ defmodule DSpace.Api.Item do
   # Public API
 
   @doc """
-  Creates an Item struct from API response data.
-  """
-  @spec from_response(map()) :: t()
-  def from_response(body) when is_map(body) do
-    {normalized_metadata, entity_type} = DSpace.Api.Metadata.normalize_with_type(body["metadata"])
-
-    # TODO: extract embeds
-
-    %__MODULE__{
-      dspace_object: DSpace.Api.Object.from_response(body),
-      in_archive: Map.get(body, "inArchive", false),
-      discoverable: Map.get(body, "discoverable", true),
-      withdrawn: Map.get(body, "withdrawn", false),
-      entity_type: entity_type,
-      metadata: normalized_metadata
-    }
-  end
-
-  def from_response(_), do: %__MODULE__{}
-
-  @doc """
   Fetches a single item by UUID.
   """
-  @spec fetch(DSpace.Api.t(), binary()) ::
-          {:ok, t()} | {:error, DSpace.Api.Error.t() | Exception.t()}
-  def fetch(%DSpace.Api{} = client, uuid) when is_binary(uuid) do
-    case DSpace.Api.request(client, url: "#{@ep_url}/#{uuid}") do
-      {:ok, response} ->
-        {:ok, from_response(response.body)}
-
-      {:error, _} = error ->
-        error
+  @spec fetch(Api.t(), binary()) :: {:ok, t()} | {:error, Error.t() | Exception.t()}
+  def fetch(%Api{} = client, uuid) when is_binary(uuid) do
+    case Api.request(client, url: "#{@ep_url}/#{uuid}") do
+      {:ok, response} -> {:ok, from_response(response.body)}
+      {:error, _} = error -> error
     end
   end
 
@@ -102,9 +83,8 @@ defmodule DSpace.Api.Item do
     * `:thumbnails` - Include thumbnail information
     * `:all` - Include all related resources
   """
-  @spec fetch_all(DSpace.Api.t(), fetch_all_opts()) ::
-          {:ok, [t()]} | {:error, DSpace.Api.Error.t() | Exception.t()}
-  def fetch_all(%DSpace.Api{} = client, opts \\ []) do
+  @spec fetch_all(Api.t(), fetch_all_opts()) :: {:ok, [t()]} | {:error, Error.t() | Exception.t()}
+  def fetch_all(%Api{} = client, opts \\ []) do
     params =
       []
       |> maybe_add_filter(:entityType, opts[:entity_type])
@@ -112,14 +92,33 @@ defmodule DSpace.Api.Item do
       |> maybe_add_embeds(normalize_includes(opts[:include]))
 
     client
-    |> DSpace.Api.stream(
+    |> Api.stream(
       [url: @ep_url, params: params],
-      &DSpace.Api.Response.extract_resources(&1, ["_embedded", "items"]),
+      &Response.extract_resources(&1, ["_embedded", "items"]),
       &from_response/1
     )
     |> maybe_add_limit(opts[:limit])
     |> then(&{:ok, Enum.to_list(&1)})
   end
+
+  @doc false
+  @spec from_response(map()) :: t()
+  def from_response(body) when is_map(body) do
+    {normalized_metadata, entity_type} = Metadata.normalize_with_type(body["metadata"])
+
+    # TODO: extract embeds
+
+    %__MODULE__{
+      dspace_object: Object.from_response(body),
+      in_archive: Map.get(body, "inArchive", false),
+      discoverable: Map.get(body, "discoverable", true),
+      withdrawn: Map.get(body, "withdrawn", false),
+      entity_type: entity_type,
+      metadata: normalized_metadata
+    }
+  end
+
+  def from_response(_), do: %__MODULE__{}
 
   # Private Helpers
 
@@ -150,9 +149,16 @@ defmodule DSpace.Api.Item do
   defp normalize_includes(nil), do: []
 
   defp normalize_includes(:all),
-    do: ["bundles", "owningCollection", "mappedCollections", "relationships", "thumbnail"]
+    do: [
+      "bundles/bitstreams",
+      "owningCollection",
+      "mappedCollections",
+      "relationships",
+      "thumbnail",
+      "versionhistory"
+    ]
 
-  defp normalize_includes(:files), do: ["bundles"]
+  defp normalize_includes(:files), do: ["bundles/bitstreams"]
   defp normalize_includes(:collections), do: ["owningCollection", "mappedCollections"]
   defp normalize_includes(:primary_collection), do: ["owningCollection"]
   defp normalize_includes(:relationships), do: ["relationships"]

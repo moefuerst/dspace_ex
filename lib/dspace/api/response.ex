@@ -16,6 +16,8 @@ defmodule DSpace.Api.Response do
           trailers: %{optional(binary()) => [binary()]} | nil
         }
 
+  # Public API
+
   @doc """
   Extracts API resources from a response body using a path.
 
@@ -41,7 +43,7 @@ defmodule DSpace.Api.Response do
   @doc """
   Extracts pagination information from a response.
   """
-  @spec pagination(response :: map()) :: DSpace.Api.Response.Page.t() | nil
+  @spec pagination(response :: map()) :: Page.t() | nil
   def pagination(%{body: body}) do
     Page.from_response(body)
   end
@@ -70,7 +72,7 @@ defmodule DSpace.Api.Response do
   Errors are normalized using `DSpace.Api.Error`.
   """
   @spec normalize({:ok, map()} | {:error, term()}) ::
-          {:ok, map()} | {:error, DSpace.Api.Error.t() | Exception.t()}
+          {:ok, map()} | {:error, Error.t() | Exception.t()}
   def normalize({:ok, %{status: status} = response}) when status >= 400 do
     {:error, Error.from_response(response)}
   end

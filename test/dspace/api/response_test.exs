@@ -53,7 +53,7 @@ defmodule DSpace.Api.ResponseTest do
 
     # Bubble up other errors
     test "passes through ArgumentError" do
-      error = {:error, %ArgumentError{message: "Invalid argument"}}
+      error = {:error, %ArgumentError{message: "invalid argument"}}
 
       assert error == Response.normalize(error),
              "Expected ArgumentError to pass through unchanged"

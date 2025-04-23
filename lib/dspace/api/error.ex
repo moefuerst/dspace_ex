@@ -1,7 +1,5 @@
 defmodule DSpace.Api.Error do
-  @moduledoc """
-  Represents errors from the DSpace API.
-  """
+  @moduledoc false
 
   defstruct [:type, :message, :response, :reason]
 

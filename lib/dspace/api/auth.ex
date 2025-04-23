@@ -2,6 +2,7 @@ defmodule DSpace.Api.Auth do
   @moduledoc false
 
   alias DSpace.Api
+  alias DSpace.Api.Error
 
   @ep_api_key_url "/api/authn/machinetokens"
   @ep_csrf_url "/api/security/csrf"
@@ -28,7 +29,7 @@ defmodule DSpace.Api.Auth do
   Returns a client with updated tokens or an error.
   """
   @spec login(api :: Api.t(), username :: binary(), password :: binary()) ::
-          {:ok, Api.t()} | {:error, DSpace.Api.Error.t() | Exception.t()}
+          {:ok, Api.t()} | {:error, Error.t() | Exception.t()}
   def login(%Api{} = api, username, password) when is_binary(username) and is_binary(password) do
     with {:ok, api_with_csrf} <- with_csrf_token_if_missing(api),
          {:ok, response} <- attempt_login(api_with_csrf, username, password),
@@ -48,7 +49,7 @@ defmodule DSpace.Api.Auth do
   """
   @spec refresh_access_token(api :: Api.t()) ::
           {:ok, {access :: binary(), csrf :: binary()}}
-          | {:error, DSpace.Api.Error.t() | Exception.t()}
+          | {:error, Error.t() | Exception.t()}
   def refresh_access_token(%Api{access_token: token} = api) when is_binary(token) do
     case Api.request(api, method: :post, url: @ep_login_url) do
       {:ok, response} -> process_token_response(response)
@@ -57,7 +58,7 @@ defmodule DSpace.Api.Auth do
   end
 
   def refresh_access_token(%Api{} = _api) do
-    raise ArgumentError, "Access token refresh operation needs an access token"
+    raise ArgumentError, "access token refresh operation needs an access token"
   end
 
   @doc """
@@ -66,7 +67,7 @@ defmodule DSpace.Api.Auth do
   This is not a "real" refresh on DSpace < 7.6.2 where the `/api/security/csrf` endpoint doesn't exist and this function uses the `/api/authn/status` endpoint instead.
   """
   @spec refresh_csrf_token(api :: Api.t()) ::
-          {:ok, csrf :: binary()} | {:error, DSpace.Api.Error.t() | Exception.t()}
+          {:ok, csrf :: binary()} | {:error, Error.t() | Exception.t()}
   def refresh_csrf_token(%Api{api_version: version} = api) do
     endpoint =
       if Version.compare(version, "7.6.2") in [:gt, :eq] do
@@ -98,7 +99,7 @@ defmodule DSpace.Api.Auth do
   In DSpace sprech the API key is called ["machine token"](https://github.com/4Science/Rest7Contract/blob/main-cris/authentication.md#request-machine-to-machine-token).
   """
   @spec fetch_api_key(api :: Api.t()) ::
-          {:ok, binary()} | {:error, DSpace.Api.Error.t() | Exception.t()}
+          {:ok, binary()} | {:error, Error.t() | Exception.t()}
   def fetch_api_key(%Api{access_token: token} = api) when is_binary(token) do
     case Api.request(api,
            method: :post,
@@ -110,7 +111,7 @@ defmodule DSpace.Api.Auth do
   end
 
   def fetch_api_key(%Api{} = _api) do
-    raise ArgumentError, "Generating API key operation needs an access token"
+    raise ArgumentError, "generating API key operation needs an access token"
   end
 
   @doc """
@@ -119,7 +120,7 @@ defmodule DSpace.Api.Auth do
   This deletes the currently authenticated user's API key ("machine token").
   """
   @spec delete_api_key(api :: Api.t()) ::
-          :ok | {:error, DSpace.Api.Error.t() | Exception.t()}
+          :ok | {:error, Error.t() | Exception.t()}
   def delete_api_key(%Api{access_token: token} = api) when is_binary(token) do
     case Api.request(api,
            method: :delete,
@@ -131,7 +132,7 @@ defmodule DSpace.Api.Auth do
   end
 
   def delete_api_key(%Api{} = _api) do
-    raise ArgumentError, "Deleting API key operation needs an access token"
+    raise ArgumentError, "deleting API key operation needs an access token"
   end
 
   @doc """
@@ -140,7 +141,7 @@ defmodule DSpace.Api.Auth do
   Short-lived tokens are used for operations like downloading bitstreams.
   """
   @spec fetch_short_lived_token(api :: Api.t()) ::
-          {:ok, binary()} | {:error, DSpace.Api.Error.t() | Exception.t()}
+          {:ok, binary()} | {:error, Error.t() | Exception.t()}
   def fetch_short_lived_token(%Api{api_version: version} = api) do
     method =
       if Version.compare(version, "7.5.0") in [:gt, :eq] do
@@ -192,7 +193,7 @@ defmodule DSpace.Api.Auth do
     else
       _ ->
         {:error,
-         DSpace.Api.Error.response_validation_error(
+         Error.response_validation_error(
            response,
            "Token response missing required tokens"
          )}
@@ -206,7 +207,7 @@ defmodule DSpace.Api.Auth do
 
       {:error, :csrf_token_missing} ->
         {:error,
-         DSpace.Api.Error.response_validation_error(
+         Error.response_validation_error(
            response,
            "Token refresh response missing CSRF token"
          )}
@@ -220,6 +221,10 @@ defmodule DSpace.Api.Auth do
 
   defp extract_csrf(_), do: {:error, :csrf_token_missing}
 
+  # Note: DSpace returns the access token in the *response's* `authorization` header, which is a misuse
+  # per RFC 7235 (intended for client-to-server *requests*). This approach diverges from OAuth standards
+  # (e.g. RFC 6749) and OWASP recommendations, and potentially breaks compatibility with tools, proxies,
+  # and browsers.
   defp extract_access_token(%{headers: %{"authorization" => auth}}) do
     case normalize_auth_header(auth) do
       "Bearer " <> token -> {:ok, token}
@@ -239,6 +244,6 @@ defmodule DSpace.Api.Auth do
   end
 
   defp extract_token_from_body(response) do
-    {:error, DSpace.Api.Error.response_validation_error(response)}
+    {:error, Error.response_validation_error(response)}
   end
 end

@@ -6,6 +6,7 @@ defmodule DSpace.Api.AuthTest do
   alias DSpace.Api
   alias DSpace.Api.Auth
   alias DSpace.Api.Error
+  alias DSpace.Api.Http.Req
 
   @ep_api_key_url "/api/authn/machinetokens"
   @ep_csrf_url "/api/security/csrf"
@@ -19,7 +20,7 @@ defmodule DSpace.Api.AuthTest do
     # Disable retry to fail fast
     api =
       Api.new(url(bypass))
-      |> Api.with_client_impl({DSpace.Api.Http.Req, [json: true, retry: false]})
+      |> Api.with_client_impl({Req, [json: true, retry: false]})
 
     {:ok, bypass: bypass, api: api}
   end
@@ -228,7 +229,7 @@ defmodule DSpace.Api.AuthTest do
 
       assert_raise(
         ArgumentError,
-        ~r/Access token refresh operation needs an access token/,
+        ~r/access token refresh operation needs an access token/,
         fn -> Auth.refresh_access_token(api_no_access_token) end
       )
     end
