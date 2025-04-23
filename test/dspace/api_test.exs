@@ -1,6 +1,10 @@
 defmodule DSpace.ApiTest do
   use ExUnit.Case, async: true
+
+  import TestHelper, only: [respond_with_json: 3]
+
   alias DSpace.Api
+  alias DSpace.Api.Auth
 
   defmodule TestHttpClient do
     @behaviour DSpace.Api.Http
@@ -82,13 +86,77 @@ defmodule DSpace.ApiTest do
   end
 
   describe "login/3" do
-    # TODO: Implement login/3 tests
+    setup do
+      bypass = Bypass.open()
+      api = Api.new(url(bypass))
+      {:ok, bypass: bypass, api: api}
+    end
+
+    @ep_login_url "/api/authn/login"
+    @ep_status_url "/api/authn/status"
+    @user "test@example.com"
+    @pass "password123"
+
+    test "succeeds, fetching CSRF token first", %{
+      bypass: bypass,
+      api: api
+    } do
+      api_old_version = Api.with_api_version(api, "7.6.1")
+      form_body = URI.encode_query(user: @user, password: @pass)
+
+      # Expect CSRF fetch first
+      Bypass.expect_once(bypass, "GET", @ep_status_url, fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("dspace-xsrf-token", "abc123")
+        |> respond_with_json(200, ~s({"authenticated": false}))
+      end)
+
+      # Expect login afterwards
+      Bypass.expect_once(bypass, "POST", @ep_login_url, fn conn ->
+        {:ok, req_body, conn} = Plug.Conn.read_body(conn)
+        assert req_body == form_body, "Login form body not sent correctly"
+
+        conn
+        |> Plug.Conn.put_resp_header("authorization", "Bearer xyz123")
+        |> Plug.Conn.put_resp_header("dspace-xsrf-token", "123abc")
+        |> respond_with_json(200, ~s({"token": "xyz123"}))
+      end)
+
+      result = Auth.login(api_old_version, @user, @pass)
+
+      assert {:ok, %Api{access_token: "xyz123", csrf_token: "123abc"}} =
+               result,
+             "Login should fetch CSRF and then succeed with new tokens"
+    end
+
+    test "succeeds when CSRF token already exists", %{
+      bypass: bypass,
+      api: api
+    } do
+      api_with_csrf = Api.with_csrf_token(api, "abc123")
+
+      Bypass.expect_once(bypass, "POST", @ep_login_url, fn conn ->
+        assert Plug.Conn.get_req_header(conn, "x-xsrf-token") == ["abc123"],
+               "Existing CSRF token not sent in header"
+
+        conn
+        |> Plug.Conn.put_resp_header("authorization", "Bearer xyz123")
+        |> Plug.Conn.put_resp_header("dspace-xsrf-token", "123abc")
+        |> respond_with_json(200, ~s({"token": "xyz123"}))
+      end)
+
+      result = Auth.login(api_with_csrf, @user, @pass)
+
+      assert {:ok, %Api{access_token: "xyz123", csrf_token: "123abc"}} =
+               result,
+             "Login should return updated API client with new tokens"
+    end
   end
 
   describe "request/2" do
     setup do
       bypass = Bypass.open()
-      api = DSpace.Api.new(url(bypass))
+      api = Api.new(url(bypass))
       {:ok, bypass: bypass, api: api}
     end
 
