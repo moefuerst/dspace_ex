@@ -4,7 +4,56 @@ DSpace client library for Elixir.
 
 ## Usage
 
-tba
+Create an API client configured with your DSpace REST endpoint URL. Here is an example of fetching a DSpace Item by its UUID. You can try it out by starting an IEx shell with `iex -S mix`:
+
+```elixir
+iex> client = DSpace.Api.new("https://your.dspace.instance/server")
+iex> {:ok, item} = DSpace.Api.Item.fetch(client, "f6b7c7e8-a2d9-45b0-8a7c-7e8d9f0b1c2d")
+iex> IO.inspect(item.dspace_object.name)
+"Making reliable distributed systems in the presence of software errors" # Example output
+```
+
+To perform actions requiring authentication, you first need to log in or provide an API key:
+
+```elixir
+iex> username = "your_dspace_username"
+iex> password = "your_dspace_password"
+iex> {:ok, auth_client} = DSpace.Api.login(client, username, password)
+iex> # auth_client now contains tokens needed for authenticated requests:
+iex> IO.inspect(auth_client)
+%DSpace.Api{
+  # access_token: #<hidden>,
+  # csrf_token: #<hidden>,
+  api_version: "7.6.1",
+  client_impl: {DSpace.Api.Http.Req, [json: true]},
+  endpoint: "https://your.dspace.instance/server"
+}
+iex> # Note: `access_token` and `csrf_token` are hidden from `IO.inspect`
+iex> # for security reasons.
+iex> #
+iex> # Alternatively, if you already have an access token (e.g., an API key)
+iex> # and potentially a CSRF token, you can provide them directly:
+iex> api_key = "your_jwt_access_token"
+iex> csrf_token = "your_csrf_token"
+iex> client_with_tokens = DSpace.Api.new("https://your.dspace.instance/server", api_key, csrf_token)
+```
+
+For modifying data, such as creating a Collection, you use the authenticated client and a [CSRF token is necessary](#api-authentication-and-csrf).
+
+```elixir
+iex> parent_community = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+iex> collection = %{
+...>   "name" => "My Test Collection",
+...>   "metadata" => %{
+...>     "dc.title" => [%{"value" => "My Test Collection", "language" => "en"}]
+...>   }
+...> }
+iex> {:ok, new_collection} = DSpace.Api.Collection.create(auth_client, collection, parent_community)
+iex> # Inspect the newly created collection's details
+iex> IO.inspect(new_collection)
+```
+
+Refer to the [Documentation](#documentation) for all features.
 
 ## Installation
 
