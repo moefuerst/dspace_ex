@@ -1,10 +1,11 @@
 defmodule DSpace.Api.Error do
   @moduledoc false
 
-  defstruct [:type, :message, :response, :reason]
+  defstruct [:type, :status, :message, :response, :reason]
 
   @type t :: %__MODULE__{
           type: error_type(),
+          status: non_neg_integer() | nil,
           message: String.t() | nil,
           response: map() | nil,
           reason: term() | nil
@@ -42,26 +43,29 @@ defmodule DSpace.Api.Error do
   @spec from_response(map()) :: t()
   def from_response(%{status: 403, body: body} = response) do
     type = if csrf_token_error?(body), do: :api_csrf_invalid, else: :forbidden
-    build(type, body, response)
+    message = extract_message(body) || format_type(type)
+    build(type, 403, message, response, body)
   end
 
   def from_response(%{status: status, body: body} = response) when status in 400..499 do
     type = @client_error_status_map[status] || :bad_request
-    build(type, body, response)
+    message = extract_message(body) || format_type(type)
+    build(type, status, message, response, body)
   end
 
   def from_response(%{status: status, body: body} = response) when status >= 500 do
-    build(:server_error, body, response)
+    message = extract_message(body) || format_type(:server_error)
+    build(:server_error, status, message, response, body)
   end
 
   # Responses without a body
   def from_response(%{status: status} = response) when status in 400..499 do
     type = @client_error_status_map[status] || :bad_request
-    build(type, %{}, response)
+    build(type, status, format_type(type), response, nil)
   end
 
   def from_response(%{status: status} = response) when status >= 500 do
-    build(:server_error, %{}, response)
+    build(:server_error, status, format_type(:server_error), response, nil)
   end
 
   @doc """
@@ -69,7 +73,8 @@ defmodule DSpace.Api.Error do
   """
   @spec connection_error(term()) :: t()
   def connection_error(reason) do
-    %__MODULE__{type: :api_connection, message: "Connection error", reason: reason}
+    message = format_reason(reason) || "API connection error"
+    build(:api_connection, nil, message, nil, reason)
   end
 
   @doc """
@@ -77,7 +82,8 @@ defmodule DSpace.Api.Error do
   """
   @spec timeout_error(term() | nil) :: t()
   def timeout_error(reason \\ nil) do
-    %__MODULE__{type: :api_timeout, message: "Request timed out", reason: reason}
+    message = format_reason(reason) || "API request timed out"
+    build(:api_timeout, nil, message, nil, reason)
   end
 
   @doc """
@@ -85,35 +91,55 @@ defmodule DSpace.Api.Error do
   """
   def response_validation_error(
         response,
-        message \\ "API response data invalid for expected schema"
+        message \\ "API response data invalid for expected schema",
+        reason \\ nil
       ) do
-    %__MODULE__{type: :api_response_validation, message: message, response: response}
+    status = if response && is_map(response), do: Map.get(response, :status), else: nil
+    build(:api_response_validation, status, message, response, reason)
   end
 
   # Private helpers
 
-  defp build(type, body, response) do
+  defp build(type, status, message, response, reason) do
+    actual_reason =
+      cond do
+        response && is_map(response) && reason == Map.get(response, :body) -> nil
+        true -> reason
+      end
+
     %__MODULE__{
       type: type,
-      message: extract_message(body) || default_message(type),
-      response: response
+      status: status,
+      message: message,
+      response: response,
+      reason: actual_reason
     }
   end
 
   defp extract_message(%{"message" => msg}) when is_binary(msg), do: msg
   defp extract_message(_), do: nil
 
-  # Never trust anything DSpace
-  defp default_message(:bad_request), do: "Bad request"
-  defp default_message(:unauthorized), do: "Authentication required"
-  defp default_message(:forbidden), do: "Insufficient permissions for this operation"
-  defp default_message(:not_found), do: "Resource not found"
-  defp default_message(:method_not_allowed), do: "Method not allowed for this endpoint"
-  defp default_message(:unprocessable_entity), do: "Request could not be processed"
-  defp default_message(:too_many_requests), do: "Rate limit exceeded"
-  defp default_message(:server_error), do: "Server error"
-  defp default_message(:api_csrf_invalid), do: "Invalid CSRF token"
-  defp default_message(_), do: "An error occurred"
+  # Minimal fallback message formatter
+  defp format_type(type) when is_atom(type) do
+    type
+    |> Atom.to_string()
+    |> String.replace("_", " ")
+    |> String.capitalize()
+  end
+
+  defp format_type(_), do: "An error occurred"
+
+  # Tries to get a useful message string from common error reasons
+  defp format_reason({:error, reason}), do: format_reason(reason)
+  defp format_reason({_, description}) when is_binary(description), do: description
+  # Req errors etc.
+  defp format_reason(%{message: msg}) when is_binary(msg), do: msg
+  # e.g. :timeout, :nxdomain
+  defp format_reason(reason) when is_atom(reason) and not is_nil(reason),
+    do: Atom.to_string(reason)
+
+  defp format_reason(reason) when is_binary(reason), do: reason
+  defp format_reason(_), do: nil
 
   defp csrf_token_error?(%{"message" => msg}) when is_binary(msg) do
     String.contains?(msg, "CSRF token")
