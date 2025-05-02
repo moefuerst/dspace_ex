@@ -29,7 +29,11 @@ defmodule Dspace.MixProject do
       description: @description,
       deps: deps(),
       package: package(),
-      dialyzer: [ignore_warnings: ".dialyzer_ignore.exs"] ++ dialyzer_config(Mix.env())
+      dialyzer: [
+        ignore_warnings: ".dialyzer_ignore.exs",
+        plt_core_path: "_build/#{Mix.env()}/plt",
+        plt_file: {:no_warn, "_build/#{Mix.env()}/plt/dialyzer.plt"}
+      ]
     ]
   end
 
@@ -56,14 +60,6 @@ defmodule Dspace.MixProject do
       {:req, "~> 0.5.0", optional: true}
     ]
   end
-
-  defp dialyzer_config(:test),
-    do: [
-      plt_core_path: "_plts/",
-      plt_file: {:no_warn, "_plts/dialyzer.plt"}
-    ]
-
-  defp dialyzer_config(_env), do: []
 
   defp package do
     [

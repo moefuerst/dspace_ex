@@ -13,7 +13,7 @@ iex> IO.inspect(item.dspace_object.name)
 "Making reliable distributed systems in the presence of software errors" # Example output
 ```
 
-To perform actions requiring authentication, you first need to log in or provide an API key:
+To perform actions requiring authentication, you need to log in or provide an API key:
 
 ```elixir
 iex> username = "your_dspace_username"
@@ -28,17 +28,20 @@ iex> IO.inspect(auth_client)
   client_impl: {DSpace.Api.Http.Req, [json: true]},
   endpoint: "https://your.dspace.instance/server"
 }
-iex> # Note: `access_token` and `csrf_token` are hidden from `IO.inspect`
-iex> # for security reasons.
+iex> # (Note: `access_token` and `csrf_token` are hidden from `IO.inspect`
+iex> # for security reasons.)
 iex> #
-iex> # Alternatively, if you already have an access token (e.g., an API key)
-iex> # and potentially a CSRF token, you can provide them directly:
+iex> # If you obtain tokens separately (e.g., API key from config, CSRF
+iex> # from a refresh), update the client:
 iex> api_key = "your_jwt_access_token"
 iex> csrf_token = "your_csrf_token"
-iex> client_with_tokens = DSpace.Api.new("https://your.dspace.instance/server", api_key, csrf_token)
+iex> client_with_tokens =
+...>   client
+...>   |> DSpace.Api.with_access_token(api_key)
+...>   |> DSpace.Api.with_csrf_token(csrf_token)
 ```
 
-For modifying data, such as creating a Collection, you use the authenticated client and a [CSRF token is necessary](#api-authentication-and-csrf).
+For modifying data, such as creating a Collection, you use the authenticated client. A [CSRF token is necessary](#api-authentication-and-csrf) as well.
 
 ```elixir
 iex> parent_community = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
@@ -57,7 +60,7 @@ Refer to the [Documentation](#documentation) for all features.
 
 ## Installation
 
-Add `:dspace` to your list of dependencies in `mix.exs`. You also need to add [Req](https://github.com/wojtekmach/req), which is used as the default HTTP client. If your project uses another client, you can implement the `DSpace.Api.HttpClient` contract and pass the implementation to the `DSpace.Api` module.
+Add `:dspace` to your list of dependencies in `mix.exs`. You also need to add [Req](https://github.com/wojtekmach/req), which is used as the default HTTP client. If your project uses another client, you can implement the `DSpace.Api.Http` contract and pass the implementation to the `DSpace.Api` module.
 
 ```elixir
 def deps do
@@ -76,9 +79,9 @@ Run `mix deps.get` to install.
 This library is a work in progress, and mostly covers retrieval and manipulation of what is called an “item” in DSpace. Help with expanding the functionality is always welcome!
 
 ### API Authentication and "CSRF"
-A peculiarity of the DSpace REST API's design is the misapplication of CSRF protection— the API blends session-based mechanics with REST semantics and requires a CSRF token with all unsafe methods (`POST`, `PUT`, `PATCH`, etc.), regardless of client or endpoint.
+A peculiarity of the DSpace API's design is the misapplication of CSRF protection— the API blends session-based mechanics with REST semantics and requires a CSRF token with all unsafe methods (`POST`, `PUT`, `PATCH`, etc.), regardless of client or endpoint.
 
-At the moment, this library doesn't abstract this uncommon requirement too much, with one exception: the login flow. Since it's highly unusual for a login endpoint to require a CSRF token, `dspace-ex` handles that step internally— you can authenticate directly using `DSpace.Api.login/3` without needing to manually fetch a token beforehand.
+At the moment, this library doesn't abstract this uncommon requirement too much, with one exception: the login flow. `dspace-ex` handles the steps internally— you can authenticate directly using `DSpace.Api.login/3` without needing to manually fetch a token beforehand.
 
 For all other unsafe requests, you must:
 
