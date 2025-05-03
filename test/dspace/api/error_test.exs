@@ -208,7 +208,7 @@ defmodule DSpace.Api.ErrorTest do
 
     test "creates timeout error with default message for unformattable reason" do
       # format_reason/1 won't handle that specifically
-      reason = 12345
+      reason = 12_345
 
       error = Error.timeout_error(reason)
 

@@ -7,7 +7,6 @@ defmodule DSpace.Api.PidTest do
   alias DSpace.Api.Error
   alias DSpace.Api.Object
   alias DSpace.Api.Pid
-  alias DSpace.Api.Pid.Identifier
 
   @api_endpoint "/api/pid"
 

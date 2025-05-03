@@ -102,9 +102,10 @@ defmodule DSpace.Api.Error do
 
   defp build(type, status, message, response, reason) do
     actual_reason =
-      cond do
-        response && is_map(response) && reason == Map.get(response, :body) -> nil
-        true -> reason
+      if response && is_map(response) && reason == Map.get(response, :body) do
+        nil
+      else
+        reason
       end
 
     %__MODULE__{
