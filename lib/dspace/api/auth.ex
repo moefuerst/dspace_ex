@@ -1,6 +1,8 @@
 defmodule DSpace.Api.Auth do
   @moduledoc false
 
+  import DSpace.Utils.Guards
+
   alias DSpace.Api
   alias DSpace.Api.Error
 
@@ -30,7 +32,8 @@ defmodule DSpace.Api.Auth do
   """
   @spec login(api :: Api.t(), username :: binary(), password :: binary()) ::
           {:ok, Api.t()} | {:error, Error.t() | Exception.t()}
-  def login(%Api{} = api, username, password) when is_binary(username) and is_binary(password) do
+  def login(%Api{} = api, username, password)
+      when is_not_empty(username) and is_not_empty(password) do
     with {:ok, api_with_csrf} <- with_csrf_token_if_missing(api),
          {:ok, response} <- attempt_login(api_with_csrf, username, password),
          {:ok, {access_token, csrf_token}} <- process_token_response(response) do
@@ -50,7 +53,7 @@ defmodule DSpace.Api.Auth do
   @spec refresh_access_token(api :: Api.t()) ::
           {:ok, {access :: binary(), csrf :: binary()}}
           | {:error, Error.t() | Exception.t()}
-  def refresh_access_token(%Api{access_token: token} = api) when is_binary(token) do
+  def refresh_access_token(%Api{access_token: token} = api) when is_not_empty(token) do
     case Api.request(api, method: :post, url: @ep_login_url) do
       {:ok, response} -> process_token_response(response)
       {:error, _} = error -> error
@@ -100,7 +103,7 @@ defmodule DSpace.Api.Auth do
   """
   @spec fetch_api_key(api :: Api.t()) ::
           {:ok, binary()} | {:error, Error.t() | Exception.t()}
-  def fetch_api_key(%Api{access_token: token} = api) when is_binary(token) do
+  def fetch_api_key(%Api{access_token: token} = api) when is_not_empty(token) do
     case Api.request(api,
            method: :post,
            url: @ep_api_key_url
@@ -121,7 +124,7 @@ defmodule DSpace.Api.Auth do
   """
   @spec delete_api_key(api :: Api.t()) ::
           :ok | {:error, Error.t() | Exception.t()}
-  def delete_api_key(%Api{access_token: token} = api) when is_binary(token) do
+  def delete_api_key(%Api{access_token: token} = api) when is_not_empty(token) do
     case Api.request(api,
            method: :delete,
            url: @ep_api_key_url
@@ -161,7 +164,7 @@ defmodule DSpace.Api.Auth do
 
   # Private helpers
 
-  defp with_csrf_token_if_missing(%Api{csrf_token: token} = api) when is_binary(token),
+  defp with_csrf_token_if_missing(%Api{csrf_token: token} = api) when is_not_empty(token),
     do: {:ok, api}
 
   defp with_csrf_token_if_missing(api) do
@@ -216,7 +219,7 @@ defmodule DSpace.Api.Auth do
 
   defp extract_csrf(%{headers: %{"dspace-xsrf-token" => [token | _]}}), do: {:ok, token}
 
-  defp extract_csrf(%{headers: %{"dspace-xsrf-token" => token}}) when is_binary(token),
+  defp extract_csrf(%{headers: %{"dspace-xsrf-token" => token}}) when is_not_empty(token),
     do: {:ok, token}
 
   defp extract_csrf(_), do: {:error, :csrf_token_missing}
@@ -228,7 +231,7 @@ defmodule DSpace.Api.Auth do
   defp extract_access_token(%{headers: %{"authorization" => auth}}) do
     case normalize_auth_header(auth) do
       "Bearer " <> token -> {:ok, token}
-      token when is_binary(token) -> {:ok, token}
+      token when is_not_empty(token) -> {:ok, token}
       _ -> {:error, :invalid_auth_header}
     end
   end

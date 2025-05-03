@@ -5,11 +5,15 @@ defmodule DSpace.Api.Item do
   In DSpace-CRIS, items represent different entity types (Publication, Person, Project, etc.) as defined by the `entityType` field.
   """
 
+  import DSpace.Utils.Guards
+
   alias DSpace.Api
   alias DSpace.Api.Error
   alias DSpace.Api.Metadata
   alias DSpace.Api.Object
   alias DSpace.Api.Response
+
+  @ep_url "/api/core/items"
 
   defstruct [
     :dspace_object,
@@ -50,15 +54,13 @@ defmodule DSpace.Api.Item do
           include: atom() | [atom()]
         ]
 
-  @ep_url "/api/core/items"
-
   # Public API
 
   @doc """
   Fetches a single item by UUID.
   """
   @spec fetch(Api.t(), binary()) :: {:ok, t()} | {:error, Error.t() | Exception.t()}
-  def fetch(%Api{} = client, uuid) when is_binary(uuid) do
+  def fetch(%Api{} = client, uuid) when is_not_empty(uuid) do
     case Api.request(client, url: "#{@ep_url}/#{uuid}") do
       {:ok, response} -> {:ok, from_response(response.body)}
       {:error, _} = error -> error
@@ -76,7 +78,7 @@ defmodule DSpace.Api.Item do
   * `:entity_type` - Filter by entity type (e.g., "Publication")
   * `:sort` - Sorting criteria, such as `:last_modified`
   * `:include` - Related resources to include with each item:
-    * `:files` - Include file information ("bundles")
+    * `:files` - Include file information ("bundles", "bitstreams")
     * `:collections` - Include all collections
     * `:primary_collection` - Only owning collection
     * `:relationships` - Include entity relationships
