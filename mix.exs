@@ -16,7 +16,7 @@ defmodule Dspace.MixProject do
   use Mix.Project
 
   @version "0.0.1"
-  @description "DSpace (-CRIS) client for Elixir"
+  @description "DSpace client library for Elixir"
   @source_url "https://github.com/moefuerst/dspace-ex"
 
   def project do
@@ -24,11 +24,16 @@ defmodule Dspace.MixProject do
       app: :dspace,
       version: @version,
       elixir: "~> 1.18",
+      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       description: @description,
       deps: deps(),
       package: package(),
-      dialyzer: [ignore_warnings: ".dialyzer_ignore.exs"] ++ dialyzer_config(Mix.env())
+      dialyzer: [
+        ignore_warnings: ".dialyzer_ignore.exs",
+        plt_core_path: "_build/#{Mix.env()}/plt",
+        plt_file: {:no_warn, "_build/#{Mix.env()}/plt/dialyzer.plt"}
+      ]
     ]
   end
 
@@ -39,26 +44,26 @@ defmodule Dspace.MixProject do
     ]
   end
 
+  # Specifies which paths to compile per environment.
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
+
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:nimble_options, "~> 1.1"},
+      {:bypass, "~> 2.1", only: [:dev, :test]},
+      {:stream_data, "~> 0.6", only: [:dev, :test]},
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:ex_doc, ">= 0.19.0", only: :dev}
+      {:ex_doc, ">= 0.19.0", only: :dev},
+      {:req, "~> 0.5.0", optional: true}
     ]
   end
 
-  defp dialyzer_config(:test),
-    do: [
-      plt_core_path: "_plts/",
-      plt_file: {:no_warn, "_plts/dialyzer.plt"}
-    ]
-
-  defp dialyzer_config(_env), do: []
-
   defp package do
     [
-      licenses: ["AGPL-3.0"],
+      licenses: ["AGPL-3.0-or-later"],
       links: %{"GitHub" => @source_url}
     ]
   end
