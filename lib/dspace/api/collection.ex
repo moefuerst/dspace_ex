@@ -4,6 +4,8 @@ defmodule DSpace.Api.Collection do
   Collections are owned by Communities and organize repository content.
   """
 
+  import DSpace.Utils.Guards
+
   alias DSpace.Api
   alias DSpace.Api.Error
   alias DSpace.Api.Metadata
@@ -40,7 +42,7 @@ defmodule DSpace.Api.Collection do
   """
   @spec fetch(Api.t(), binary()) ::
           {:ok, t()} | {:error, Error.t() | Exception.t()}
-  def fetch(%Api{} = client, uuid) when is_binary(uuid) do
+  def fetch(%Api{} = client, uuid) when is_not_empty(uuid) do
     case Api.request(client, url: "#{@ep_url}/#{uuid}") do
       {:ok, response} -> {:ok, from_response(response.body)}
       {:error, _} = error -> error
@@ -67,7 +69,7 @@ defmodule DSpace.Api.Collection do
   """
   @spec fetch_with_entity_type(Api.t(), binary()) ::
           {:ok, [t()]} | {:error, Error.t() | Exception.t()}
-  def fetch_with_entity_type(%Api{} = client, entity_type) when is_binary(entity_type) do
+  def fetch_with_entity_type(%Api{} = client, entity_type) when is_not_empty(entity_type) do
     client
     |> Api.stream(
       [url: @ep_url, params: [entityType: entity_type]],
@@ -83,7 +85,7 @@ defmodule DSpace.Api.Collection do
   @spec fetch_for_community(Api.t(), binary()) ::
           {:ok, [t()]} | {:error, Error.t() | Exception.t()}
   def fetch_for_community(%Api{} = client, community_uuid)
-      when is_binary(community_uuid) do
+      when is_not_empty(community_uuid) do
     client
     |> Api.stream(
       [url: "#{@ep_community_url}/#{community_uuid}/collections"],
@@ -98,7 +100,7 @@ defmodule DSpace.Api.Collection do
   """
   @spec create(Api.t(), map(), binary()) :: {:ok, t()} | {:error, Error.t() | Exception.t()}
   def create(%Api{} = client, body, parent_uuid)
-      when is_map(body) and is_binary(parent_uuid) do
+      when is_map(body) and is_not_empty(parent_uuid) do
     case Api.request(client,
            method: :post,
            url: @ep_url,
@@ -133,7 +135,7 @@ defmodule DSpace.Api.Collection do
   """
   @spec replace(Api.t(), binary(), map()) ::
           {:ok, t()} | {:error, Error.t() | Exception.t()}
-  def replace(%Api{} = client, uuid, body) when is_binary(uuid) and is_map(body) do
+  def replace(%Api{} = client, uuid, body) when is_not_empty(uuid) and is_map(body) do
     case Api.request(client,
            method: :put,
            url: "#{@ep_url}/#{uuid}",
@@ -148,7 +150,7 @@ defmodule DSpace.Api.Collection do
   Deletes a collection.
   """
   @spec delete(Api.t(), binary()) :: :ok | {:error, Error.t() | Exception.t()}
-  def delete(%Api{} = client, uuid) when is_binary(uuid) do
+  def delete(%Api{} = client, uuid) when is_not_empty(uuid) do
     case Api.request(client, method: :delete, url: "#{@ep_url}/#{uuid}") do
       {:ok, _} -> :ok
       {:error, _} = error -> error

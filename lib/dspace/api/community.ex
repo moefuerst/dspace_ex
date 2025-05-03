@@ -4,6 +4,8 @@ defmodule DSpace.Api.Community do
   Communities form the hierarchical structure of a DSpace repository.
   """
 
+  import DSpace.Utils.Guards
+
   alias DSpace.Api
   alias DSpace.Api.Error
   alias DSpace.Api.Metadata
@@ -38,7 +40,7 @@ defmodule DSpace.Api.Community do
   Fetches a single community by UUID.
   """
   @spec fetch(Api.t(), binary()) :: {:ok, t()} | {:error, Error.t() | Exception.t()}
-  def fetch(%Api{} = client, uuid) when is_binary(uuid) do
+  def fetch(%Api{} = client, uuid) when is_not_empty(uuid) do
     case Api.request(client, url: "#{@ep_url}/#{uuid}") do
       {:ok, response} -> {:ok, from_response(response.body)}
       {:error, _} = error -> error
@@ -91,7 +93,7 @@ defmodule DSpace.Api.Community do
   """
   @spec create_sub(Api.t(), map(), binary()) :: {:ok, t()} | {:error, Error.t() | Exception.t()}
   def create_sub(%Api{} = client, body, parent_uuid)
-      when is_map(body) and is_binary(parent_uuid) do
+      when is_map(body) and is_not_empty(parent_uuid) do
     case Api.request(client,
            method: :post,
            url: @ep_url,
@@ -125,7 +127,7 @@ defmodule DSpace.Api.Community do
   Note: This is a full replacement operation. All fields must be included and non-editable fields (id, uuid, handle, type) must remain unchanged if specified. For updating metadata only, use `update_metadata/3` instead.
   """
   @spec replace(Api.t(), binary(), map()) :: {:ok, t()} | {:error, Error.t() | Exception.t()}
-  def replace(%Api{} = client, uuid, body) when is_binary(uuid) and is_map(body) do
+  def replace(%Api{} = client, uuid, body) when is_not_empty(uuid) and is_map(body) do
     case Api.request(client,
            method: :put,
            url: "#{@ep_url}/#{uuid}",
@@ -140,7 +142,7 @@ defmodule DSpace.Api.Community do
   Deletes a community.
   """
   @spec delete(Api.t(), binary()) :: :ok | {:error, Error.t() | Exception.t()}
-  def delete(%Api{} = client, uuid) when is_binary(uuid) do
+  def delete(%Api{} = client, uuid) when is_not_empty(uuid) do
     case Api.request(client, method: :delete, url: "#{@ep_url}/#{uuid}") do
       {:ok, _} -> :ok
       {:error, _} = error -> error

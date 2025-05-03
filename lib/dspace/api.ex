@@ -5,6 +5,8 @@ defmodule DSpace.Api do
   Provides credentials and connection details for making requests to the API.
   """
 
+  import DSpace.Utils.Guards
+
   alias DSpace.Api.Auth
   alias DSpace.Api.Error
   alias DSpace.Api.Http
@@ -58,7 +60,7 @@ defmodule DSpace.Api do
   Updates the API endpoint.
   """
   @spec with_endpoint(api :: t(), endpoint :: binary()) :: t()
-  def with_endpoint(%__MODULE__{} = api, endpoint) when is_binary(endpoint) do
+  def with_endpoint(%__MODULE__{} = api, endpoint) when is_not_empty(endpoint) do
     %{api | endpoint: endpoint}
   end
 
@@ -66,7 +68,7 @@ defmodule DSpace.Api do
   Updates the Access token.
   """
   @spec with_access_token(api :: t(), access_token :: binary()) :: t()
-  def with_access_token(%__MODULE__{} = api, access_token) when is_binary(access_token) do
+  def with_access_token(%__MODULE__{} = api, access_token) when is_not_empty(access_token) do
     %{api | access_token: access_token}
   end
 
@@ -74,7 +76,7 @@ defmodule DSpace.Api do
   Updates the CSRF token.
   """
   @spec with_csrf_token(api :: t(), csrf_token :: binary()) :: t()
-  def with_csrf_token(%__MODULE__{} = api, csrf_token) when is_binary(csrf_token) do
+  def with_csrf_token(%__MODULE__{} = api, csrf_token) when is_not_empty(csrf_token) do
     %{api | csrf_token: csrf_token}
   end
 
@@ -88,7 +90,7 @@ defmodule DSpace.Api do
   Updates the API version.
   """
   @spec with_api_version(api :: t(), version :: binary()) :: t()
-  def with_api_version(%__MODULE__{} = api, version) when is_binary(version) do
+  def with_api_version(%__MODULE__{} = api, version) when is_not_empty(version) do
     %{api | api_version: version}
   end
 

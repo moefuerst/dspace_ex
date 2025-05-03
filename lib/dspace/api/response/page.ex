@@ -6,6 +6,8 @@ defmodule DSpace.Api.Response.Page do
   See [section on pagination in the Rest7Contract](https://github.com/4Science/Rest7Contract?tab=readme-ov-file#pagination)
   """
 
+  import DSpace.Utils.Guards
+
   defstruct [
     :number,
     :size,
@@ -77,7 +79,7 @@ defmodule DSpace.Api.Response.Page do
   @spec next(map(), keyword()) :: keyword() | nil
   def next(response, options) do
     case from_response(response.body) do
-      %{next_page: next_page} when is_binary(next_page) and next_page != "" ->
+      %{next_page: next_page} when is_not_empty(next_page) ->
         options
         |> Keyword.put(:url, next_page)
         # next_page is a full URL already including all necessary query parameters
