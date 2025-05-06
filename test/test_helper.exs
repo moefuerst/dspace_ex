@@ -25,7 +25,7 @@ defmodule TestHelper do
   end
 end
 
-ExUnit.configure(exclude: :integration)
+ExUnit.configure(exclude: :external)
 ExUnit.start()
 
 Application.ensure_all_started(:bypass)

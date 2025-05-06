@@ -116,9 +116,9 @@ defmodule DSpace.Api do
     request_options =
       [base_url: endpoint]
       |> Keyword.merge(client_options)
+      |> Keyword.merge(options)
       |> maybe_add_csrf(api.csrf_token)
       |> maybe_add_auth(api.access_token)
-      |> Keyword.merge(options)
       |> unsafe_methods_need_csrf!()
 
     Http.request(client_impl, request_options)

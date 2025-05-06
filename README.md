@@ -108,6 +108,28 @@ The project documentation can be generated with `mix docs`. You can then open `d
 $ mix test
 ```
 
+### External Tests
+
+This library includes tests that can be run against a real DSpace repository for compatibility verification and integration testing. External tests are excluded by default and won't run during normal test execution. **These tests should ONLY be run against a test or development instance you don't care about.** While the test suite attempts to clean up after itself, it **WILL create, modify, and potentially delete data** in the target repository. Running these tests against production systems is a bad idea.
+
+```shell
+# Set DSpace endpoint URL for your test instance:
+$ export DSPACE_ENDPOINT=https://your.dspace.instance/server
+
+# Run the read-only external tests
+$ mix test --only external --exclude requires_auth
+
+# To run all external tests, including those that modify data,
+# you need to provide authentication credentials.
+$ export DSPACE_ADMIN_EMAIL=your-email@example.com
+$ export DSPACE_ADMIN_PASSWORD=your-password
+# OR
+$ export DSPACE_ADMIN_APITOKEN=your-api-token
+
+# Run all external tests
+$ mix test --only external
+```
+
 ## Contributing
 
 Pull requests to contribute new features or enhancements are most welcome. Please run `mix format` and an analysis with `mix dialyzer` and `mix credo` before committing your changes.

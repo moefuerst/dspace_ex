@@ -182,8 +182,7 @@ defmodule DSpace.Api.Auth do
       url: @ep_login_url,
       body: form_body,
       headers: [
-        {"content-type", "application/x-www-form-urlencoded"},
-        {"x-xsrf-token", api.csrf_token}
+        {"content-type", "application/x-www-form-urlencoded"}
       ],
       json: false
     )
