@@ -1,5 +1,6 @@
 # Used by "mix format"
 [
   inputs: ["{mix,.formatter}.exs", "{config,lib,test,scripts}/**/*.{ex,exs}"],
-  plugins: [Styler]
+  plugins: [Styler],
+  styler: [alias_lifting_exclude: [:Req]]
 ]

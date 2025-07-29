@@ -52,6 +52,9 @@ defmodule DSpace.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:nimble_options, "~> 1.1"},
+      {:req, "~> 0.5", optional: true},
+
       # Dev and Test dependencies
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
