@@ -1,21 +1,29 @@
-# Dspace
+# dspace-ex
 
-**TODO: Add description**
+DSpace client library for Elixir.
+
+## Features
+
+## Usage
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `dspace` to your list of dependencies in `mix.exs`:
+## Documentation
 
-```elixir
-def deps do
-  [
-    {:dspace, "~> 0.1.0"}
-  ]
-end
+The project documentation can be generated with `mix docs`. You can then open `doc/index.html` in your browser.
+
+## Tests
+
+```shell
+$ mix test
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/dspace>.
+## Contributing
 
+Pull requests to contribute new features or enhancements are most welcome. Please run `mix format` and an analysis with `mix dialyzer` and `mix credo` before committing your changes.
+
+## Acknowledgments
+
+## License
+
+Licensed under the GNU Affero General Public License v3.0 or later. See the [LICENSE](./LICENSE) file for details. We encourage adoption in public educational institutions, libraries, museums, government agencies, and research organizations. If your institution faces any legal or procurement challenges with AGPLv3, we offer a **permissive, non-commercial use exemption**.
