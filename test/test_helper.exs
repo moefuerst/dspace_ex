@@ -1,9 +1,9 @@
 defmodule TestHelper do
   @moduledoc false
 
-  defmodule Http do
+  defmodule HTTP do
     @moduledoc false
-    @behaviour DSpace.Api.Http
+    @behaviour DSpace.API.HTTP
 
     @impl true
     def request(options) do
@@ -13,7 +13,7 @@ defmodule TestHelper do
       headers = Keyword.get(options, :test_return_headers, %{"content-type" => ["application/json"]})
       body = Keyword.get(options, :test_return_body, %{"response" => "ok"})
 
-      {:ok, %DSpace.Api.Http.Response{status: status, headers: headers, body: body}}
+      {:ok, %DSpace.API.HTTP.Response{status: status, headers: headers, body: body}}
     end
   end
 

@@ -1,4 +1,4 @@
-defprotocol DSpace.Api.Operation do
+defprotocol DSpace.API.Operation do
   @moduledoc """
   Defines a protocol for executing operations on a DSpace API.
   """

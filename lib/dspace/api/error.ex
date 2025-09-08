@@ -1,9 +1,11 @@
-defmodule DSpace.Api.Error do
+defmodule DSpace.API.Error do
   @moduledoc """
-  Represents a DSpace API Error.
+  Represents an API Error.
   """
 
-  alias DSpace.Api.Http.Response
+  import DSpace.API.Utils, only: [is_nonempty_binary: 1]
+
+  alias DSpace.API.HTTP.Response
 
   # Expected error codes per API contract
   @expected_client_errors %{
@@ -20,9 +22,9 @@ defmodule DSpace.Api.Error do
 
   @type t :: %__MODULE__{
           type: error_type(),
-          status: non_neg_integer() | nil,
+          status: non_neg_integer(),
           message: binary(),
-          request_url: binary(),
+          request_url: URI.t(),
           response: Response.t()
         }
 
@@ -35,21 +37,19 @@ defmodule DSpace.Api.Error do
           | :unprocessable_entity
           | :too_many_requests
           | :server_error
-          | :csrf_invalid
-          | :api_unexpected_client_error
+          | :api_csrf_invalid
           | :api_unexpected_response
           | :api_unexpected_payload
-          | :api_error
+          | :api_unexpected_client_error
 
   # Public API
 
   @doc """
-  Creates an error from a response.
+  Builds an error from a response structure based on the HTTP status code.
   """
   @spec from_response(Response.t()) :: t()
   def from_response(%Response{status: 403, body: body} = response) do
-    type = if csrf_token_error?(body), do: :api_csrf_invalid, else: :forbidden
-    message = extract_message(body) || format_type(type)
+    {type, message} = maybe_csrf_error(body)
 
     exception(type: type, status: 403, message: message, response: response)
   end
@@ -74,12 +74,14 @@ defmodule DSpace.Api.Error do
   end
 
   @doc """
-  Creates a response validation error.
+  Builds a validation error from a response structure.
   """
   @spec response_validation_error(Response.t(), binary()) :: t()
-  def response_validation_error(response, message \\ "API response data invalid for expected schema.") do
-    status = Map.get(response, :status)
-
+  def response_validation_error(
+        %Response{status: status} = response,
+        message \\ "API response data invalid for expected schema."
+      )
+      when is_nonempty_binary(message) do
     exception(type: :api_unexpected_payload, status: status, message: message, response: response)
   end
 
@@ -92,14 +94,25 @@ defmodule DSpace.Api.Error do
     struct(__MODULE__, attributes)
   end
 
-  def exception(message) when is_binary(message) do
-    struct(__MODULE__, type: :api_error, message: message)
-  end
-
   # Private helpers
 
-  defp extract_message(%{"message" => msg}) when is_binary(msg), do: msg
+  defp extract_message(%{"message" => message}) when is_nonempty_binary(message), do: message
   defp extract_message(_), do: nil
+
+  defp maybe_csrf_error(body) do
+    message = extract_message(body)
+
+    cond do
+      is_nonempty_binary(message) and String.contains?(message, "CSRF token") ->
+        {:api_csrf_invalid, message}
+
+      is_nonempty_binary(message) ->
+        {:forbidden, message}
+
+      true ->
+        {:forbidden, "Forbidden"}
+    end
+  end
 
   defp format_type(type) when is_atom(type) do
     type
@@ -107,10 +120,4 @@ defmodule DSpace.Api.Error do
     |> String.replace("_", " ")
     |> String.capitalize()
   end
-
-  defp csrf_token_error?(%{"message" => msg}) when is_binary(msg) do
-    String.contains?(msg, "CSRF token")
-  end
-
-  defp csrf_token_error?(_), do: false
 end

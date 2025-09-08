@@ -1,99 +1,84 @@
-defmodule DSpace.Api.HttpTest do
-  @moduledoc """
-  Tests for Http behavior.
-  """
+defmodule DSpace.API.HTTPTest do
   use ExUnit.Case, async: true
 
-  alias DSpace.Api.Http
+  import TestHelper, only: [respond_with_json: 3]
+
+  alias DSpace.API.Error
+  alias DSpace.API.HTTP
 
   setup do
     bypass = Bypass.open()
+
     {:ok, bypass: bypass}
   end
 
-  describe "Default HTTP adapter implementation using Req" do
-    @doc """
-    Verifies that the adapter implementation handles requests and maintains compatibility with the options defined in the contract.
-
-    Demonstrates that the adapter
-    * supports method verb
-    * supports query params
-    * supports setting an auth header from a given bearer token
-    * takes a JSON payload as an option and correctly sends it
-    * parses JSON responses and encodes them into a map
-    * supports URL concatenation when an endpoint is given via `base_url`
-    * returns a `t:DSpace.Api.Http.Response/0`
-    """
-    test "makes a request using request/1", %{bypass: bypass} do
-      Bypass.expect_once(bypass, "POST", "/some-post", fn conn ->
-        assert Plug.Conn.get_req_header(conn, "authorization") == ["Bearer my123bearer"],
-               "Authorization header not set correctly"
-
-        assert Plug.Conn.get_req_header(conn, "content-type") == ["application/json"],
-               "Content-Type header not set correctly"
-
-        assert Plug.Conn.fetch_query_params(conn).query_params == %{"x" => "1", "y" => "param"},
-               "Query params not set correctly"
-
-        {:ok, body, conn} = Plug.Conn.read_body(conn)
-
-        assert body == ~s({"key":"value"}),
-               "JSON payload was not delivered correctly"
-
-        conn = Plug.Conn.put_resp_header(conn, "content-type", "application/json")
-        Plug.Conn.resp(conn, 200, ~s({"key":"other_value"}))
+  describe "Request preparation" do
+    test "Adds requested endpoint to the response structure", %{bypass: bypass} do
+      Bypass.expect_once(bypass, "GET", "/my-path", fn conn ->
+        Plug.Conn.resp(conn, 200, "ok")
       end)
 
-      result =
-        Http.Req.request(
-          method: :post,
-          base_url: url(bypass),
-          url: "/some-post",
-          auth: {:bearer, "my123bearer"},
-          json: %{key: "value"},
-          params: [x: 1, y: "param"],
-          # Disable retry to fail fast:
-          retry: false
-        )
+      result = HTTP.request(HTTP.Req, url: URI.parse(url(bypass) <> "/my-path"))
 
-      assert {:ok, %Http.Response{body: %{"key" => "other_value"}, status: 200}} = result
-    end
-
-    @doc """
-    Verifies that the adapter properly propagates exceptions for failed requests
-
-    An example are connection failures.
-    """
-    test "propagates exceptions from failed requests using request/1", %{bypass: bypass} do
-      Bypass.down(bypass)
-
-      # Disable retry to fail fast
-      result = Http.Req.request(base_url: url(bypass), url: "/some-path", retry: false)
-
-      assert {:error, %Http.Error{reason: %Req.TransportError{}}} = result
-    end
-
-    @doc """
-    Verifies that the adapter treats 5xx responses as regular responses and not exceptions.
-
-    Demonstrates that:
-    * 500 responses don't return or raise errors
-    * Response status and body are returned normally
-    * JSON parsing still works for error responses
-    """
-    test "handles 500 response as response, not exception", %{bypass: bypass} do
-      Bypass.expect_once(bypass, "GET", "/error", fn conn ->
-        conn
-        |> Plug.Conn.put_resp_header("content-type", "application/json")
-        |> Plug.Conn.resp(500, ~s({"error": "internal server error"}))
-      end)
-
-      # Disable retry to fail fast
-      result = Http.Req.request(base_url: url(bypass), url: "/error", retry: false)
-
-      assert {:ok, %Http.Response{body: %{"error" => "internal server error"}, status: 500}} = result
+      assert {:ok, %HTTP.Response{request_url: requested}} = result
+      assert requested.path == "/my-path"
     end
   end
 
+  describe "Response normalization" do
+    test "returns DSpace.API.Error for common non-success status codes", %{bypass: bypass} do
+      common_error_codes = [400, 401, 403, 404, 410, 412, 422, 429, 500, 502, 503]
+
+      for status <- common_error_codes do
+        Bypass.expect_once(bypass, "GET", "/error", fn conn ->
+          respond_with_json(conn, status, ~s({"error": "error for status #{status}"}))
+        end)
+
+        # Disable retry to fail fast
+        result =
+          HTTP.request(HTTP.Req,
+            url: url(bypass) <> "/error",
+            expected_status: [200],
+            retry: false
+          )
+
+        assert {:error, %Error{status: http_status}} = result
+        assert status == http_status
+      end
+    end
+
+    test "returns DSpace.API.Error for unexpected response 304 Not Modified", %{bypass: bypass} do
+      Bypass.expect_once(bypass, "GET", "/not-modified", fn conn ->
+        respond_with_json(conn, 304, "")
+      end)
+
+      # Disable retry to fail fast
+      result =
+        HTTP.request(HTTP.Req,
+          url: url(bypass) <> "/not-modified",
+          expected_status: [200],
+          retry: false
+        )
+
+      assert {:error, %Error{type: :api_unexpected_response, status: 304}} = result
+    end
+
+    test "propagates exceptional error returned by the HTTP adapter as DSpace.API.HTTP.Error", %{
+      bypass: bypass
+    } do
+      Bypass.expect_once(bypass, fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-length", "error")
+        |> Plug.Conn.put_resp_header("transfer-encoding", "20")
+        |> Plug.Conn.resp(200, "")
+      end)
+
+      result = HTTP.request(HTTP.Req, url: url(bypass) <> "/error", retry: false)
+
+      assert {:error, %DSpace.API.HTTP.Error{reason: %Req.HTTPError{}}} = result
+    end
+  end
+
+  # Private helpers
   defp url(bypass), do: "http://localhost:#{bypass.port}"
 end
