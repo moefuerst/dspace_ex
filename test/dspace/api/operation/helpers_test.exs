@@ -93,6 +93,69 @@ defmodule DSpace.API.Operation.HelpersTest do
       result = Helpers.maybe_apply_version_overrides(operation, client)
       assert result.path == "/original"
     end
+
+    test "handles empty version_overrides list" do
+      operation = %Operation.Query{
+        path: "/test",
+        http_method: :get,
+        version_overrides: []
+      }
+
+      client = %API{api_version: "7.6.1"}
+      result = Helpers.maybe_apply_version_overrides(operation, client)
+      assert result == operation
+    end
+
+    test "handles overriding same field multiple times" do
+      operation = %Operation.Query{
+        path: "/test",
+        http_method: :get,
+        version_overrides: [
+          {">= 7.0.0", [http_method: :post]},
+          {">= 7.5.0", [http_method: :patch]}
+        ]
+      }
+
+      client = %API{api_version: "7.5.0"}
+      result = Helpers.maybe_apply_version_overrides(operation, client)
+      assert result.http_method == :patch
+    end
+
+    test "handles invalid field names gracefully" do
+      operation = %Operation.Query{
+        path: "/test",
+        http_method: :get,
+        version_overrides: [
+          {">= 7.5.0", [nonexistent_field: :value, http_method: :post]}
+        ]
+      }
+
+      client = %API{api_version: "7.5.0"}
+      result = Helpers.maybe_apply_version_overrides(operation, client)
+      # Valid field should still be applied
+      assert result.http_method == :post
+    end
+
+    test "handles complex nested version requirements" do
+      operation = %Operation.Query{
+        path: "/original",
+        version_overrides: [
+          {"~> 7.0.0", [path: "/v7"]},
+          {">= 7.5.0 and < 8.0.0", [path: "/v7_5_plus"]},
+          {"== 7.6.0", [path: "/exactly_7_6"]}
+        ]
+      }
+
+      # 7.6.0 matches all three
+      client = %API{api_version: "7.6.0"}
+      result = Helpers.maybe_apply_version_overrides(operation, client)
+      assert result.path == "/exactly_7_6"
+
+      # 7.5.1 matches first two
+      client = %API{api_version: "7.5.1"}
+      result = Helpers.maybe_apply_version_overrides(operation, client)
+      assert result.path == "/v7_5_plus"
+    end
   end
 
   describe "maybe_invoke_session_callback/2" do

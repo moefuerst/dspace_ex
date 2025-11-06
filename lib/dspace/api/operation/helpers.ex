@@ -9,6 +9,14 @@ defmodule DSpace.API.Operation.Helpers do
 
   # API for internal use
 
+  @doc """
+  Drops operation options not relevant for the HTTP Adapter
+  """
+  @spec drop_extra_options(keyword()) :: keyword()
+  def drop_extra_options(options) do
+    Keyword.delete(options, :transform)
+  end
+
   def maybe_add_auth_header(headers, access_token) when is_nonempty_binary(access_token) do
     Map.put(headers, "authorization", ["Bearer " <> access_token])
   end
@@ -61,7 +69,8 @@ defmodule DSpace.API.Operation.Helpers do
     updated_operation
   end
 
-  @spec maybe_invoke_callback(Operation.t(), API.t(), keyword()) :: {Operation.t(), API.t(), keyword()}
+  @spec maybe_invoke_callback(Operation.t(), API.t(), keyword()) ::
+          {Operation.t(), API.t(), keyword()}
   def maybe_invoke_callback(%{before_step: nil} = operation, client, options) do
     {operation, client, options}
   end
@@ -100,6 +109,7 @@ defmodule DSpace.API.Operation.Helpers do
   @spec normalize_result(term()) :: {:ok, term()} | {:error, term()}
   def normalize_result({:ok, _} = result), do: result
   def normalize_result({:error, _} = error), do: error
+  def normalize_result(error) when is_exception(error), do: {:error, error}
   def normalize_result(result), do: {:ok, result}
 
   # Private helpers
