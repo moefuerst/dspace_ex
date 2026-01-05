@@ -1,0 +1,95 @@
+{
+	"id": "577d7908-a2a1-4fc4-a1b1-56f691eae28a",
+	"uuid": "577d7908-a2a1-4fc4-a1b1-56f691eae28a",
+	"name": "Publications",
+	"handle": "20.000.12345/7",
+	"metadata": {
+		"dc.description.abstract": [
+			{
+				"value": "Publications",
+				"language": null,
+				"authority": null,
+				"confidence": -1,
+				"place": 0
+			}
+		],
+		"dc.identifier.uri": [
+			{
+				"value": "https://example.com/handle/20.000.12345/7",
+				"language": null,
+				"authority": null,
+				"confidence": -1,
+				"place": 0
+			}
+		],
+		"dc.title": [
+			{
+				"value": "Publications",
+				"language": null,
+				"authority": null,
+				"confidence": -1,
+				"place": 0
+			}
+		],
+		"dspace.entity.type": [
+			{
+				"value": "Publication",
+				"language": null,
+				"authority": null,
+				"confidence": -1,
+				"place": 0
+			}
+		]
+	},
+	"archivedItemsCount": -1,
+	"type": "collection",
+	"_links": {
+		"harvester": {
+			"href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/harvester"
+		},
+		"itemtemplate": {
+			"href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/itemtemplate"
+		},
+		"license": {
+			"href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/license"
+		},
+		"logo": {
+			"href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/logo"
+		},
+		"mappedItems": {
+			"href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/mappedItems"
+		},
+		"parentCommunity": {
+			"href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/parentCommunity"
+		},
+		"adminGroup": {
+			"href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/adminGroup"
+		},
+		"submittersGroup": {
+			"href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/submittersGroup"
+		},
+		"itemReadGroup": {
+			"href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/itemReadGroup"
+		},
+		"bitstreamReadGroup": {
+			"href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/bitstreamReadGroup"
+		},
+		"self": {
+			"href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a"
+		},
+		"workflowGroups": [
+			{
+				"href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/workflowGroups/reviewer",
+				"name": "reviewer"
+			},
+			{
+				"href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/workflowGroups/editor",
+				"name": "editor"
+			},
+			{
+				"href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/workflowGroups/finaleditor",
+				"name": "finaleditor"
+			}
+		]
+	}
+}

@@ -1,0 +1,75 @@
+{
+  "id": "7669c72a-3f2a-451f-a3b9-9210e7a4c02f",
+  "uuid": "7669c72a-3f2a-451f-a3b9-9210e7a4c02f",
+  "name": "OR2017 - Demonstration",
+  "handle": "10673/11",
+  "metadata": {
+    "dc.description": [
+      {
+        "value": "Introductory text",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "dc.description.abstract": [
+      {
+        "value": "This is a test community to hold content for the OR2017 demostration",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "dc.identifier.uri": [
+      {
+        "value": "https://example.com/handle/10673/11",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "dc.rights": [
+      {
+        "value": "",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "dc.title": [
+      {
+        "value": "OR2017 - Demonstration",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ]
+  },
+  "archivedItemsCount": -1,
+  "type": "community",
+  "_links": {
+    "collections": {
+      "href": "https://example.com/server/api/core/communities/7669c72a-3f2a-451f-a3b9-9210e7a4c02f/collections"
+    },
+    "logo": {
+      "href": "https://example.com/server/api/core/communities/7669c72a-3f2a-451f-a3b9-9210e7a4c02f/logo"
+    },
+    "subcommunities": {
+      "href": "https://example.com/server/api/core/communities/7669c72a-3f2a-451f-a3b9-9210e7a4c02f/subcommunities"
+    },
+    "parentCommunity": {
+      "href": "https://example.com/server/api/core/communities/7669c72a-3f2a-451f-a3b9-9210e7a4c02f/parentCommunity"
+    },
+    "adminGroup": {
+      "href": "https://example.com/server/api/core/communities/7669c72a-3f2a-451f-a3b9-9210e7a4c02f/adminGroup"
+    },
+    "self": {
+      "href": "https://example.com/server/api/core/communities/7669c72a-3f2a-451f-a3b9-9210e7a4c02f"
+    }
+  }
+}

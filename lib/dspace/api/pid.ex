@@ -1,9 +1,9 @@
 defmodule DSpace.API.PID do
   @moduledoc """
-  Functions for working with persistent identifiers.
+  Operations for working with persistent identifiers.
   """
 
-  import DSpace.API.Utils
+  import DSpace.Utils, only: [is_nonempty_binary: 1]
 
   alias DSpace.API.Operation
 
@@ -14,13 +14,14 @@ defmodule DSpace.API.PID do
   @doc """
   Resolves a persistent identifier to a "DSpace Object" resource.
 
-  Attempts to find a "DSpace Object" matching the provided identifier (DOI, Handle, etc.).
-  If found, redirects the request to the endpoint for that resource. Executing this operation will
-  return the resource or an API error.
+  Attempts to find a "DSpace Object" matching the provided identifier (DOI, Handle, etc.). If
+  found, redirects the request to the endpoint for that resource.
+
+  Executing this operation will return the resource or an API error.
   """
-  @spec resolve(binary()) :: Operation.Query.t()
+  @spec resolve(binary()) :: Operation.JSON.t()
   def resolve(identifier) when is_nonempty_binary(identifier) do
-    %Operation.Query{
+    %Operation.JSON{
       path: @ep_resolve,
       params: [id: identifier]
     }

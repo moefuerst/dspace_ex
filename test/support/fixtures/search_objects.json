@@ -1,0 +1,437 @@
+{
+  "id": null,
+  "scope": null,
+  "query": null,
+  "appliedFilters": null,
+  "sort": null,
+  "configuration": null,
+  "type": "discover",
+  "_links": {
+    "self": {
+      "href": "https://example.com/server/api/discover/search/objects"
+    }
+  },
+  "_embedded": {
+    "searchResult": {
+      "_links": {
+        "next": {
+          "href": "https://example.com/server/api/discover/search/objects?page=1&size=1"
+        },
+        "last": {
+          "href": "https://example.com/server/api/discover/search/objects?page=20933&size=1"
+        },
+        "self": {
+          "href": "https://example.com/server/api/discover/search/objects?size=1"
+        }
+      },
+      "_embedded": {
+        "objects": [
+          {
+            "hitHighlights": null,
+            "type": "discover",
+            "_links": {
+              "indexableObject": {
+                "href": "https://example.com/server/api/core/items/1dbf4cda-9138-48ad-a26a-21ef475de9fc"
+              }
+            },
+            "_embedded": {
+              "indexableObject": {
+                "id": "1dbf4cda-9138-48ad-a26a-21ef475de9fc",
+                "uuid": "1dbf4cda-9138-48ad-a26a-21ef475de9fc",
+                "name": "Concurrent Programming Patterns in Erlang: A Comprehensive Guide to Actor Model Implementation and Fault-Tolerant Systems",
+                "handle": "20.000.12345/139469",
+                "metadata": {
+                  "dc.contributor.author": [
+                    {
+                      "value": "Armstrong, Joe",
+                      "language": null,
+                      "authority": "3f1d16b7-ad11-4134-bff6-9ad003d6de4f",
+                      "confidence": 600,
+                      "place": 0
+                    }
+                  ],
+                  "dc.title": [
+                    {
+                      "value": "Concurrent Programming Patterns in Erlang: A Comprehensive Guide to Actor Model Implementation and Fault-Tolerant Systems",
+                      "language": null,
+                      "authority": null,
+                      "confidence": -1,
+                      "place": 0
+                    }
+                  ],
+                  "dc.type": [
+                    {
+                      "value": "article",
+                      "language": null,
+                      "authority": null,
+                      "confidence": -1,
+                      "place": 0
+                    }
+                  ],
+                  "dspace.entity.type": [
+                    {
+                      "value": "Publication",
+                      "language": null,
+                      "authority": null,
+                      "confidence": -1,
+                      "place": 0
+                    }
+                  ]
+                },
+                "inArchive": true,
+                "discoverable": true,
+                "withdrawn": false,
+                "lastModified": "2025-05-27T05:53:15.757+00:00",
+                "entityType": "Publication",
+                "type": "item",
+                "_links": {
+                  "accessStatus": {
+                    "href": "https://example.com/server/api/core/items/1dbf4cda-9138-48ad-a26a-21ef475de9fc/accessStatus"
+                  },
+                  "bundles": {
+                    "href": "https://example.com/server/api/core/items/1dbf4cda-9138-48ad-a26a-21ef475de9fc/bundles"
+                  },
+                  "identifiers": {
+                    "href": "https://example.com/server/api/core/items/1dbf4cda-9138-48ad-a26a-21ef475de9fc/identifiers"
+                  },
+                  "mappedCollections": {
+                    "href": "https://example.com/server/api/core/items/1dbf4cda-9138-48ad-a26a-21ef475de9fc/mappedCollections"
+                  },
+                  "owningCollection": {
+                    "href": "https://example.com/server/api/core/items/1dbf4cda-9138-48ad-a26a-21ef475de9fc/owningCollection"
+                  },
+                  "relationships": {
+                    "href": "https://example.com/server/api/core/items/1dbf4cda-9138-48ad-a26a-21ef475de9fc/relationships"
+                  },
+                  "version": {
+                    "href": "https://example.com/server/api/core/items/1dbf4cda-9138-48ad-a26a-21ef475de9fc/version"
+                  },
+                  "templateItemOf": {
+                    "href": "https://example.com/server/api/core/items/1dbf4cda-9138-48ad-a26a-21ef475de9fc/templateItemOf"
+                  },
+                  "metrics": {
+                    "href": "https://example.com/server/api/core/items/1dbf4cda-9138-48ad-a26a-21ef475de9fc/metrics"
+                  },
+                  "thumbnail": {
+                    "href": "https://example.com/server/api/core/items/1dbf4cda-9138-48ad-a26a-21ef475de9fc/thumbnail"
+                  },
+                  "self": {
+                    "href": "https://example.com/server/api/core/items/1dbf4cda-9138-48ad-a26a-21ef475de9fc"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "page": {
+        "number": 0,
+        "size": 1,
+        "totalPages": 209334,
+        "totalElements": 209334
+      }
+    },
+    "facets": [
+      {
+        "name": "itemtype",
+        "facetType": "hierarchical",
+        "facetLimit": 10,
+        "missing": "42125",
+        "page": {
+          "number": 0,
+          "size": 10
+        },
+        "_links": {
+          "next": {
+            "href": "https://example.com/server/api/discover/facets/itemtype?page=1&size=10"
+          },
+          "self": {
+            "href": "https://example.com/server/api/discover/facets/itemtype?size=10"
+          },
+          "missing": {
+            "href": "https://example.com/server/api/discover/facets/itemtype?f.itemtype=%5B*%20TO%20*%5D,notequals"
+          }
+        },
+        "_embedded": {
+          "values": [
+            {
+              "label": "article",
+              "count": 100005,
+              "authorityKey": null,
+              "type": "discover",
+              "_links": {
+                "search": {
+                  "href": "https://example.com/server/api/discover/search/objects?f.itemtype=article,equals"
+                }
+              }
+            },
+            {
+              "label": "conference_item",
+              "count": 28744,
+              "authorityKey": null,
+              "type": "discover",
+              "_links": {
+                "search": {
+                  "href": "https://example.com/server/api/discover/search/objects?f.itemtype=conference_item,equals"
+                }
+              }
+            },
+            {
+              "label": "book_section",
+              "count": 18026,
+              "authorityKey": null,
+              "type": "discover",
+              "_links": {
+                "search": {
+                  "href": "https://example.com/server/api/discover/search/objects?f.itemtype=book_section,equals"
+                }
+              }
+            },
+            {
+              "label": "book",
+              "count": 4844,
+              "authorityKey": null,
+              "type": "discover",
+              "_links": {
+                "search": {
+                  "href": "https://example.com/server/api/discover/search/objects?f.itemtype=book,equals"
+                }
+              }
+            },
+            {
+              "label": "other",
+              "count": 2039,
+              "authorityKey": null,
+              "type": "discover",
+              "_links": {
+                "search": {
+                  "href": "https://example.com/server/api/discover/search/objects?f.itemtype=other,equals"
+                }
+              }
+            },
+            {
+              "label": "report",
+              "count": 1942,
+              "authorityKey": null,
+              "type": "discover",
+              "_links": {
+                "search": {
+                  "href": "https://example.com/server/api/discover/search/objects?f.itemtype=report,equals"
+                }
+              }
+            },
+            {
+              "label": "journal_series",
+              "count": 1676,
+              "authorityKey": null,
+              "type": "discover",
+              "_links": {
+                "search": {
+                  "href": "https://example.com/server/api/discover/search/objects?f.itemtype=journal_series,equals"
+                }
+              }
+            },
+            {
+              "label": "working_paper",
+              "count": 1484,
+              "authorityKey": null,
+              "type": "discover",
+              "_links": {
+                "search": {
+                  "href": "https://example.com/server/api/discover/search/objects?f.itemtype=working_paper,equals"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "author",
+        "facetType": "text",
+        "facetLimit": 5,
+        "missing": "48355",
+        "minValue": "Armstrong, Joe",
+        "maxValue": "Armstrong, Joe",
+        "page": {
+          "number": 0,
+          "size": 5
+        },
+        "_links": {
+          "next": {
+            "href": "https://example.com/server/api/discover/facets/author?page=1&size=5"
+          },
+          "self": {
+            "href": "https://example.com/server/api/discover/facets/author?size=5"
+          },
+          "missing": {
+            "href": "https://example.com/server/api/discover/facets/author?f.author=%5B*%20TO%20*%5D,notequals"
+          }
+        },
+        "_embedded": {
+          "values": [
+            {
+              "label": "Armstrong, Joe",
+              "count": 1393,
+              "authorityKey": "3f1d16b7-ad11-4134-bff6-9ad003d6de4f",
+              "type": "discover",
+              "_links": {
+                "search": {
+                  "href": "https://example.com/server/api/discover/search/objects?f.author=3f1d16b7-ad11-4134-bff6-9ad003d6de4f,authority"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "subject",
+        "facetType": "hierarchical",
+        "facetLimit": 2,
+        "missing": "86253",
+        "page": {
+          "number": 0,
+          "size": 2
+        },
+        "_links": {
+          "next": {
+            "href": "https://example.com/server/api/discover/facets/subject?page=1&size=2"
+          },
+          "self": {
+            "href": "https://example.com/server/api/discover/facets/subject?size=2"
+          },
+          "missing": {
+            "href": "https://example.com/server/api/discover/facets/subject?f.subject=%5B*%20TO%20*%5D,notequals"
+          }
+        },
+        "_embedded": {
+          "values": [
+            {
+              "label": "530 - Physics",
+              "count": 5888,
+              "authorityKey": null,
+              "type": "discover",
+              "_links": {
+                "search": {
+                  "href": "https://example.com/server/api/discover/search/objects?f.subject=530%20-%20Physics,equals"
+                }
+              }
+            },
+            {
+              "label": "630 - Agriculture",
+              "count": 5557,
+              "authorityKey": null,
+              "type": "discover",
+              "_links": {
+                "search": {
+                  "href": "https://example.com/server/api/discover/search/objects?f.subject=630%20-%20Agriculture,equals"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "has_content_in_original_bundle",
+        "facetType": "text",
+        "facetLimit": 2,
+        "missing": "0",
+        "page": {
+          "number": 0,
+          "size": 2
+        },
+        "_links": {
+          "self": {
+            "href": "https://example.com/server/api/discover/facets/has_content_in_original_bundle?size=2"
+          },
+          "missing": {
+            "href": "https://example.com/server/api/discover/facets/has_content_in_original_bundle?f.has_content_in_original_bundle=%5B*%20TO%20*%5D,notequals"
+          }
+        },
+        "_embedded": {
+          "values": [
+            {
+              "label": "false",
+              "count": 118545,
+              "authorityKey": null,
+              "type": "discover",
+              "_links": {
+                "search": {
+                  "href": "https://example.com/server/api/discover/search/objects?f.has_content_in_original_bundle=false,equals"
+                }
+              }
+            },
+            {
+              "label": "true",
+              "count": 90789,
+              "authorityKey": null,
+              "type": "discover",
+              "_links": {
+                "search": {
+                  "href": "https://example.com/server/api/discover/search/objects?f.has_content_in_original_bundle=true,equals"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "entityType",
+        "facetType": "text",
+        "facetLimit": 5,
+        "missing": "0",
+        "page": {
+          "number": 0,
+          "size": 5
+        },
+        "_links": {
+          "next": {
+            "href": "https://example.com/server/api/discover/facets/entityType?page=1&size=5"
+          },
+          "self": {
+            "href": "https://example.com/server/api/discover/facets/entityType?size=5"
+          },
+          "missing": {
+            "href": "https://example.com/server/api/discover/facets/entityType?f.entityType=%5B*%20TO%20*%5D,notequals"
+          }
+        },
+        "_embedded": {
+          "values": [
+            {
+              "label": "Publication",
+              "count": 163927,
+              "authorityKey": null,
+              "type": "discover",
+              "_links": {
+                "search": {
+                  "href": "https://example.com/server/api/discover/search/objects?f.entityType=Publication,equals"
+                }
+              }
+            },
+            {
+              "label": "Person",
+              "count": 41407,
+              "authorityKey": null,
+              "type": "discover",
+              "_links": {
+                "search": {
+                  "href": "https://example.com/server/api/discover/search/objects?f.entityType=Person,equals"
+                }
+              }
+            },
+            {
+              "label": "OrgUnit",
+              "count": 2195,
+              "authorityKey": null,
+              "type": "discover",
+              "_links": {
+                "search": {
+                  "href": "https://example.com/server/api/discover/search/objects?f.entityType=OrgUnit,equals"
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

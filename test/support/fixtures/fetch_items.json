@@ -1,0 +1,262 @@
+{
+  "_embedded": {
+    "items": [
+      {
+        "id": "00001f92-aea9-4332-838e-e3349f37cd72",
+        "uuid": "00001f92-aea9-4332-838e-e3349f37cd72",
+        "name": "Concurrent Programming Patterns in Erlang: A Comprehensive Guide to Actor Model Implementation and Fault-Tolerant Systems",
+        "handle": "20.500.12422/65886",
+        "metadata": {
+          "datacite.rights": [
+            {
+              "value": "metadata.only",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ],
+          "dc.contributor.editor": [
+            {
+              "value": "Armstrong, Joe",
+              "language": null,
+              "authority": "f92ce86c-b1af-4d71-bae8-a9db55b4501b",
+              "confidence": 600,
+              "place": 0
+            }
+          ],
+          "dc.date.accessioned": [
+            {
+              "value": "2024-10-08T15:44:17Z",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ],
+          "dc.date.issued": [
+            {
+              "value": "2007",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ],
+          "dc.title": [
+            {
+              "value": "Concurrent Programming Patterns in Erlang: A Comprehensive Guide to Actor Model Implementation and Fault-Tolerant Systems",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ],
+          "dc.type": [
+            {
+              "value": "book",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ],
+          "dspace.entity.type": [
+            {
+              "value": "Publication",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ]
+        },
+        "inArchive": true,
+        "discoverable": true,
+        "withdrawn": false,
+        "lastModified": "2025-05-26T08:34:41.662+00:00",
+        "entityType": "Publication",
+        "type": "item",
+        "_links": {
+          "accessStatus": {
+            "href": "https://example.com/server/api/core/items/00001f92-aea9-4332-838e-e3349f37cd72/accessStatus"
+          },
+          "bundles": {
+            "href": "https://example.com/server/api/core/items/00001f92-aea9-4332-838e-e3349f37cd72/bundles"
+          },
+          "identifiers": {
+            "href": "https://example.com/server/api/core/items/00001f92-aea9-4332-838e-e3349f37cd72/identifiers"
+          },
+          "mappedCollections": {
+            "href": "https://example.com/server/api/core/items/00001f92-aea9-4332-838e-e3349f37cd72/mappedCollections"
+          },
+          "owningCollection": {
+            "href": "https://example.com/server/api/core/items/00001f92-aea9-4332-838e-e3349f37cd72/owningCollection"
+          },
+          "relationships": {
+            "href": "https://example.com/server/api/core/items/00001f92-aea9-4332-838e-e3349f37cd72/relationships"
+          },
+          "version": {
+            "href": "https://example.com/server/api/core/items/00001f92-aea9-4332-838e-e3349f37cd72/version"
+          },
+          "templateItemOf": {
+            "href": "https://example.com/server/api/core/items/00001f92-aea9-4332-838e-e3349f37cd72/templateItemOf"
+          },
+          "metrics": {
+            "href": "https://example.com/server/api/core/items/00001f92-aea9-4332-838e-e3349f37cd72/metrics"
+          },
+          "thumbnail": {
+            "href": "https://example.com/server/api/core/items/00001f92-aea9-4332-838e-e3349f37cd72/thumbnail"
+          },
+          "self": {
+            "href": "https://example.com/server/api/core/items/00001f92-aea9-4332-838e-e3349f37cd72"
+          }
+        }
+      },
+      {
+        "id": "00005899-aea6-43b4-b996-2c5f2875d70c",
+        "uuid": "00005899-aea6-43b4-b996-2c5f2875d70c",
+        "name": "Implementing Fault-Tolerant Distributed Systems with Erlang/OTP: Patterns and Best Practices",
+        "handle": "20.500.12422/141942",
+        "metadata": {
+          "datacite.rights": [
+            {
+              "value": "restricted",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ],
+          "dc.contributor.author": [
+            {
+              "value": "Garcia Duarte, Marcia",
+              "language": null,
+              "authority": "3beba103-b740-4f73-aa27-af3f09ef9e70",
+              "confidence": 600,
+              "place": 0
+            }
+          ],
+          "dc.date.accessioned": [
+            {
+              "value": "2024-10-24T17:21:29Z",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ],
+          "dc.date.issued": [
+            {
+              "value": "2016",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ],
+          "dc.title": [
+            {
+              "value": "Implementing Fault-Tolerant Distributed Systems with Erlang/OTP: Patterns and Best Practices",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ],
+          "dc.type": [
+            {
+              "value": "article",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ],
+          "dspace.entity.type": [
+            {
+              "value": "Publication",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ],
+          "dspace.file.type": [
+            {
+              "value": "text",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ]
+        },
+        "inArchive": true,
+        "discoverable": true,
+        "withdrawn": false,
+        "lastModified": "2025-05-26T08:34:43.153+00:00",
+        "entityType": "Publication",
+        "type": "item",
+        "_links": {
+          "accessStatus": {
+            "href": "https://example.com/server/api/core/items/00005899-aea6-43b4-b996-2c5f2875d70c/accessStatus"
+          },
+          "bundles": {
+            "href": "https://example.com/server/api/core/items/00005899-aea6-43b4-b996-2c5f2875d70c/bundles"
+          },
+          "identifiers": {
+            "href": "https://example.com/server/api/core/items/00005899-aea6-43b4-b996-2c5f2875d70c/identifiers"
+          },
+          "mappedCollections": {
+            "href": "https://example.com/server/api/core/items/00005899-aea6-43b4-b996-2c5f2875d70c/mappedCollections"
+          },
+          "owningCollection": {
+            "href": "https://example.com/server/api/core/items/00005899-aea6-43b4-b996-2c5f2875d70c/owningCollection"
+          },
+          "relationships": {
+            "href": "https://example.com/server/api/core/items/00005899-aea6-43b4-b996-2c5f2875d70c/relationships"
+          },
+          "version": {
+            "href": "https://example.com/server/api/core/items/00005899-aea6-43b4-b996-2c5f2875d70c/version"
+          },
+          "templateItemOf": {
+            "href": "https://example.com/server/api/core/items/00005899-aea6-43b4-b996-2c5f2875d70c/templateItemOf"
+          },
+          "metrics": {
+            "href": "https://example.com/server/api/core/items/00005899-aea6-43b4-b996-2c5f2875d70c/metrics"
+          },
+          "thumbnail": {
+            "href": "https://example.com/server/api/core/items/00005899-aea6-43b4-b996-2c5f2875d70c/thumbnail"
+          },
+          "self": {
+            "href": "https://example.com/server/api/core/items/00005899-aea6-43b4-b996-2c5f2875d70c"
+          }
+        }
+      }
+    ]
+  },
+  "_links": {
+    "first": {
+      "href": "https://example.com/server/api/core/items?page=0&size=20"
+    },
+    "self": {
+      "href": "https://example.com/server/api/core/items"
+    },
+    "next": {
+      "href": "https://example.com/server/api/core/items?page=1&size=20"
+    },
+    "last": {
+      "href": "https://example.com/server/api/core/items?page=10286&size=20"
+    },
+    "search": {
+      "href": "https://example.com/server/api/core/items/search"
+    }
+  },
+  "page": {
+    "size": 20,
+    "totalElements": 205736,
+    "totalPages": 10287,
+    "number": 0
+  }
+}

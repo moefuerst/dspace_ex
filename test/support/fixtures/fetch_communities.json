@@ -1,0 +1,216 @@
+{
+  "_embedded": {
+    "communities": [
+      {
+        "id": "7669c72a-3f2a-451f-a3b9-9210e7a4c02f",
+        "uuid": "7669c72a-3f2a-451f-a3b9-9210e7a4c02f",
+        "name": "OR2017 - Demonstration",
+        "handle": "10673/11",
+        "metadata": {
+          "dc.description": [
+            {
+              "value": "First description",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            },
+            {
+              "value": "Second description",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 1
+            }
+          ],
+          "dc.description.abstract": [
+            {
+              "value": "This is a test community to hold content for the OR2017 demostration",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ],
+          "dc.identifier.uri": [
+            {
+              "value": "https://example.com/handle/10673/11",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ],
+          "dc.rights": [
+            {
+              "value": "",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ],
+          "dc.title": [
+            {
+              "value": "OR2017 - Demonstration",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ]
+        },
+        "archivedItemsCount": 12,
+        "type": "community",
+        "_links": {
+          "collections": {
+            "href": "https://example.com/server/api/core/communities/7669c72a-3f2a-451f-a3b9-9210e7a4c02f/collections"
+          },
+          "logo": {
+            "href": "https://example.com/server/api/core/communities/7669c72a-3f2a-451f-a3b9-9210e7a4c02f/logo"
+          },
+          "subcommunities": {
+            "href": "https://example.com/server/api/core/communities/7669c72a-3f2a-451f-a3b9-9210e7a4c02f/subcommunities"
+          },
+          "parentCommunity": {
+            "href": "https://example.com/server/api/core/communities/7669c72a-3f2a-451f-a3b9-9210e7a4c02f/parentCommunity"
+          },
+          "adminGroup": {
+            "href": "https://example.com/server/api/core/communities/7669c72a-3f2a-451f-a3b9-9210e7a4c02f/adminGroup"
+          },
+          "self": {
+            "href": "https://example.com/server/api/core/communities/7669c72a-3f2a-451f-a3b9-9210e7a4c02f"
+          }
+        }
+      },
+      {
+        "id": "8c92a5c8-3041-4f6a-8b34-9de312345678",
+        "uuid": "8c92a5c8-3041-4f6a-8b34-9de312345678",
+        "name": "Research Communities",
+        "handle": "10673/12",
+        "metadata": {
+          "dc.description.abstract": [
+            {
+              "value": "Collection of research communities",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ],
+          "dc.identifier.uri": [
+            {
+              "value": "https://example.com/handle/10673/12",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ],
+          "dc.title": [
+            {
+              "value": "Research Communities",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ]
+        },
+        "archivedItemsCount": 25,
+        "type": "community",
+        "_links": {
+          "collections": {
+            "href": "https://example.com/server/api/core/communities/8c92a5c8-3041-4f6a-8b34-9de312345678/collections"
+          },
+          "logo": {
+            "href": "https://example.com/server/api/core/communities/8c92a5c8-3041-4f6a-8b34-9de312345678/logo"
+          },
+          "subcommunities": {
+            "href": "https://example.com/server/api/core/communities/8c92a5c8-3041-4f6a-8b34-9de312345678/subcommunities"
+          },
+          "parentCommunity": {
+            "href": "https://example.com/server/api/core/communities/8c92a5c8-3041-4f6a-8b34-9de312345678/parentCommunity"
+          },
+          "adminGroup": {
+            "href": "https://example.com/server/api/core/communities/8c92a5c8-3041-4f6a-8b34-9de312345678/adminGroup"
+          },
+          "self": {
+            "href": "https://example.com/server/api/core/communities/8c92a5c8-3041-4f6a-8b34-9de312345678"
+          }
+        }
+      },
+      {
+        "id": "9d83b6d9-4152-4f7b-9c45-ade423456789",
+        "uuid": "9d83b6d9-4152-4f7b-9c45-ade423456789",
+        "name": "Academic Publications",
+        "handle": "10673/13",
+        "metadata": {
+          "dc.description.abstract": [
+            {
+              "value": "Academic publications and scholarly works",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ],
+          "dc.identifier.uri": [
+            {
+              "value": "https://example.com/handle/10673/13",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ],
+          "dc.title": [
+            {
+              "value": "Academic Publications",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ]
+        },
+        "archivedItemsCount": 8,
+        "type": "community",
+        "_links": {
+          "collections": {
+            "href": "https://example.com/server/api/core/communities/9d83b6d9-4152-4f7b-9c45-ade423456789/collections"
+          },
+          "logo": {
+            "href": "https://example.com/server/api/core/communities/9d83b6d9-4152-4f7b-9c45-ade423456789/logo"
+          },
+          "subcommunities": {
+            "href": "https://example.com/server/api/core/communities/9d83b6d9-4152-4f7b-9c45-ade423456789/subcommunities"
+          },
+          "parentCommunity": {
+            "href": "https://example.com/server/api/core/communities/9d83b6d9-4152-4f7b-9c45-ade423456789/parentCommunity"
+          },
+          "adminGroup": {
+            "href": "https://example.com/server/api/core/communities/9d83b6d9-4152-4f7b-9c45-ade423456789/adminGroup"
+          },
+          "self": {
+            "href": "https://example.com/server/api/core/communities/9d83b6d9-4152-4f7b-9c45-ade423456789"
+          }
+        }
+      }
+    ]
+  },
+  "_links": {
+    "self": {
+      "href": "https://example.com/server/api/core/communities"
+    },
+    "search": {
+      "href": "https://example.com/server/api/core/communities/search"
+    }
+  },
+  "page": {
+    "size": 20,
+    "totalElements": 3,
+    "totalPages": 1,
+    "number": 0
+  }
+}

@@ -35,11 +35,15 @@ defmodule DSpace.API.StreamBuilderTest do
             )
 
           "page=3" ->
-            respond_with_json(conn, 200, ~s({"items": ["item5", "item6"], "next": null}))
+            respond_with_json(
+              conn,
+              200,
+              ~s({"items": ["item5", "item6"], "next": null})
+            )
         end
       end)
 
-      operation = %Operation.Query{
+      operation = %Operation.JSON{
         path: "/items",
         transformer: fn response -> {response.body["items"], %{}, response.body["next"]} end
       }
@@ -55,7 +59,7 @@ defmodule DSpace.API.StreamBuilderTest do
         respond_with_json(conn, 200, ~s({"items": ["item1", "item2"], "next": null}))
       end)
 
-      operation = %Operation.Query{
+      operation = %Operation.JSON{
         path: "/items",
         transformer: fn response -> {response.body["items"], %{}, response.body["next"]} end
       }
@@ -71,7 +75,7 @@ defmodule DSpace.API.StreamBuilderTest do
         respond_with_json(conn, 200, ~s({"items": ["item1"], "next": 404}))
       end)
 
-      operation = %Operation.Query{
+      operation = %Operation.JSON{
         path: "/items",
         transformer: fn response -> {response.body["items"], %{}, response.body["next"]} end
       }
@@ -87,7 +91,7 @@ defmodule DSpace.API.StreamBuilderTest do
         Plug.Conn.resp(conn, 500, "Server Error")
       end)
 
-      operation = %Operation.Query{
+      operation = %Operation.JSON{
         path: "/items",
         transformer: fn _response -> {[], %{}, nil} end
       }
@@ -102,7 +106,7 @@ defmodule DSpace.API.StreamBuilderTest do
         respond_with_json(conn, 200, ~s({"items": [], "next": null}))
       end)
 
-      operation = %Operation.Query{
+      operation = %Operation.JSON{
         path: "/items",
         transformer: fn response -> {response.body["items"], %{}, response.body["next"]} end
       }

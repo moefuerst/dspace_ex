@@ -1,16 +1,57 @@
 defmodule DSpace.API do
   @moduledoc """
   Represents a DSpace API client configuration.
+
+  ## Basic Usage / Configuration
+
+  `dspace-ex` doesn't prescribe the configuration strategy of consuming applications. For API
+  interactions, declare a `t:DSpace.API.t/0` structure with the necessary configuration when you
+  need it:
+
+      client = %DSpace.API{
+        endpoint: "https://example.com/server",
+        access_token: "my-access-token",
+        csrf_token: "my-csrf-token"
+      }
+
+  Then, use the client struct to perform an operation:
+
+      {:ok, item} =
+        "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"
+        |> DSpace.API.Item.fetch()
+        |> DSpace.API.request(client)
+
+  See `new/1` for all client configuration options.
+
+  ## Session Management
+
+  Per DSpace API contract, *all* responses need to be monitored for CSRF token updates, regardless
+  of client or use context (The actual implementation does not currently refresh it with every
+  request, only with login/logout, when the token refresh endpoints are called, or the client
+  sends an invalid token). The `:on_response_hook` field allows applications to handle these.
+  When set, the function will be invoked whenever a response header contains a CSRF token (which
+  should be every response).
+
+      client = %DSpace.API{
+          endpoint: "https://example.com/server",
+          on_response_hook: &MyApp.Session.update_csrf/1
+      }
+
+  The hook will receive a map with a `:csrf_token` key. Errors are isolated and will not affect
+  the operation's return value. Invocation is synchronous and will block until the hook returns.
+  It's probably best to think about using a separate process or a task to invoke the function for
+  asynchronous handling, depending on your session management strategy.
   """
 
-  import DSpace.API.Utils
+  import DSpace.Utils
 
+  alias DSpace.API.Auth
   alias DSpace.API.Operation
 
   @external_resource version = DSpace.MixProject.project()[:version]
 
-  # DSpace 7.6.1
-  @api_version "7.6.1"
+  # DSpace 9.2 / cris-2025.02.00
+  @api_version "9.2.0"
   @user_agent "dspace-ex/#{version}"
   @default_http_impl {DSpace.API.HTTP.Req, []}
 
@@ -21,7 +62,7 @@ defmodule DSpace.API do
             api_version: @api_version,
             user_agent: @user_agent,
             http_impl: @default_http_impl,
-            session_callback: nil
+            on_response_hook: nil
 
   @typedoc """
   A DSpace API client structure.
@@ -33,7 +74,7 @@ defmodule DSpace.API do
           api_version: binary(),
           user_agent: binary(),
           http_impl: {module(), keyword()},
-          session_callback: nil | (map() -> :ok)
+          on_response_hook: nil | (map() -> :ok)
         }
 
   # Public API
@@ -41,7 +82,10 @@ defmodule DSpace.API do
   @doc """
   Creates a new client.
 
+  ## Parameters
+
   This function takes either
+
     * a keyword list of attributes or
     * a single argument that represents the DSpace REST endpoint; either as
       * an `t:URI.t/0` structure
@@ -49,17 +93,18 @@ defmodule DSpace.API do
       * a 0-arity function that returns a `t:URI.t/0` structure or a string
 
   ## Attributes
+
     * `endpoint` - The DSpace REST endpoint, e.g. https://example.com/server. Can be either
       * an `t:URI.t/0` structure
       * a string
       * a 0-arity function that returns a `t:URI.t/0` structure or a string
-    * `:access_token` - Optional login token or API key used for authentication. This is a JWT
+    * `:access_token` - Optional login token or API key used for authentication.
     * `:csrf_token` - Optional CSRF token. Needed for all modifying requests
     * `:api_version` - Optional DSpace API version as a string, defaults to latest version
       `dspace-ex` was fully tested against
     * `:user_agent` - Optional User agent string, defaults to `dspace-ex/<version>`
     * `:http_impl` - Optional HTTP adapter implementation and options as `{module, options}`
-    * `:session_callback` - Optional callback function invoked when CSRF tokens are updated
+    * `:on_response_hook` - Optional callback function invoked when CSRF tokens are updated
   """
   @spec new(attributes :: keyword()) :: t()
   def new(attributes) when is_list(attributes) do
@@ -75,7 +120,8 @@ defmodule DSpace.API do
   Updates the API endpoint.
 
   ## Parameters
-    * `api` - A `t:DSpace.API.t/0` structure.
+
+    * `api` - A `t:DSpace.API.t/0` structure
     * `endpoint` - The DSpace REST endpoint, e.g. https://example.com/server. Can be either
       * an `t:URI.t/0` structure
       * a string
@@ -95,7 +141,8 @@ defmodule DSpace.API do
   Updates the Access token.
 
   ## Parameters
-    * `api` - A `t:DSpace.API.t/0` structure.
+
+    * `api` - A `t:DSpace.API.t/0` structure
     * `access_token` - Login token or API key as a string
   """
   @spec put_access_token(t(), binary()) :: t()
@@ -107,7 +154,8 @@ defmodule DSpace.API do
   Updates the CSRF token.
 
   ## Parameters
-    * `api` - A `t:DSpace.API.t/0` structure.
+
+    * `api` - A `t:DSpace.API.t/0` structure
     * `csrf_token` - CSRF token as a string
   """
   @spec put_csrf_token(t(), binary()) :: t()
@@ -116,26 +164,27 @@ defmodule DSpace.API do
   end
 
   @doc """
-  Updates the session callback function.
+  Updates the session hook function.
 
   ## Parameters
-    * `api` - A `t:DSpace.API.t/0` structure.
-    * `session_callback` - A 1-arity function invoked when CSRF tokens are updated, or `nil` to
-      disable.
+
+    * `api` - A `t:DSpace.API.t/0` structure
+    * `on_response_hook` - A 1-arity function invoked when CSRF tokens are updated
   """
-  @spec put_session_callback(t(), (map() -> :ok) | nil) :: t()
-  def put_session_callback(%__MODULE__{} = api, session_callback)
-      when is_function(session_callback, 1) or is_nil(session_callback) do
-    %{api | session_callback: session_callback}
+  @spec put_on_response_hook(t(), (map() -> :ok) | nil) :: t()
+  def put_on_response_hook(%__MODULE__{} = api, on_response_hook)
+      when is_function(on_response_hook, 1) or is_nil(on_response_hook) do
+    %{api | on_response_hook: on_response_hook}
   end
 
   @doc """
   Updates the HTTP adapter implementation.
 
   ## Parameters
-    * `api` - A `t:DSpace.API.t/0` structure.
+
+    * `api` - A `t:DSpace.API.t/0` structure
     * `http_impl` - A tuple of `{module, options}` where module implements `DSpace.API.HTTP`
-      behaviour
+      behaviour.
   """
   @spec put_http_impl(t(), {module(), keyword()}) :: t()
   def put_http_impl(%__MODULE__{} = api, {module, options} = http_impl) when is_atom(module) and is_list(options) do
@@ -146,7 +195,8 @@ defmodule DSpace.API do
   Updates the user agent.
 
   ## Parameters
-    * `api` - A `t:DSpace.API.t/0` structure.
+
+    * `api` - A `t:DSpace.API.t/0` structure
     * `user_agent` - User agent as a string
   """
   @spec put_user_agent(t(), binary()) :: t()
@@ -158,7 +208,8 @@ defmodule DSpace.API do
   Updates the API version.
 
   ## Parameters
-    * `api` - A `t:DSpace.API.t/0` structure.
+
+    * `api` - A `t:DSpace.API.t/0` structure
     * `version` - DSpace API version as a string
   """
   @spec put_api_version(t(), binary()) :: t()
@@ -167,9 +218,91 @@ defmodule DSpace.API do
   end
 
   @doc """
+  Authenticates with a DSpace API using the provided credentials.
+
+  Returns an access token. Managing token lifecycle (checking expiry, deciding when to refresh) is
+  the responsibility of the consuming application. The token is a JWT and contains an `exp` claim.
+  See `DSpace.API.Auth.refresh_access_token/0`.
+
+  Executing this operation will fetch a CSRF token from the API first if none is configured in the
+  client struct, since that is a prerequisite for hitting the login endpoint.
+
+  ## Parameters
+
+    * `api` - A `t:DSpace.API.t/0` structure
+    * `username` - Username as a string
+    * `password` - Password as a string
+  """
+  @spec login(t(), binary(), binary()) :: {:ok, binary()} | {:error, Exception.t()}
+  def login(%__MODULE__{} = api, username, password) when is_nonempty_binary(username) and is_nonempty_binary(password) do
+    username
+    |> Auth.login(password)
+    |> request(api)
+  end
+
+  @doc """
+  Authenticates with the DSpace API using a client and the provided credentials.
+
+  Similar to `login/3`, but returns a `t:DSpace.API.t/0` client structure with updated access- and
+  CSRF tokens. This function is mainly useful in testing and script usage.
+
+  ## Parameters
+
+    * `api` - A `t:DSpace.API.t/0` structure
+    * `username` - Username as a string
+    * `password` - Password as a string
+
+  ## Usage
+
+  The login operation is executed directly when calling this function. The returned client can
+  then immediately be used for follow-up operations:
+
+      client =
+        [endpoint: "https://example.com/server"]
+        |> DSpace.API.new()
+        |> DSpace.API.login!("username", "password")
+
+      items =
+        Item.list()
+        |> DSpace.API.stream!(client)
+  """
+  @spec login!(t(), binary(), binary()) :: t()
+  def login!(%__MODULE__{} = api, username, password) do
+    login = %{Auth.login(username, password) | transformer: &Auth.tokens_from_response/1}
+
+    case request(login, api) do
+      {:ok, {auth_token, csrf_token}} -> %{api | access_token: auth_token, csrf_token: csrf_token}
+      {:error, reason} -> raise reason
+    end
+  end
+
+  @doc """
+  Verifies if the passed client is authenticated with the DSpace API.
+
+  This function also returns `false` if the check fails.
+
+  ## Parameters
+
+    * `api` - A `t:DSpace.API.t/0` structure
+  """
+  @spec authenticated?(t()) :: boolean()
+  def authenticated?(%__MODULE__{} = api) do
+    request!(Auth.status(), api)
+  rescue
+    _ -> false
+  end
+
+  @doc """
   Makes a request to the API and returns a result or an error.
 
+  ## Parameters
+
+    * `operation` - A `t:DSpace.API.Operation.t/0`
+    * `api` - A `t:DSpace.API.t/0` structure
+    * `options` - Options for the request
+
   ## Options
+
     * `:transform` - Whether to transform the response. If set to false, returns a
       `t:DSpace.API.HTTP.Response.t/0` structure (defaults to true)
     * request option overrides passed to the HTTP adapter
@@ -181,6 +314,8 @@ defmodule DSpace.API do
 
   @doc """
   Makes a request to the API and returns a result or raises an error.
+
+  For parameters and options, see `request/3`.
   """
   @spec request!(Operation.t(), t(), keyword()) :: term()
   def request!(operation, %__MODULE__{} = api, options \\ []) when is_list(options) do
@@ -192,6 +327,8 @@ defmodule DSpace.API do
 
   @doc """
   Makes a request to the API and returns a stream.
+
+  For parameters and options, see `request/3`.
   """
   @spec stream!(Operation.t(), t(), keyword()) :: Enumerable.t()
   def stream!(operation, %__MODULE__{} = api, options \\ []) when is_list(options) do

@@ -3,7 +3,7 @@ defmodule DSpace.API.Monitor do
   Functions for calling the monitoring endpoints of the DSpace API.
   """
 
-  import DSpace.API.Utils
+  import DSpace.Utils, only: [is_nonempty_binary: 1]
 
   alias DSpace.API.Operation
 
@@ -17,6 +17,7 @@ defmodule DSpace.API.Monitor do
   Fetches the health status of the DSpace API.
 
   ## Parameters
+
     * `component`: The name of the system component to check the health status of. If not
       provided, the combined health status of the API will be returned.
 
@@ -26,11 +27,11 @@ defmodule DSpace.API.Monitor do
   def health(component \\ nil)
 
   def health(nil) do
-    %Operation.Query{path: @ep_health}
+    %Operation.JSON{path: @ep_health}
   end
 
   def health(component) when is_nonempty_binary(component) do
-    %Operation.Query{path: @ep_health <> "/" <> component}
+    %Operation.JSON{path: @ep_health <> "/" <> component}
   end
 
   @doc """
@@ -43,6 +44,6 @@ defmodule DSpace.API.Monitor do
   """
   @spec info() :: Operation.t()
   def info do
-    %Operation.Query{path: @ep_info}
+    %Operation.JSON{path: @ep_info}
   end
 end

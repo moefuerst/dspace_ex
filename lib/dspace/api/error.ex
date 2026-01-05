@@ -3,11 +3,11 @@ defmodule DSpace.API.Error do
   Represents an API Error.
   """
 
-  import DSpace.API.Utils, only: [is_nonempty_binary: 1]
+  import DSpace.Utils, only: [is_nonempty_binary: 1]
 
   alias DSpace.API.HTTP.Response
 
-  # Expected error codes per API contract
+  # Expected error codes per DSpace API contract
   @expected_client_errors %{
     400 => :bad_request,
     401 => :unauthorized,
