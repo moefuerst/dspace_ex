@@ -1,3 +1,10 @@
 [tools]
-erlang = "28.1"
-elixir = "1.18.4"
+erlang = "28.5.0.2"
+elixir = "1.20.1"
+
+[tasks.install-maintenance]
+description = "Install maintenance packages"
+run = [
+  "mix archive.install hex hex_licenses",
+  "mix archive.install hex shipit",
+]
