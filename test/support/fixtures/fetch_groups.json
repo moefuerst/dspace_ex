@@ -1,0 +1,119 @@
+{
+  "_embedded": {
+    "groups": [
+      {
+        "id": "11111111-2222-3333-4444-555555555555",
+        "uuid": "11111111-2222-3333-4444-555555555555",
+        "name": "Administrators",
+        "handle": null,
+        "type": "group",
+        "permanent": true,
+        "metadata": {
+          "dc.description": [
+            {
+              "value": "System administrators with full privileges",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ]
+        },
+        "_links": {
+          "self": {
+            "href": "https://example.com/server/api/eperson/groups/11111111-2222-3333-4444-555555555555"
+          },
+          "epersons": {
+            "href": "https://example.com/server/api/eperson/groups/11111111-2222-3333-4444-555555555555/epersons"
+          }
+        }
+      },
+      {
+        "id": "18768870-1ed9-4a78-bd87-3cb419b0f59b",
+        "uuid": "18768870-1ed9-4a78-bd87-3cb419b0f59b",
+        "name": "Collection editors group",
+        "handle": null,
+        "metadata": {
+          "dc.description": [
+            {
+              "value": "Collection editor group",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ]
+        },
+        "permanent": false,
+        "type": "group",
+        "_links": {
+          "subgroups": {
+            "href": "https://example.com/server/api/eperson/groups/18768870-1ed9-4a78-bd87-3cb419b0f59b/subgroups"
+          },
+          "epersons": {
+            "href": "https://example.com/server/api/eperson/groups/18768870-1ed9-4a78-bd87-3cb419b0f59b/epersons"
+          },
+          "object": {
+            "href": "https://example.com/server/api/eperson/groups/18768870-1ed9-4a78-bd87-3cb419b0f59b/object"
+          },
+          "self": {
+            "href": "https://example.com/server/api/eperson/groups/18768870-1ed9-4a78-bd87-3cb419b0f59b"
+          }
+        }
+      },
+      {
+        "id": "3f892f6a-cc9c-421d-9cd5-f7cd9343281a",
+        "uuid": "3f892f6a-cc9c-421d-9cd5-f7cd9343281a",
+        "name": "Anonymous",
+        "handle": null,
+        "metadata": {
+          "dc.title": [
+            {
+              "value": "Anonymous",
+              "language": null,
+              "authority": null,
+              "confidence": -1,
+              "place": 0
+            }
+          ]
+        },
+        "permanent": true,
+        "type": "group",
+        "_links": {
+          "subgroups": {
+            "href": "https://example.com/server/api/eperson/groups/3f892f6a-cc9c-421d-9cd5-f7cd9343281a/subgroups"
+          },
+          "epersons": {
+            "href": "https://example.com/server/api/eperson/groups/3f892f6a-cc9c-421d-9cd5-f7cd9343281a/epersons"
+          },
+          "object": {
+            "href": "https://example.com/server/api/eperson/groups/3f892f6a-cc9c-421d-9cd5-f7cd9343281a/object"
+          },
+          "self": {
+            "href": "https://example.com/server/api/eperson/groups/3f892f6a-cc9c-421d-9cd5-f7cd9343281a"
+          }
+        }
+      }
+    ]
+  },
+  "_links": {
+    "self": {
+      "href": "https://example.com/server/api/eperson/epersons/8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e/groups?page=0&size=20"
+    },
+    "next": {
+      "href": null
+    },
+    "last": {
+      "href": "https://example.com/server/api/eperson/epersons/8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e/groups?page=0&size=20"
+    },
+    "first": {
+      "href": "https://example.com/server/api/eperson/epersons/8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e/groups?page=0&size=20"
+    }
+  },
+  "page": {
+    "size": 20,
+    "totalElements": 3,
+    "totalPages": 1,
+    "number": 0
+  }
+}

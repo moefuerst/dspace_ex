@@ -1,0 +1,33 @@
+{
+  "id": "89e2c461-b26c-4c64-82f7-d3912e671c98",
+  "uuid": "89e2c461-b26c-4c64-82f7-d3912e671c98",
+  "name": "Administrator",
+  "handle": null,
+  "metadata": {
+    "dc.title": [
+      {
+        "value": "Administrator",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ]
+  },
+  "permanent": true,
+  "type": "group",
+  "_links": {
+    "subgroups": {
+      "href": "https://example.com/server/api/eperson/groups/89e2c461-b26c-4c64-82f7-d3912e671c98/subgroups"
+    },
+    "epersons": {
+      "href": "https://example.com/server/api/eperson/groups/89e2c461-b26c-4c64-82f7-d3912e671c98/epersons"
+    },
+    "object": {
+      "href": "https://example.com/server/api/eperson/groups/89e2c461-b26c-4c64-82f7-d3912e671c98/object"
+    },
+    "self": {
+      "href": "https://example.com/server/api/eperson/groups/89e2c461-b26c-4c64-82f7-d3912e671c98"
+    }
+  }
+}

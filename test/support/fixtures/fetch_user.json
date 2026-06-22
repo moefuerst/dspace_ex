@@ -1,0 +1,60 @@
+{
+  "id": "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e",
+  "uuid": "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e",
+  "name": "john.doe@example.com",
+  "handle": null,
+  "metadata": {
+    "dspace.agreements.cookies": [
+      {
+        "value": "{\"authentication\":true,\"preferences\":true,\"acknowledgement\":true,\"plumX\":true,\"altmetric\":true,\"dimensions\":true}",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "eperson.firstname": [
+      {
+        "value": "John",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "eperson.language": [
+      {
+        "value": "en",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "eperson.lastname": [
+      {
+        "value": "Doe",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ]
+  },
+  "netid": null,
+  "lastActive": "2025-08-18T09:25:12.070+00:00",
+  "canLogIn": false,
+  "email": "john.doe@example.com",
+  "requireCertificate": false,
+  "selfRegistered": false,
+  "machineTokenGenerated": true,
+  "type": "eperson",
+  "_links": {
+    "groups": {
+      "href": "https://example.com/server/api/eperson/epersons/8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e/groups"
+    },
+    "self": {
+      "href": "https://example.com/server/api/eperson/epersons/8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e"
+    }
+  }
+}
