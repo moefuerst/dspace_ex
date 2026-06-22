@@ -1,0 +1,137 @@
+# Parts of the code in this file are copied from, derived from, or inspired by 4Science/dspace-angular,
+# see https://github.com/4Science/dspace-angular/blob/main-cris/docker/docker-compose-ci.yml
+#
+# The Initial Developer is LYRASIS
+# Copyright (c) 2002-2021, LYRASIS.
+#
+# Licensed under a BSD 3-Clause License, see
+# http://www.dspace.org/license/
+
+# Runs the DSpace Backend stack for e2e testing
+
+services:
+  # DSpace Backend
+  dspace:
+    container_name: dspace
+    environment:
+      # See https://github.com/DSpace/DSpace/blob/main/dspace/config/config-definition.xml
+      # __P__ => "." (e.g. dspace__P__dir => dspace.dir)
+      # __D__ => "-" (e.g. google__D__metadata => google-metadata)
+      dspace__P__dir: /dspace
+      dspace__P__server__P__url: http://dspace:8080/server
+      db__P__url: "jdbc:postgresql://dspacedb:5432/dspace"
+      solr__P__server: http://dspacesolr:8983/solr
+      solr__D__statistics__P__autoCommit: "false"
+      LOGGING_CONFIG: /dspace/config/log4j2-container.xml
+    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris:${DSPACE_VER:-dspace-cris-2025_02_x}-test"
+    depends_on:
+      dspacedb:
+        condition: service_healthy
+      dspacesolr:
+        condition: service_healthy
+    networks:
+      - dspace
+    ports:
+      - published: 8080
+        target: 8080
+    stdin_open: true
+    tty: true
+    volumes:
+      - assetstore:/dspace/assetstore
+    entrypoint:
+      - /bin/bash
+      - "-c"
+      - |
+        /dspace/bin/dspace database repair
+        /dspace/bin/dspace database migrate
+        /dspace/bin/dspace database migrate ignored
+        java -XX:+UseParallelGC -XX:MaxRAMPercentage=75 org.springframework.boot.loader.launch.JarLauncher
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:8080/server/api/core/sites >/dev/null",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+  # Database with test data
+  dspacedb:
+    container_name: dspacedb
+    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris-postgres-pgcrypto:${DSPACE_VER:-dspace-cris-2025_02_x}-loadsql"
+    environment:
+      LOADSQL: https://github.com/4Science/DSpace-CRIS-Files/releases/download/cris-2025.02.00/db-entities.sql
+      PGDATA: /pgdata
+      POSTGRES_DB: dspace
+      POSTGRES_USER: dspace
+      POSTGRES_PASSWORD: dspace
+    networks:
+      - dspace
+    ports:
+      - published: 5432
+        target: 5432
+    stdin_open: true
+    tty: true
+    volumes:
+      - pgdata:/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dspace -d dspace"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  # Solr
+  dspacesolr:
+    container_name: dspacesolr
+    image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris-solr:${DSPACE_VER:-dspace-cris-2025_02_x}"
+    networks:
+      - dspace
+    ports:
+      - published: 8983
+        target: 8983
+    stdin_open: true
+    tty: true
+    user: root
+    working_dir: /var/solr/data
+    volumes:
+      - solr_data:/var/solr/data
+    entrypoint:
+      - /bin/bash
+      - "-c"
+      - |
+        chown -R solr:solr /var/solr/data
+        exec gosu solr /bin/bash -c '
+          init-var-solr
+          precreate-core authority /opt/solr/server/solr/configsets/authority
+          cp -r /opt/solr/server/solr/configsets/authority/* authority
+          precreate-core oai /opt/solr/server/solr/configsets/oai
+          cp -r /opt/solr/server/solr/configsets/oai/* oai
+          precreate-core search /opt/solr/server/solr/configsets/search
+          cp -r /opt/solr/server/solr/configsets/search/* search
+          precreate-core statistics /opt/solr/server/solr/configsets/statistics
+          cp -r /opt/solr/server/solr/configsets/statistics/* statistics
+          precreate-core qaevent /opt/solr/server/solr/configsets/qaevent
+          cp -r /opt/solr/server/solr/configsets/qaevent/* qaevent
+          precreate-core suggestion /opt/solr/server/solr/configsets/suggestion
+          cp -r /opt/solr/server/solr/configsets/suggestion/* suggestion
+          precreate-core dedup /opt/solr/server/solr/configsets/dedup
+          cp -r /opt/solr/server/solr/configsets/dedup/* dedup
+          precreate-core audit /opt/solr/server/solr/configsets/audit
+          cp -r /opt/solr/server/solr/configsets/audit/* audit
+          exec solr -f
+        '
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'curl -fsS ''http://localhost:8983/solr/admin/cores?action=STATUS&wt=json'' | grep -q ''"search"''',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+volumes:
+  assetstore:
+  pgdata:
+  solr_data:
+
+networks:
+  dspace:
