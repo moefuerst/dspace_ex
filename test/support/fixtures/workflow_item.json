@@ -1,0 +1,88 @@
+{
+  "id": 1911,
+  "lastModified": "2017-06-24T00:40:54.970+0000",
+  "step": "editstep",
+  "sections": {
+    "upload": {
+      "files": []
+    },
+    "publication": {
+      "dc.title": [
+        {
+          "value": "Test Workflow Item",
+          "language": null,
+          "authority": null,
+          "confidence": -1
+        }
+      ],
+      "dc.type": [
+        {
+          "value": "article",
+          "language": null,
+          "authority": null,
+          "confidence": -1
+        }
+      ]
+    },
+    "license": {
+      "acceptanceDate": "2017-06-24T00:40:54.970+0000",
+      "url": "https://example.com/server/api/core/bitstreams/license-uuid/content",
+      "type": "license"
+    }
+  },
+  "type": "workflowitem",
+  "uniqueType": "workflow.workflowitem",
+  "_links": {
+    "self": {
+      "href": "https://example.com/server/api/workflow/workflowitems/1911"
+    },
+    "item": {
+      "href": "https://example.com/server/api/core/items/cd67ce0e-7f9a-42fc-b8e7-c8bb83ef58ca"
+    },
+    "step": {
+      "href": "https://example.com/server/api/workflow/workflowitems/1911/step"
+    },
+    "collection": {
+      "href": "https://example.com/server/api/core/collections/05457c63-b392-4629-a373-f2d66ee9ee33"
+    }
+  },
+  "_embedded": {
+    "item": {
+      "id": "cd67ce0e-7f9a-42fc-b8e7-c8bb83ef58ca",
+      "uuid": "cd67ce0e-7f9a-42fc-b8e7-c8bb83ef58ca",
+      "name": "Test Workflow Item",
+      "handle": null,
+      "metadata": {
+        "dc.title": [
+          {
+            "value": "Test Workflow Item",
+            "language": null,
+            "authority": null,
+            "confidence": -1,
+            "place": 0
+          }
+        ],
+        "dc.type": [
+          {
+            "value": "article",
+            "language": null,
+            "authority": null,
+            "confidence": -1,
+            "place": 0
+          }
+        ]
+      },
+      "inArchive": false,
+      "discoverable": false,
+      "withdrawn": false,
+      "lastModified": "2017-06-24T00:40:54.970+0000",
+      "entityType": null,
+      "type": "item",
+      "_links": {
+        "self": {
+          "href": "https://example.com/server/api/core/items/cd67ce0e-7f9a-42fc-b8e7-c8bb83ef58ca"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,903 @@
+{
+  "id": 239514,
+  "errors": [
+    {
+      "message": "error.validation.required",
+      "paths": [
+        "/sections/publication/dc.type",
+        "/sections/publication/dc.title",
+        "/sections/publication_bibliographic_details/dc.date.issued"
+      ]
+    }
+  ],
+  "lastModified": "2025-04-23T15:43:31.075+00:00",
+  "sections": {
+    "upload_publication": {
+      "files": []
+    },
+    "publication_references": {},
+    "sherpa": null,
+    "identifiers": {
+      "identifiers": [
+        {
+          "id": null,
+          "value": null,
+          "identifierType": "doi",
+          "identifierStatus": null,
+          "type": "identifier"
+        },
+        {
+          "id": "https://example.com/handle/20.500.12345/67890",
+          "value": "https://example.com/handle/20.500.12345/67890",
+          "identifierType": "handle",
+          "identifierStatus": null,
+          "type": "identifier"
+        }
+      ],
+      "displayTypes": [
+        "handle",
+        "doi"
+      ]
+    },
+    "publication": {},
+    "publication_indexing": {},
+    "detect-duplicate": {},
+    "collection": "577d7908-a2a1-4fc4-a1b1-56f691eae28a",
+    "virtualcollection_link": {},
+    "publication_bibliographic_details": {}
+  },
+  "type": "workspaceitem",
+  "_links": {
+    "supervisionOrders": {
+      "href": "https://example.com/server/api/submission/workspaceitems/239514/supervisionOrders"
+    },
+    "collection": {
+      "href": "https://example.com/server/api/submission/workspaceitems/239514/collection"
+    },
+    "item": {
+      "href": "https://example.com/server/api/submission/workspaceitems/239514/item"
+    },
+    "submissionDefinition": {
+      "href": "https://example.com/server/api/submission/workspaceitems/239514/submissionDefinition"
+    },
+    "submitter": {
+      "href": "https://example.com/server/api/submission/workspaceitems/239514/submitter"
+    },
+    "self": {
+      "href": "https://example.com/server/api/submission/workspaceitems/239514"
+    }
+  },
+  "_embedded": {
+    "submitter": {
+      "id": "b26fbda8-8aa7-40a9-b8fd-75ee179dba15",
+      "uuid": "b26fbda8-8aa7-40a9-b8fd-75ee179dba15",
+      "name": "john.doe@example.com",
+      "handle": null,
+      "metadata": {
+        "dspace.agreements.cookies": [
+          {
+            "value": "{\"authentication\":true,\"preferences\":true,\"acknowledgement\":true,\"plumX\":false,\"altmetric\":false,\"dimensions\":false}",
+            "language": null,
+            "authority": null,
+            "confidence": -1,
+            "place": 0
+          }
+        ],
+        "dspace.agreements.end-user": [
+          {
+            "value": "true",
+            "language": null,
+            "authority": null,
+            "confidence": -1,
+            "place": 0
+          }
+        ],
+        "eperson.firstname": [
+          {
+            "value": "John",
+            "language": null,
+            "authority": null,
+            "confidence": -1,
+            "place": 0
+          }
+        ],
+        "eperson.lastname": [
+          {
+            "value": "Doe",
+            "language": null,
+            "authority": null,
+            "confidence": -1,
+            "place": 0
+          }
+        ]
+      },
+      "netid": "d419e836c45kswm4f88beb7cb5a82128468",
+      "lastActive": "2025-04-23T15:43:17.104+00:00",
+      "canLogIn": true,
+      "email": "john.doe@example.com",
+      "requireCertificate": false,
+      "selfRegistered": false,
+      "machineTokenGenerated": false,
+      "type": "eperson",
+      "_links": {
+        "groups": {
+          "href": "https://example.com/server/api/eperson/epersons/b26fbda8-8aa7-40a9-b8fd-75ee179dba15/groups"
+        },
+        "self": {
+          "href": "https://example.com/server/api/eperson/epersons/b26fbda8-8aa7-40a9-b8fd-75ee179dba15"
+        }
+      },
+      "_embedded": {
+        "groups": {
+          "_embedded": {
+            "groups": [
+              {
+                "id": "9fe2a461-1234-4c64-81f7-d3912f671a89",
+                "uuid": "9fe2a461-1234-4c64-81f7-d3912f671a89",
+                "name": "Administrator",
+                "handle": null,
+                "metadata": {
+                  "dc.title": [
+                    {
+                      "value": "Administrator",
+                      "language": null,
+                      "authority": null,
+                      "confidence": -1,
+                      "place": 0
+                    }
+                  ]
+                },
+                "permanent": true,
+                "type": "group",
+                "_links": {
+                  "subgroups": {
+                    "href": "https://example.com/server/api/eperson/groups/9fe2a461-1234-4c64-81f7-d3912f671a89/subgroups"
+                  },
+                  "epersons": {
+                    "href": "https://example.com/server/api/eperson/groups/9fe2a461-1234-4c64-81f7-d3912f671a89/epersons"
+                  },
+                  "object": {
+                    "href": "https://example.com/server/api/eperson/groups/9fe2a461-1234-4c64-81f7-d3912f671a89/object"
+                  },
+                  "self": {
+                    "href": "https://example.com/server/api/eperson/groups/9fe2a461-1234-4c64-81f7-d3912f671a89"
+                  }
+                }
+              }
+            ]
+          },
+          "_links": {
+            "self": {
+              "href": "https://example.com/server/api/eperson/epersons/b26fbda8-8dd6-40a9-b8fd-75ee179dba15/groups"
+            }
+          },
+          "page": {
+            "number": 0,
+            "size": 20,
+            "totalPages": 1,
+            "totalElements": 1
+          }
+        }
+      }
+    },
+    "item": {
+      "id": "2b058544-7c9a-4ee9-b293-d63cc3ba4cd2",
+      "uuid": "2b058544-7c9a-4ee9-b293-d63cc3ba4cd2",
+      "name": null,
+      "handle": "20.500.12345/67890",
+      "metadata": {
+        "dc.identifier.uri": [
+          {
+            "value": "https://example.com/handle/20.500.12345/67890",
+            "language": null,
+            "authority": null,
+            "confidence": -1,
+            "place": 0
+          }
+        ],
+        "dspace.entity.type": [
+          {
+            "value": "Publication",
+            "language": null,
+            "authority": null,
+            "confidence": -1,
+            "place": 0
+          }
+        ]
+      },
+      "inArchive": false,
+      "discoverable": true,
+      "withdrawn": false,
+      "lastModified": "2025-04-23T15:43:31.070+00:00",
+      "entityType": "Publication",
+      "type": "item",
+      "_links": {
+        "accessStatus": {
+          "href": "https://example.com/server/api/core/items/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2/accessStatus"
+        },
+        "bundles": {
+          "href": "https://example.com/server/api/core/items/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2/bundles"
+        },
+        "identifiers": {
+          "href": "https://example.com/server/api/core/items/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2/identifiers"
+        },
+        "mappedCollections": {
+          "href": "https://example.com/server/api/core/items/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2/mappedCollections"
+        },
+        "owningCollection": {
+          "href": "https://example.com/server/api/core/items/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2/owningCollection"
+        },
+        "relationships": {
+          "href": "https://example.com/server/api/core/items/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2/relationships"
+        },
+        "version": {
+          "href": "https://example.com/server/api/core/items/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2/version"
+        },
+        "templateItemOf": {
+          "href": "https://example.com/server/api/core/items/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2/templateItemOf"
+        },
+        "metrics": {
+          "href": "https://example.com/server/api/core/items/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2/metrics"
+        },
+        "thumbnail": {
+          "href": "https://example.com/server/api/core/items/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2/thumbnail"
+        },
+        "self": {
+          "href": "https://example.com/server/api/core/items/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2"
+        }
+      },
+      "_embedded": {
+        "relationships": {
+          "_embedded": {
+            "relationships": []
+          },
+          "_links": {
+            "self": {
+              "href": "https://example.com/server/api/core/items/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2/relationships"
+            }
+          },
+          "page": {
+            "number": 0,
+            "size": 20,
+            "totalPages": 0,
+            "totalElements": 0
+          }
+        },
+        "owningCollection": null,
+        "thumbnail": null,
+        "identifiers": {
+          "id": null,
+          "identifiers": [
+            {
+              "id": "https://example.com/handle/20.500.12345/67890",
+              "value": "https://example.com/handle/20.500.12345/67890",
+              "identifierType": "handle",
+              "identifierStatus": null,
+              "type": "identifier"
+            }
+          ],
+          "type": "identifiers"
+        },
+        "bundles": {
+          "_embedded": {
+            "bundles": []
+          },
+          "_links": {
+            "self": {
+              "href": "https://example.com/server/api/core/items/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2/bundles"
+            }
+          },
+          "page": {
+            "number": 0,
+            "size": 20,
+            "totalPages": 0,
+            "totalElements": 0
+          }
+        },
+        "templateItemOf": null,
+        "accessStatus": {
+          "status": "metadata.only",
+          "type": "accessStatus"
+        },
+        "metrics": {
+          "_embedded": {
+            "metrics": [
+              {
+                "id": "2b058544-7c9a-4ee9-b293-d63cc3ba4cd2:embedded-view",
+                "metricType": "embedded-view",
+                "metricCount": null,
+                "acquisitionDate": null,
+                "startDate": null,
+                "endDate": null,
+                "last": false,
+                "remark": "<a title=\"\" href=\"https://example.com/statistics/items/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2\">View</a>",
+                "deltaPeriod1": null,
+                "deltaPeriod2": null,
+                "rank": null,
+                "type": "metric",
+                "_links": {
+                  "self": {
+                    "href": "https://example.com/server/api/cris/metrics/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2:embedded-view"
+                  }
+                }
+              },
+              {
+                "id": "2b058544-7c9a-4ee9-b293-d63cc3ba4cd2:embedded-download",
+                "metricType": "embedded-download",
+                "metricCount": null,
+                "acquisitionDate": null,
+                "startDate": null,
+                "endDate": null,
+                "last": false,
+                "remark": "<a title=\"\" href=\"https://example.com/statistics/items/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2\">Downloads</a>",
+                "deltaPeriod1": null,
+                "deltaPeriod2": null,
+                "rank": null,
+                "type": "metric",
+                "_links": {
+                  "self": {
+                    "href": "https://example.com/server/api/cris/metrics/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2:embedded-download"
+                  }
+                }
+              }
+            ]
+          },
+          "_links": {
+            "self": {
+              "href": "https://example.com/server/api/core/items/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2/metrics"
+            }
+          },
+          "page": {
+            "number": 0,
+            "size": 20,
+            "totalPages": 1,
+            "totalElements": 2
+          }
+        },
+        "mappedCollections": {
+          "_embedded": {
+            "mappedCollections": []
+          },
+          "_links": {
+            "self": {
+              "href": "https://example.com/server/api/core/items/2b058544-7c9a-4ee9-b293-d63cc3ba4cd2/mappedCollections"
+            }
+          },
+          "page": {
+            "number": 0,
+            "size": 20,
+            "totalPages": 0,
+            "totalElements": 0
+          }
+        },
+        "version": null
+      }
+    },
+    "submissionDefinition": {
+      "id": "publication",
+      "name": "publication",
+      "type": "submissiondefinition",
+      "isDefault": false,
+      "_links": {
+        "collections": {
+          "href": "https://example.com/server/api/config/submissiondefinitions/publication/collections"
+        },
+        "sections": {
+          "href": "https://example.com/server/api/config/submissiondefinitions/publication/sections"
+        },
+        "self": {
+          "href": "https://example.com/server/api/config/submissiondefinitions/publication"
+        }
+      },
+      "_embedded": {
+        "collections": {
+          "_embedded": {
+            "collections": []
+          },
+          "_links": {
+            "self": {
+              "href": "https://example.com/server/api/config/submissiondefinitions/publication/collections?size=0"
+            }
+          },
+          "page": {
+            "number": 0,
+            "size": 0,
+            "totalPages": 1,
+            "totalElements": 0
+          }
+        },
+        "sections": {
+          "_embedded": {
+            "sections": [
+              {
+                "id": "collection",
+                "header": "submit.progressbar.collection",
+                "mandatory": true,
+                "opened": true,
+                "sectionType": "collection",
+                "type": "submissionsection",
+                "_links": {
+                  "self": {
+                    "href": "https://example.com/server/api/config/submissionsections/collection"
+                  }
+                }
+              },
+              {
+                "id": "publication",
+                "header": "submit.progressbar.describe.publication",
+                "mandatory": true,
+                "opened": true,
+                "sectionType": "submission-form",
+                "type": "submissionsection",
+                "_links": {
+                  "self": {
+                    "href": "https://example.com/server/api/config/submissionsections/publication"
+                  },
+                  "config": {
+                    "href": "https://example.com/server/api/config/submissionforms/publication"
+                  }
+                }
+              },
+              {
+                "id": "publication_indexing",
+                "header": "submit.progressbar.describe.publication_indexing",
+                "mandatory": true,
+                "opened": true,
+                "sectionType": "submission-form",
+                "type": "submissionsection",
+                "_links": {
+                  "self": {
+                    "href": "https://example.com/server/api/config/submissionsections/publication_indexing"
+                  },
+                  "config": {
+                    "href": "https://example.com/server/api/config/submissionforms/publication_indexing"
+                  }
+                }
+              },
+              {
+                "id": "publication_bibliographic_details",
+                "header": "submit.progressbar.describe.publication_bibliographic_details",
+                "mandatory": true,
+                "opened": true,
+                "sectionType": "submission-form",
+                "type": "submissionsection",
+                "_links": {
+                  "self": {
+                    "href": "https://example.com/server/api/config/submissionsections/publication_bibliographic_details"
+                  },
+                  "config": {
+                    "href": "https://example.com/server/api/config/submissionforms/publication_bibliographic_details"
+                  }
+                }
+              },
+              {
+                "id": "publication_references",
+                "header": "submit.progressbar.describe.publication_references",
+                "mandatory": true,
+                "opened": true,
+                "sectionType": "submission-form",
+                "type": "submissionsection",
+                "_links": {
+                  "self": {
+                    "href": "https://example.com/server/api/config/submissionsections/publication_references"
+                  },
+                  "config": {
+                    "href": "https://example.com/server/api/config/submissionforms/publication_references"
+                  }
+                }
+              },
+              {
+                "id": "sherpa",
+                "header": "submit.progressbar.sherpa",
+                "mandatory": true,
+                "opened": true,
+                "sectionType": "sherpaPolicy",
+                "type": "submissionsection",
+                "_links": {
+                  "self": {
+                    "href": "https://example.com/server/api/config/submissionsections/sherpa"
+                  }
+                }
+              },
+              {
+                "id": "detect-duplicate",
+                "header": "submit.progressbar.detect-duplicate",
+                "mandatory": true,
+                "opened": true,
+                "sectionType": "detect-duplicate",
+                "type": "submissionsection",
+                "_links": {
+                  "self": {
+                    "href": "https://example.com/server/api/config/submissionsections/detect-duplicate"
+                  }
+                }
+              },
+              {
+                "id": "upload_publication",
+                "header": "submit.progressbar.upload_license",
+                "mandatory": true,
+                "opened": true,
+                "sectionType": "upload",
+                "type": "submissionsection",
+                "_links": {
+                  "self": {
+                    "href": "https://example.com/server/api/config/submissionsections/upload_publication"
+                  },
+                  "config": {
+                    "href": "https://example.com/server/api/config/submissionuploads/upload_publication"
+                  }
+                }
+              },
+              {
+                "id": "identifiers",
+                "header": "submit.progressbar.identifiers",
+                "mandatory": true,
+                "opened": true,
+                "sectionType": "identifiers",
+                "type": "submissionsection",
+                "_links": {
+                  "self": {
+                    "href": "https://example.com/server/api/config/submissionsections/identifiers"
+                  }
+                }
+              }
+            ]
+          },
+          "_links": {
+            "self": {
+              "href": "https://example.com/server/api/config/submissiondefinitions/publication/sections"
+            }
+          },
+          "page": {
+            "number": 0,
+            "size": 20,
+            "totalPages": 1,
+            "totalElements": 11
+          }
+        }
+      }
+    },
+    "collection": {
+      "id": "577d7908-a2a1-4fc4-a1b1-56f691eae28a",
+      "uuid": "577d7908-a2a1-4fc4-a1b1-56f691eae28a",
+      "name": "Publications",
+      "handle": "20.500.12345/6",
+      "metadata": {
+        "dc.description.abstract": [
+          {
+            "value": "Publications",
+            "language": null,
+            "authority": null,
+            "confidence": -1,
+            "place": 0
+          }
+        ],
+        "dc.identifier.uri": [
+          {
+            "value": "https://example.com/handle/20.500.12345/6",
+            "language": null,
+            "authority": null,
+            "confidence": -1,
+            "place": 0
+          }
+        ],
+        "dc.title": [
+          {
+            "value": "Publications",
+            "language": null,
+            "authority": null,
+            "confidence": -1,
+            "place": 0
+          }
+        ],
+        "dspace.entity.type": [
+          {
+            "value": "Publication",
+            "language": null,
+            "authority": null,
+            "confidence": -1,
+            "place": 0
+          }
+        ]
+      },
+      "archivedItemsCount": -1,
+      "type": "collection",
+      "_links": {
+        "harvester": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/harvester"
+        },
+        "itemtemplate": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/itemtemplate"
+        },
+        "license": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/license"
+        },
+        "logo": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/logo"
+        },
+        "mappedItems": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/mappedItems"
+        },
+        "parentCommunity": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/parentCommunity"
+        },
+        "adminGroup": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/adminGroup"
+        },
+        "submittersGroup": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/submittersGroup"
+        },
+        "itemReadGroup": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/itemReadGroup"
+        },
+        "bitstreamReadGroup": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/bitstreamReadGroup"
+        },
+        "self": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a"
+        },
+        "workflowGroups": [
+          {
+            "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/workflowGroups/reviewer",
+            "name": "reviewer"
+          },
+          {
+            "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/workflowGroups/editor",
+            "name": "editor"
+          },
+          {
+            "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/workflowGroups/finaleditor",
+            "name": "finaleditor"
+          }
+        ]
+      },
+      "_embedded": {
+        "mappedItems": {
+          "_embedded": {
+            "mappedItems": []
+          },
+          "_links": {
+            "self": {
+              "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/mappedItems"
+            }
+          },
+          "page": {
+            "number": 0,
+            "size": 20,
+            "totalPages": 0,
+            "totalElements": 0
+          }
+        },
+        "adminGroup": {
+          "id": "7428b315-4bae-4bc2-901c-6e951da17cd6",
+          "uuid": "7428b315-4bae-4bc2-901c-6e951da17cd6",
+          "name": "PublicationsAdmin",
+          "handle": null,
+          "metadata": {
+            "dc.title": [
+              {
+                "value": "PublicationsAdmin",
+                "language": null,
+                "authority": null,
+                "confidence": -1,
+                "place": 0
+              }
+            ]
+          },
+          "permanent": false,
+          "type": "group",
+          "_links": {
+            "subgroups": {
+              "href": "https://example.com/server/api/eperson/groups/7428b315-4bae-4bc2-901c-6e951da17cd6/subgroups"
+            },
+            "epersons": {
+              "href": "https://example.com/server/api/eperson/groups/7428b315-4bae-4bc2-901c-6e951da17cd6/epersons"
+            },
+            "object": {
+              "href": "https://example.com/server/api/eperson/groups/7428b315-4bae-4bc2-901c-6e951da17cd6/object"
+            },
+            "self": {
+              "href": "https://example.com/server/api/eperson/groups/7428b315-4bae-4bc2-901c-6e951da17cd6"
+            }
+          }
+        },
+        "license": {
+          "custom": false,
+          "text": "My license",
+          "type": "license"
+        },
+        "parentCommunity": {
+          "id": "f8c41f73-5c71-4c68-99e5-788f255151fc",
+          "uuid": "f8c41f73-5c71-4c68-99e5-788f255151fc",
+          "name": "EXAMPLE",
+          "handle": "20.500.12345/1",
+          "metadata": {
+            "dc.description": [
+              {
+                "value": "Introductory text",
+                "language": null,
+                "authority": null,
+                "confidence": -1,
+                "place": 0
+              }
+            ],
+            "dc.description.abstract": [
+              {
+                "value": "My community",
+                "language": null,
+                "authority": null,
+                "confidence": -1,
+                "place": 0
+              }
+            ],
+            "dc.identifier.uri": [
+              {
+                "value": "https://example.com/handle/20.500.12345/1",
+                "language": null,
+                "authority": null,
+                "confidence": -1,
+                "place": 0
+              }
+            ],
+            "dc.rights": [
+              {
+                "value": "Special copyright notice",
+                "language": null,
+                "authority": null,
+                "confidence": -1,
+                "place": 0
+              }
+            ],
+            "dc.title": [
+              {
+                "value": "EXAMPLE",
+                "language": null,
+                "authority": null,
+                "confidence": -1,
+                "place": 0
+              }
+            ]
+          },
+          "archivedItemsCount": -1,
+          "type": "community",
+          "_links": {
+            "collections": {
+              "href": "https://example.com/server/api/core/communities/f8c41f73-5c71-4c68-99e5-788f255151fc/collections"
+            },
+            "logo": {
+              "href": "https://example.com/server/api/core/communities/f8c41f73-5c71-4c68-99e5-788f255151fc/logo"
+            },
+            "subcommunities": {
+              "href": "https://example.com/server/api/core/communities/f8c41f73-5c71-4c68-99e5-788f255151fc/subcommunities"
+            },
+            "parentCommunity": {
+              "href": "https://example.com/server/api/core/communities/f8c41f73-5c71-4c68-99e5-788f255151fc/parentCommunity"
+            },
+            "adminGroup": {
+              "href": "https://example.com/server/api/core/communities/f8c41f73-5c71-4c68-99e5-788f255151fc/adminGroup"
+            },
+            "self": {
+              "href": "https://example.com/server/api/core/communities/f8c41f73-5c71-4c68-99e5-788f255151fc"
+            }
+          }
+        },
+        "bitstreamReadGroup": {
+          "id": "3f892f6a-cc9c-421d-9cd5-f7cd9343281a",
+          "uuid": "3f892f6a-cc9c-421d-9cd5-f7cd9343281a",
+          "name": "Anonymous",
+          "handle": null,
+          "metadata": {
+            "dc.title": [
+              {
+                "value": "Anonymous",
+                "language": null,
+                "authority": null,
+                "confidence": -1,
+                "place": 0
+              }
+            ]
+          },
+          "permanent": true,
+          "type": "group",
+          "_links": {
+            "subgroups": {
+              "href": "https://example.com/server/api/eperson/groups/3f892f6a-cc9c-421d-9cd5-f7cd9343281a/subgroups"
+            },
+            "epersons": {
+              "href": "https://example.com/server/api/eperson/groups/3f892f6a-cc9c-421d-9cd5-f7cd9343281a/epersons"
+            },
+            "object": {
+              "href": "https://example.com/server/api/eperson/groups/3f892f6a-cc9c-421d-9cd5-f7cd9343281a/object"
+            },
+            "self": {
+              "href": "https://example.com/server/api/eperson/groups/3f892f6a-cc9c-421d-9cd5-f7cd9343281a"
+            }
+          }
+        },
+        "logo": null,
+        "itemReadGroup": {
+          "id": "3f892f6a-cc9c-421d-9cd5-f7cd9343281a",
+          "uuid": "3f892f6a-cc9c-421d-9cd5-f7cd9343281a",
+          "name": "Anonymous",
+          "handle": null,
+          "metadata": {
+            "dc.title": [
+              {
+                "value": "Anonymous",
+                "language": null,
+                "authority": null,
+                "confidence": -1,
+                "place": 0
+              }
+            ]
+          },
+          "permanent": true,
+          "type": "group",
+          "_links": {
+            "subgroups": {
+              "href": "https://example.com/server/api/eperson/groups/3f892f6a-cc9c-421d-9cd5-f7cd9343281a/subgroups"
+            },
+            "epersons": {
+              "href": "https://example.com/server/api/eperson/groups/3f892f6a-cc9c-421d-9cd5-f7cd9343281a/epersons"
+            },
+            "object": {
+              "href": "https://example.com/server/api/eperson/groups/3f892f6a-cc9c-421d-9cd5-f7cd9343281a/object"
+            },
+            "self": {
+              "href": "https://example.com/server/api/eperson/groups/3f892f6a-cc9c-421d-9cd5-f7cd9343281a"
+            }
+          }
+        },
+        "submittersGroup": {
+          "id": "c80b604c-6d41-4d90-a62d-22a7e66ada27",
+          "uuid": "c80b604c-6d41-4d90-a62d-22a7e66ada27",
+          "name": "PublicationsSubmitter",
+          "handle": null,
+          "metadata": {
+            "dc.title": [
+              {
+                "value": "PublicationsSubmitter",
+                "language": null,
+                "authority": null,
+                "confidence": -1,
+                "place": 0
+              }
+            ]
+          },
+          "permanent": false,
+          "type": "group",
+          "_links": {
+            "subgroups": {
+              "href": "https://example.com/server/api/eperson/groups/c80b604c-6d41-4d90-a62d-22a7e66ada27/subgroups"
+            },
+            "epersons": {
+              "href": "https://example.com/server/api/eperson/groups/c80b604c-6d41-4d90-a62d-22a7e66ada27/epersons"
+            },
+            "object": {
+              "href": "https://example.com/server/api/eperson/groups/c80b604c-6d41-4d90-a62d-22a7e66ada27/object"
+            },
+            "self": {
+              "href": "https://example.com/server/api/eperson/groups/c80b604c-6d41-4d90-a62d-22a7e66ada27"
+            }
+          }
+        }
+      }
+    },
+    "supervisionOrders": {
+      "_embedded": {
+        "supervisionOrders": []
+      },
+      "_links": {
+        "self": {
+          "href": "https://example.com/server/api/submission/workspaceitems/239514/supervisionOrders"
+        }
+      },
+      "page": {
+        "number": 0,
+        "size": 20,
+        "totalPages": 0,
+        "totalElements": 0
+      }
+    }
+  }
+}

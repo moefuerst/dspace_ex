@@ -1,0 +1,94 @@
+{
+  "_embedded": {
+    "workflowitems": [
+      {
+        "id": 1911,
+        "lastModified": "2017-06-24T00:40:54.970+0000",
+        "step": "editstep",
+        "sections": {
+          "upload": {
+            "files": []
+          },
+          "publication": {
+            "dc.title": [
+              {
+                "value": "Test Workflow Item",
+                "language": null,
+                "authority": null,
+                "confidence": -1
+              }
+            ]
+          },
+          "license": {}
+        },
+        "type": "workflowitem",
+        "uniqueType": "workflow.workflowitem",
+        "_links": {
+          "self": {
+            "href": "https://example.com/server/api/workflow/workflowitems/1911"
+          },
+          "item": {
+            "href": "https://example.com/server/api/core/items/cd67ce0e-7f9a-42fc-b8e7-c8bb83ef58ca"
+          },
+          "step": {
+            "href": "https://example.com/server/api/workflow/workflowitems/1911/step"
+          }
+        }
+      },
+      {
+        "id": 1912,
+        "lastModified": "2017-06-25T10:15:00.000+0000",
+        "step": "reviewstep",
+        "sections": {
+          "upload": {
+            "files": []
+          },
+          "publication": {
+            "dc.title": [
+              {
+                "value": "Another Workflow Item",
+                "language": null,
+                "authority": null,
+                "confidence": -1
+              }
+            ]
+          },
+          "license": {}
+        },
+        "type": "workflowitem",
+        "uniqueType": "workflow.workflowitem",
+        "_links": {
+          "self": {
+            "href": "https://example.com/server/api/workflow/workflowitems/1912"
+          },
+          "item": {
+            "href": "https://example.com/server/api/core/items/ab12ce0e-1f2a-53gc-c9f8-d9cc94gf69db"
+          },
+          "step": {
+            "href": "https://example.com/server/api/workflow/workflowitems/1912/step"
+          }
+        }
+      }
+    ]
+  },
+  "_links": {
+    "first": {
+      "href": "https://example.com/server/api/workflow/workflowitems?page=0&size=20"
+    },
+    "self": {
+      "href": "https://example.com/server/api/workflow/workflowitems"
+    },
+    "next": {
+      "href": "https://example.com/server/api/workflow/workflowitems?page=1&size=20"
+    },
+    "last": {
+      "href": "https://example.com/server/api/workflow/workflowitems?page=1&size=20"
+    }
+  },
+  "page": {
+    "size": 20,
+    "totalElements": 2,
+    "totalPages": 1,
+    "number": 0
+  }
+}

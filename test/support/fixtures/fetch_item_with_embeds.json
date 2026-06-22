@@ -1,0 +1,990 @@
+{
+  "id": "8f62713a-c495-467b-a918-2e392f781d2e",
+  "uuid": "8f62713a-c495-467b-a918-2e392f781d2e",
+  "name": "Usage of Concurrency Patterns and Fault Tolerance in Telecom Applications: An overview",
+  "handle": "20.500.12345/67890",
+  "metadata": {
+    "cris.virtual.author-orcid": [
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 1
+      },
+      {
+        "value": "0000-0001-2345-6789",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 2
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 3
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 4
+      },
+      {
+        "value": "0000-0002-3456-7890",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 5
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 6
+      }
+    ],
+    "cris.virtualsource.author-orcid": [
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 1
+      },
+      {
+        "value": "57df8a33-175d-49c2-8a00-6119b3682ac9",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 2
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 3
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 4
+      },
+      {
+        "value": "81c57a77-ff75-4726-86aa-32a56bab4d0a",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 5
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 6
+      }
+    ],
+    "dc.contributor.author": [
+      {
+        "value": "Armstrong, Joe",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      },
+      {
+        "value": "Cesarini, Francesco",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 1
+      },
+      {
+        "value": "Svensson, Björn",
+        "language": null,
+        "authority": "57df8a33-175d-49c2-8a00-6119b3682ac9",
+        "confidence": 600,
+        "place": 2
+      },
+      {
+        "value": "Lindström, Anna",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 3
+      },
+      {
+        "value": "Norström, Erik",
+        "language": null,
+        "authority": "51a56ca0-cb88-400f-8f3f-3e1972192a37",
+        "confidence": 600,
+        "place": 4
+      },
+      {
+        "value": "Gustavsson, Inga",
+        "language": null,
+        "authority": "81c57a77-ff75-4726-86aa-32a56bab4d0a",
+        "confidence": 600,
+        "place": 5
+      },
+      {
+        "value": "Wikström, Lars",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 6
+      }
+    ],
+    "dc.date.accessioned": [
+      {
+        "value": "2024-10-11T17:38:08Z",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "dc.date.available": [
+      {
+        "value": "2024-10-11T17:38:08Z",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "dc.date.issued": [
+      {
+        "value": "2023-03-15",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "dc.description.sponsorship": [
+      {
+        "value": "Telefonaktiebolaget Research Laboratory",
+        "language": null,
+        "authority": "9667001d-2908-4a66-af5f-96689ae0d75f",
+        "confidence": 600,
+        "place": 0,
+        "securityLevel": 1
+      },
+      {
+        "value": "Telecom Systems Division",
+        "language": null,
+        "authority": "12396e9e-08bc-4737-b5d4-ce5b4ba6833f",
+        "confidence": 600,
+        "place": 1,
+        "securityLevel": 1
+      },
+      {
+        "value": "Concurrent Programming Group",
+        "language": null,
+        "authority": "61a2535f-ed91-4648-9a83-39fd7a44da67",
+        "confidence": 600,
+        "place": 2,
+        "securityLevel": 1
+      }
+    ],
+    "dc.identifier.doi": [
+      {
+        "value": "10.12345/123456",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "dc.identifier.uri": [
+      {
+        "value": "https://example.com/handle/20.500.12345/67890",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "dc.language.iso": [
+      {
+        "value": "en",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0,
+        "securityLevel": 0
+      }
+    ],
+    "dc.publisher": [
+      {
+        "value": "Telefonaktiebolaget Technical Publications",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "dc.publisher.place": [
+      {
+        "value": "Stockholm, Sweden",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "dc.subject": [
+      {
+        "value": "Erlang\nfunctional programming\nconcurrency patterns\nfault tolerance\ntelecom applications",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "dc.subject.ddc": [
+      {
+        "value": "600 - Technology::610 - Computing technologies",
+        "language": null,
+        "authority": "dd:ddc610",
+        "confidence": 600,
+        "place": 0
+      },
+      {
+        "value": "600 - Technology::630 - Telecommunications",
+        "language": null,
+        "authority": "dd:ddc630",
+        "confidence": 600,
+        "place": 1
+      },
+      {
+        "value": "500 - Science::570 - Software engineering",
+        "language": null,
+        "authority": "dd:ddc570",
+        "confidence": 600,
+        "place": 2
+      }
+    ],
+    "dc.title": [
+      {
+        "value": "Usage of Concurrency Patterns and Fault Tolerance in Telecom Applications: An overview",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "dc.type": [
+      {
+        "value": "report",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0,
+        "securityLevel": 0
+      }
+    ],
+    "dspace.entity.type": [
+      {
+        "value": "Publication",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "oairecerif.author.affiliation": [
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 1
+      },
+      {
+        "value": "Telefonaktiebolaget Research Laboratory",
+        "language": null,
+        "authority": "9667001d-2908-4a66-af5f-96689ae0d75f",
+        "confidence": 600,
+        "place": 2
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 3
+      },
+      {
+        "value": "Telecom Systems Division",
+        "language": null,
+        "authority": "12396e9e-08bc-4737-b5d4-ce5b4ba6833f",
+        "confidence": 600,
+        "place": 4
+      },
+      {
+        "value": "Concurrent Programming Group",
+        "language": null,
+        "authority": "61a2535f-ed91-4648-9a83-39fd7a44da67",
+        "confidence": 600,
+        "place": 5
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 6
+      }
+    ],
+    "oairecerif.author.affiliation2": [
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 1
+      },
+      {
+        "value": "Concurrent Programming Group",
+        "language": null,
+        "authority": "61a2535f-ed91-4648-9a83-39fd7a44da67",
+        "confidence": 600,
+        "place": 2
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 3
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 4
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 5
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 6
+      }
+    ],
+    "oairecerif.author.affiliation3": [
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 1
+      },
+      {
+        "value": "Telecom Systems Division",
+        "language": null,
+        "authority": "12396e9e-08bc-4737-b5d4-ce5b4ba6833f",
+        "confidence": 600,
+        "place": 2
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 3
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 4
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 5
+      },
+      {
+        "value": "#PLACEHOLDER_PARENT_METADATA_VALUE#",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 6
+      }
+    ],
+    "oairecerif.identifier.url": [
+      {
+        "value": "https://example.com/reports/2023/erlang-performance-optimization.pdf",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "dc.contributor.role": [
+      {
+        "value": "creator",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      },
+      {
+        "value": "creator",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 1
+      },
+      {
+        "value": "creator",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 2
+      },
+      {
+        "value": "creator",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 3
+      },
+      {
+        "value": "creator",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 4
+      },
+      {
+        "value": "creator",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 5
+      },
+      {
+        "value": "creator",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 6
+      }
+    ]
+  },
+  "inArchive": true,
+  "discoverable": true,
+  "withdrawn": false,
+  "lastModified": "2024-10-11T17:38:08.671+00:00",
+  "entityType": "Publication",
+  "type": "item",
+  "_links": {
+    "accessStatus": {
+      "href": "https://example.com/server/api/core/items/8f62713a-c495-467b-a918-2e392f781d2e/accessStatus"
+    },
+    "bundles": {
+      "href": "https://example.com/server/api/core/items/8f62713a-c495-467b-a918-2e392f781d2e/bundles"
+    },
+    "identifiers": {
+      "href": "https://example.com/server/api/core/items/8f62713a-c495-467b-a918-2e392f781d2e/identifiers"
+    },
+    "mappedCollections": {
+      "href": "https://example.com/server/api/core/items/8f62713a-c495-467b-a918-2e392f781d2e/mappedCollections"
+    },
+    "owningCollection": {
+      "href": "https://example.com/server/api/core/items/8f62713a-c495-467b-a918-2e392f781d2e/owningCollection"
+    },
+    "relationships": {
+      "href": "https://example.com/server/api/core/items/8f62713a-c495-467b-a918-2e392f781d2e/relationships"
+    },
+    "version": {
+      "href": "https://example.com/server/api/core/items/8f62713a-c495-467b-a918-2e392f781d2e/version"
+    },
+    "templateItemOf": {
+      "href": "https://example.com/server/api/core/items/8f62713a-c495-467b-a918-2e392f781d2e/templateItemOf"
+    },
+    "metrics": {
+      "href": "https://example.com/server/api/core/items/8f62713a-c495-467b-a918-2e392f781d2e/metrics"
+    },
+    "thumbnail": {
+      "href": "https://example.com/server/api/core/items/8f62713a-c495-467b-a918-2e392f781d2e/thumbnail"
+    },
+    "self": {
+      "href": "https://example.com/server/api/core/items/8f62713a-c495-467b-a918-2e392f781d2e"
+    }
+  },
+  "_embedded": {
+    "relationships": {
+      "_links": {
+        "self": {
+          "href": "https://example.com/server/api/core/items/8f62713a-c495-467b-a918-2e392f781d2e/relationships"
+        }
+      },
+      "_embedded": {
+        "relationships": []
+      },
+      "page": {
+        "number": 0,
+        "size": 20,
+        "totalPages": 0,
+        "totalElements": 0
+      }
+    },
+    "owningCollection": {
+      "id": "577d7908-a2a1-4fc4-a1b1-56f691eae28a",
+      "uuid": "577d7908-a2a1-4fc4-a1b1-56f691eae28a",
+      "name": "Publications",
+      "handle": "20.500.12422/7",
+      "metadata": {
+        "dc.description.abstract": [
+          {
+            "value": "Erlang Publications",
+            "language": null,
+            "authority": null,
+            "confidence": -1,
+            "place": 0
+          }
+        ],
+        "dc.identifier.uri": [
+          {
+            "value": "https://example.com/handle/20.500.12422/7",
+            "language": null,
+            "authority": null,
+            "confidence": -1,
+            "place": 0
+          }
+        ],
+        "dc.title": [
+          {
+            "value": "Publications",
+            "language": null,
+            "authority": null,
+            "confidence": -1,
+            "place": 0
+          }
+        ],
+        "dspace.entity.type": [
+          {
+            "value": "Publication",
+            "language": null,
+            "authority": null,
+            "confidence": -1,
+            "place": 0
+          }
+        ]
+      },
+      "archivedItemsCount": -1,
+      "type": "collection",
+      "_links": {
+        "harvester": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/harvester"
+        },
+        "itemtemplate": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/itemtemplate"
+        },
+        "license": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/license"
+        },
+        "logo": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/logo"
+        },
+        "mappedItems": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/mappedItems"
+        },
+        "parentCommunity": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/parentCommunity"
+        },
+        "adminGroup": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/adminGroup"
+        },
+        "submittersGroup": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/submittersGroup"
+        },
+        "itemReadGroup": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/itemReadGroup"
+        },
+        "bitstreamReadGroup": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/bitstreamReadGroup"
+        },
+        "self": {
+          "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a"
+        },
+        "workflowGroups": [
+          {
+            "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/workflowGroups/reviewer",
+            "name": "reviewer"
+          },
+          {
+            "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/workflowGroups/editor",
+            "name": "editor"
+          },
+          {
+            "href": "https://example.com/server/api/core/collections/577d7908-a2a1-4fc4-a1b1-56f691eae28a/workflowGroups/finaleditor",
+            "name": "finaleditor"
+          }
+        ]
+      }
+    },
+    "thumbnail": null,
+    "identifiers": {
+      "id": null,
+      "identifiers": [
+        {
+          "id": "https://doi.org/10.12345/123456",
+          "value": "https://doi.org/10.12345/123456",
+          "identifierType": "doi",
+          "identifierStatus": "IS_REGISTERED",
+          "type": "identifier"
+        },
+        {
+          "id": "https://example.com/handle/20.500.12345/67890",
+          "value": "https://example.com/handle/20.500.12345/67890",
+          "identifierType": "handle",
+          "identifierStatus": null,
+          "type": "identifier"
+        }
+      ],
+      "type": "identifiers"
+    },
+    "bundles": {
+      "_links": {
+        "self": {
+          "href": "https://example.com/server/api/core/items/8f62713a-c495-467b-a918-2e392f781d2e/bundles"
+        }
+      },
+      "_embedded": {
+        "bundles": [
+          {
+            "uuid": "a5cf6940-c8f1-4b59-870f-f9fa39332b56",
+            "name": "ORIGINAL",
+            "handle": null,
+            "metadata": {
+              "dc.title": [
+                {
+                  "value": "ORIGINAL",
+                  "language": null,
+                  "authority": null,
+                  "confidence": -1,
+                  "place": 0
+                }
+              ]
+            },
+            "type": "bundle",
+            "_links": {
+              "item": {
+                "href": "https://example.com/server/api/core/bundles/a5cf6940-c8f1-4b59-870f-f9fa39332b56/item"
+              },
+              "bitstreams": {
+                "href": "https://example.com/server/api/core/bundles/a5cf6940-c8f1-4b59-870f-f9fa39332b56/bitstreams"
+              },
+              "primaryBitstream": {
+                "href": "https://example.com/server/api/core/bundles/a5cf6940-c8f1-4b59-870f-f9fa39332b56/primaryBitstream"
+              },
+              "self": {
+                "href": "https://example.com/server/api/core/bundles/a5cf6940-c8f1-4b59-870f-f9fa39332b56"
+              }
+            },
+            "_embedded": {
+              "bitstreams": {
+                "_links": {
+                  "self": {
+                    "href": "https://example.com/server/api/core/bundles/a5cf6940-c8f1-4b59-870f-f9fa39332b56/bitstreams"
+                  }
+                },
+                "_embedded": {
+                  "bitstreams": [
+                    {
+                      "id": "022b1828-db4e-4f55-a1fc-ba1f3fea0c2f",
+                      "uuid": "022b1828-db4e-4f55-a1fc-ba1f3fea0c2f",
+                      "name": "erlang-performance-optimization.pdf",
+                      "handle": null,
+                      "metadata": {
+                        "datacite.rights": [
+                          {
+                            "value": "open.access",
+                            "language": null,
+                            "authority": null,
+                            "confidence": -1,
+                            "place": 0
+                          }
+                        ],
+                        "dc.rights.uri": [
+                          {
+                            "value": "https://creativecommons.org/licenses/by/4.0",
+                            "language": null,
+                            "authority": null,
+                            "confidence": -1,
+                            "place": 0
+                          }
+                        ],
+                        "dc.title": [
+                          {
+                            "value": "erlang-performance-optimization.pdf",
+                            "language": null,
+                            "authority": null,
+                            "confidence": -1,
+                            "place": 0
+                          }
+                        ],
+                        "dc.type": [
+                          {
+                            "value": "text",
+                            "language": null,
+                            "authority": null,
+                            "confidence": -1,
+                            "place": 0
+                          }
+                        ],
+                        "unibe.content": [
+                          {
+                            "value": "published",
+                            "language": null,
+                            "authority": null,
+                            "confidence": -1,
+                            "place": 0
+                          }
+                        ]
+                      },
+                      "bundleName": "ORIGINAL",
+                      "sizeBytes": 1260218,
+                      "checkSum": {
+                        "checkSumAlgorithm": "MD5",
+                        "value": "97e293321506d049037d271928005163"
+                      },
+                      "sequenceId": 1,
+                      "type": "bitstream",
+                      "_links": {
+                        "content": {
+                          "href": "https://example.com/server/api/core/bitstreams/022b1828-db4e-4f55-a1fc-ba1f3fea0c2f/content"
+                        },
+                        "bundle": {
+                          "href": "https://example.com/server/api/core/bitstreams/022b1828-db4e-4f55-a1fc-ba1f3fea0c2f/bundle"
+                        },
+                        "format": {
+                          "href": "https://example.com/server/api/core/bitstreams/022b1828-db4e-4f55-a1fc-ba1f3fea0c2f/format"
+                        },
+                        "thumbnail": {
+                          "href": "https://example.com/server/api/core/bitstreams/022b1828-db4e-4f55-a1fc-ba1f3fea0c2f/thumbnail"
+                        },
+                        "accessStatus": {
+                          "href": "https://example.com/server/api/core/bitstreams/022b1828-db4e-4f55-a1fc-ba1f3fea0c2f/accessStatus"
+                        },
+                        "self": {
+                          "href": "https://example.com/server/api/core/bitstreams/022b1828-db4e-4f55-a1fc-ba1f3fea0c2f"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "page": {
+                  "number": 0,
+                  "size": 20,
+                  "totalPages": 1,
+                  "totalElements": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "page": {
+        "number": 0,
+        "size": 20,
+        "totalPages": 1,
+        "totalElements": 1
+      }
+    },
+    "templateItemOf": null,
+    "accessStatus": {
+      "status": "open.access",
+      "type": "accessStatus"
+    },
+    "metrics": {
+      "_links": {
+        "self": {
+          "href": "https://example.com/server/api/core/items/8f62713a-c495-467b-a918-2e392f781d2e/metrics"
+        }
+      },
+      "_embedded": {
+        "metrics": [
+          {
+            "id": "8f62713a-c495-467b-a918-2e392f781d2e:google-scholar",
+            "metricType": "google-scholar",
+            "metricCount": null,
+            "acquisitionDate": null,
+            "startDate": null,
+            "endDate": null,
+            "last": false,
+            "remark": "{\"href\":\"https://scholar.google.com/scholar?q=Echinococcus+metacestode%3A+in+search+of+viability+markers\"}",
+            "deltaPeriod1": null,
+            "deltaPeriod2": null,
+            "rank": null,
+            "type": "metric",
+            "_links": {
+              "self": {
+                "href": "https://example.com/server/api/cris/metrics/8f62713a-c495-467b-a918-2e392f781d2e:google-scholar"
+              }
+            }
+          },
+          {
+            "id": "8f62713a-c495-467b-a918-2e392f781d2e:altmetric",
+            "metricType": "altmetric",
+            "metricCount": null,
+            "acquisitionDate": null,
+            "startDate": null,
+            "endDate": null,
+            "last": false,
+            "remark": "{\"data-badge-enabled\":true,\"list-data-badge-enabled\":true,\"popover\":\"bottom\",\"badgeType\":\"donut\",\"data-badge-details\":null,\"doiAttr\":\"10.1051/parasite/2014063\",\"pmidAttr\":\"25429386\",\"data-hide-less-than\":0,\"data-hide-no-mentions\":true,\"data-link-target\":\"_blank\",\"list-popover\":\"left\",\"list-badgeType\":\"donut\",\"list-data-badge-details\":null,\"list-doiAttr\":\"10.1051/parasite/2014063\",\"list-pmidAttr\":\"25429386\",\"list-data-hide-less-than\":0,\"list-data-hide-no-mentions\":true,\"list-data-link-target\":\"_blank\"}",
+            "deltaPeriod1": null,
+            "deltaPeriod2": null,
+            "rank": null,
+            "type": "metric",
+            "_links": {
+              "self": {
+                "href": "https://example.com/server/api/cris/metrics/8f62713a-c495-467b-a918-2e392f781d2e:altmetric"
+              }
+            }
+          },
+          {
+            "id": "8f62713a-c495-467b-a918-2e392f781d2e:dimensions",
+            "metricType": "dimensions",
+            "metricCount": null,
+            "acquisitionDate": null,
+            "startDate": null,
+            "endDate": null,
+            "last": false,
+            "remark": "{\"data-badge-enabled\":true,\"list-data-badge-enabled\":true,\"data-legend\":\"hover-bottom\",\"data-style\":\"small_circle\",\"data-doi\":\"10.1051/parasite/2014063\",\"data-pmid\":\"25429386\",\"data-hide-zero-citations\":true,\"list-data-legend\":\"hover-left\",\"list-data-style\":\"small_circle\",\"list-data-doi\":\"10.1051/parasite/2014063\",\"list-data-pmid\":\"25429386\",\"list-data-hide-zero-citations\":true}",
+            "deltaPeriod1": null,
+            "deltaPeriod2": null,
+            "rank": null,
+            "type": "metric",
+            "_links": {
+              "self": {
+                "href": "https://example.com/server/api/cris/metrics/8f62713a-c495-467b-a918-2e392f781d2e:dimensions"
+              }
+            }
+          },
+          {
+            "id": "8f62713a-c495-467b-a918-2e392f781d2e:embedded-view",
+            "metricType": "embedded-view",
+            "metricCount": null,
+            "acquisitionDate": null,
+            "startDate": null,
+            "endDate": null,
+            "last": false,
+            "remark": "<a title=\"\" href=\"\">View</a>",
+            "deltaPeriod1": null,
+            "deltaPeriod2": null,
+            "rank": null,
+            "type": "metric",
+            "_links": {
+              "self": {
+                "href": "https://example.com/server/api/cris/metrics/8f62713a-c495-467b-a918-2e392f781d2e:embedded-view"
+              }
+            }
+          },
+          {
+            "id": "8f62713a-c495-467b-a918-2e392f781d2e:embedded-download",
+            "metricType": "embedded-download",
+            "metricCount": null,
+            "acquisitionDate": null,
+            "startDate": null,
+            "endDate": null,
+            "last": false,
+            "remark": "<a title=\"\" href=\"\">Downloads</a>",
+            "deltaPeriod1": null,
+            "deltaPeriod2": null,
+            "rank": null,
+            "type": "metric",
+            "_links": {
+              "self": {
+                "href": "https://example.com/server/api/cris/metrics/8f62713a-c495-467b-a918-2e392f781d2e:embedded-download"
+              }
+            }
+          }
+        ]
+      },
+      "page": {
+        "number": 0,
+        "size": 20,
+        "totalPages": 1,
+        "totalElements": 5
+      }
+    },
+    "mappedCollections": {
+      "_links": {
+        "self": {
+          "href": "https://example.com/server/api/core/items/8f62713a-c495-467b-a918-2e392f781d2e/mappedCollections"
+        }
+      },
+      "_embedded": {
+        "mappedCollections": []
+      },
+      "page": {
+        "number": 0,
+        "size": 20,
+        "totalPages": 0,
+        "totalElements": 0
+      }
+    },
+    "version": null
+  }
+}
