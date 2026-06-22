@@ -1,6 +1,6 @@
 defmodule DSpace.API.Case do
   @moduledoc """
-  Defines the setup for API tests that use mocking via Bypass.
+  Defines the setup for API tests that use Bypass.
   """
 
   use ExUnit.CaseTemplate
@@ -15,10 +15,10 @@ defmodule DSpace.API.Case do
       setup do
         bypass = Bypass.open()
 
-        # Disable retry to fail fast in all tests
         api = %API{
           endpoint: url(bypass),
           csrf_token: "abc123",
+          # Disable retry to fail fast in all tests
           http_impl: {DSpace.API.HTTP.Req, [retry: false]}
         }
 
@@ -37,7 +37,6 @@ defmodule DSpace.API.Case do
     assert Map.has_key?(resource, "type")
     assert resource["type"] == expected_type
 
-    # Common fields
     if Map.has_key?(resource, "_links") do
       assert is_map(resource["_links"])
     end
