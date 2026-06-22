@@ -1,0 +1,72 @@
+{
+  "id": "022b1828-db4e-4f55-a1fc-ba1f3fea0c2f",
+  "uuid": "022b1828-db4e-4f55-a1fc-ba1f3fea0c2f",
+  "name": "parasite140067.pdf",
+  "handle": null,
+  "metadata": {
+    "datacite.rights": [
+      {
+        "value": "open.access",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "dc.rights.uri": [
+      {
+        "value": "https://creativecommons.org/licenses/by/4.0",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "dc.title": [
+      {
+        "value": "parasite140067.pdf",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ],
+    "dc.type": [
+      {
+        "value": "text",
+        "language": null,
+        "authority": null,
+        "confidence": -1,
+        "place": 0
+      }
+    ]
+  },
+  "bundleName": "ORIGINAL",
+  "sizeBytes": 1260218,
+  "checkSum": {
+    "checkSumAlgorithm": "MD5",
+    "value": "97e293321506d049037d271928005163"
+  },
+  "sequenceId": 1,
+  "type": "bitstream",
+  "_links": {
+    "content": {
+      "href": "https://example.com/server/api/core/bitstreams/022b1828-db4e-4f55-a1fc-ba1f3fea0c2f/content"
+    },
+    "bundle": {
+      "href": "https://example.com/server/api/core/bitstreams/022b1828-db4e-4f55-a1fc-ba1f3fea0c2f/bundle"
+    },
+    "format": {
+      "href": "https://example.com/server/api/core/bitstreams/022b1828-db4e-4f55-a1fc-ba1f3fea0c2f/format"
+    },
+    "thumbnail": {
+      "href": "https://example.com/server/api/core/bitstreams/022b1828-db4e-4f55-a1fc-ba1f3fea0c2f/thumbnail"
+    },
+    "accessStatus": {
+      "href": "https://example.com/server/api/core/bitstreams/022b1828-db4e-4f55-a1fc-ba1f3fea0c2f/accessStatus"
+    },
+    "self": {
+      "href": "https://example.com/server/api/core/bitstreams/022b1828-db4e-4f55-a1fc-ba1f3fea0c2f"
+    }
+  }
+}
