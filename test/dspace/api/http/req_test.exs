@@ -29,22 +29,14 @@ defmodule DSpace.API.HTTP.ReqTest do
     """
     test "makes a request using request/1", %{bypass: bypass} do
       Bypass.expect_once(bypass, "POST", "/some-post", fn conn ->
-        assert Plug.Conn.get_req_header(conn, "authorization") == ["Bearer my123bearer"],
-               "Authorization header not set correctly"
-
-        assert Plug.Conn.get_req_header(conn, "content-type") == ["application/json"],
-               "Content-Type header not set correctly"
-
-        assert Plug.Conn.get_req_header(conn, "accept") == ["application/json"],
-               "Accept header not set correctly"
-
-        assert Plug.Conn.fetch_query_params(conn).query_params == %{"x" => "1", "y" => "param"},
-               "Query params not set correctly"
+        assert Plug.Conn.get_req_header(conn, "authorization") == ["Bearer my123bearer"]
+        assert Plug.Conn.get_req_header(conn, "content-type") == ["application/json"]
+        assert Plug.Conn.get_req_header(conn, "accept") == ["application/json"]
+        assert Plug.Conn.get_req_header(conn, "x-xsrf-token") == ["token123"]
+        assert Plug.Conn.fetch_query_params(conn).query_params == %{"x" => "1", "y" => "param"}
 
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-
-        assert body == ~s({"key":"value"}),
-               "JSON payload was not delivered correctly"
+        assert body == ~s({"key":"value"})
 
         respond_with_json(conn, 200, ~s({"key":"other_value"}))
       end)
@@ -55,7 +47,7 @@ defmodule DSpace.API.HTTP.ReqTest do
           base_url: url(bypass),
           url: "/some-post",
           auth: {:bearer, "my123bearer"},
-          headers: %{:accept => ["application/json"]},
+          headers: %{:accept => ["application/json"], :x_xsrf_token => ["token123"]},
           json: %{key: "value"},
           params: [x: 1, y: "param"],
           # Disable retry to fail fast
@@ -69,13 +61,10 @@ defmodule DSpace.API.HTTP.ReqTest do
       Bypass.expect_once(bypass, "POST", "/form-data", fn conn ->
         assert Plug.Conn.get_req_header(conn, "content-type") == [
                  "application/x-www-form-urlencoded"
-               ],
-               "Content-Type header not set correctly"
+               ]
 
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-
-        assert body == "password=secret&username=admin",
-               "Form payload was not delivered correctly"
+        assert body == "password=secret&username=admin"
 
         respond_with_json(conn, 200, ~s({"authenticated": true}))
       end)
@@ -96,16 +85,11 @@ defmodule DSpace.API.HTTP.ReqTest do
       Bypass.expect_once(bypass, "POST", "/upload", fn conn ->
         [content_type] = Plug.Conn.get_req_header(conn, "content-type")
 
-        assert String.starts_with?(content_type, "multipart/form-data"),
-               "Content-Type header not set correctly"
+        assert String.starts_with?(content_type, "multipart/form-data")
 
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-
-        assert String.contains?(body, "name=\"file\""),
-               "Multipart file field not found"
-
-        assert String.contains?(body, "file_content"),
-               "Multipart file content not found"
+        assert String.contains?(body, "name=\"file\"")
+        assert String.contains?(body, "file_content")
 
         respond_with_json(conn, 201, ~s({"uploaded": true}))
       end)

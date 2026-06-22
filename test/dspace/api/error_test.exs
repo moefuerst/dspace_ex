@@ -13,14 +13,14 @@ defmodule DSpace.API.ErrorTest do
       error_400 = Error.from_response(response_400)
       error_429 = Error.from_response(response_429)
 
-      assert error_400.type == :bad_request, "400 response should map to :bad_request"
-      assert error_400.status == 400, "Status should be preserved"
+      assert error_400.type == :bad_request
+      assert error_400.status == 400
 
       assert error_400.message == "Bad request",
              "Should return fallback message if response is missing message"
 
-      assert error_429.type == :too_many_requests, "429 response should map to :too_many_requests"
-      assert error_429.status == 429, "Status should be preserved"
+      assert error_429.type == :too_many_requests
+      assert error_429.status == 429
       assert error_429.request_url == "/endpoint", "Error should contain requested endpoint"
     end
 
@@ -32,7 +32,7 @@ defmodule DSpace.API.ErrorTest do
       assert error.type == :api_unexpected_client_error,
              "Unknown 4xx (418) should default to :api_unexpected_client_error"
 
-      assert error.status == 418, "Status should be preserved"
+      assert error.status == 418
     end
 
     test "maps 5xx status codes to :server_error" do
@@ -40,8 +40,8 @@ defmodule DSpace.API.ErrorTest do
 
       error_503 = Error.from_response(response_503)
 
-      assert error_503.type == :server_error, "503 response should map to :server_error"
-      assert error_503.status == 503, "Status should be preserved"
+      assert error_503.type == :server_error
+      assert error_503.status == 503
     end
 
     test "detects CSRF token issues in 403 responses" do
@@ -52,7 +52,7 @@ defmodule DSpace.API.ErrorTest do
       assert error.type == :api_csrf_invalid,
              "403 with CSRF token message should map to :api_csrf_invalid"
 
-      assert error.status == 403, "Status should be 403"
+      assert error.status == 403
       assert error.message == "Invalid CSRF token", "Should extract CSRF message"
     end
 
@@ -64,7 +64,7 @@ defmodule DSpace.API.ErrorTest do
       assert error.type == :forbidden,
              "403 without CSRF message should map to :forbidden"
 
-      assert error.status == 403, "Status should be 403"
+      assert error.status == 403
       assert error.message == "Access denied", "Should extract non-CSRF message"
     end
 
@@ -73,11 +73,10 @@ defmodule DSpace.API.ErrorTest do
 
       error = Error.from_response(response)
 
-      assert error.message == "DSpace error not found message",
-             "Should extract DSpace error message from response body"
+      assert error.message == "DSpace error not found message"
 
-      assert error.type == :not_found, "Type should still be correctly mapped (404 -> :not_found)"
-      assert error.status == 404, "Status should be preserved"
+      assert error.type == :not_found
+      assert error.status == 404
     end
 
     test "uses default message when message cannot be extracted (4xx)" do
@@ -121,9 +120,9 @@ defmodule DSpace.API.ErrorTest do
 
       error = Error.response_validation_error(response, message)
 
-      assert error.type == :api_unexpected_payload, "Type should be :api_unexpected_payload"
-      assert error.status == 123, "Should extract status from response"
-      assert error.message == message, "Message should be stored"
+      assert error.type == :api_unexpected_payload
+      assert error.status == 123
+      assert error.message == message
     end
   end
 end
