@@ -1,0 +1,110 @@
+{
+  "_embedded": {
+    "metadatafields": [
+      {
+        "id": 8,
+        "element": "contributor",
+        "qualifier": "advisor",
+        "scopeNote": "Use primarily for thesis advisor.",
+        "type": "metadatafield",
+        "_links": {
+          "self": {
+            "href": "https://example.com/server/api/core/metadatafields/8"
+          },
+          "schema": {
+            "href": "https://example.com/server/api/core/metadatafields/8/schema"
+          }
+        },
+        "_embedded": {
+          "schema": {
+            "id": 1,
+            "prefix": "dc",
+            "namespace": "http://dublincore.org/documents/dcmi-terms/",
+            "type": "metadataschema",
+            "_links": {
+              "self": {
+                "href": "https://example.com/server/api/core/metadataschemas/1"
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 9,
+        "element": "contributor",
+        "qualifier": "author",
+        "scopeNote": "Use for the main author of the work.",
+        "type": "metadatafield",
+        "_links": {
+          "self": {
+            "href": "https://example.com/server/api/core/metadatafields/9"
+          },
+          "schema": {
+            "href": "https://example.com/server/api/core/metadatafields/9/schema"
+          }
+        },
+        "_embedded": {
+          "schema": {
+            "id": 1,
+            "prefix": "dc",
+            "namespace": "http://dublincore.org/documents/dcmi-terms/",
+            "type": "metadataschema",
+            "_links": {
+              "self": {
+                "href": "https://example.com/server/api/core/metadataschemas/1"
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 10,
+        "element": "title",
+        "qualifier": null,
+        "scopeNote": "The main title of the resource.",
+        "type": "metadatafield",
+        "_links": {
+          "self": {
+            "href": "https://example.com/server/api/core/metadatafields/10"
+          },
+          "schema": {
+            "href": "https://example.com/server/api/core/metadatafields/10/schema"
+          }
+        },
+        "_embedded": {
+          "schema": {
+            "id": 1,
+            "prefix": "dc",
+            "namespace": "http://dublincore.org/documents/dcmi-terms/",
+            "type": "metadataschema",
+            "_links": {
+              "self": {
+                "href": "https://example.com/server/api/core/metadataschemas/1"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "_links": {
+    "first": {
+      "href": "https://example.com/server/api/core/metadatafields?page=0&size=20"
+    },
+    "self": {
+      "href": "https://example.com/server/api/core/metadatafields?page=0&size=20"
+    },
+    "next": {
+      "href": "https://example.com/server/api/core/metadatafields?page=1&size=20"
+    },
+    "last": {
+      "href": "https://example.com/server/api/core/metadatafields?page=4&size=20"
+    }
+  },
+  "page": {
+    "size": 20,
+    "totalElements": 85,
+    "totalPages": 5,
+    "number": 0
+  }
+}

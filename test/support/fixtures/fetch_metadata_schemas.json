@@ -1,0 +1,56 @@
+{
+  "_embedded": {
+    "metadataschemas": [
+      {
+        "id": 1,
+        "prefix": "dc",
+        "namespace": "http://dublincore.org/documents/dcmi-terms/",
+        "type": "metadataschema",
+        "_links": {
+          "self": {
+            "href": "https://example.com/server/api/core/metadataschemas/1"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "prefix": "dcterms",
+        "namespace": "http://purl.org/dc/terms/",
+        "type": "metadataschema",
+        "_links": {
+          "self": {
+            "href": "https://example.com/server/api/core/metadataschemas/2"
+          }
+        }
+      },
+      {
+        "id": 3,
+        "prefix": "eperson",
+        "namespace": "http://www.dspace.org/xmlns/dspace/eperson",
+        "type": "metadataschema",
+        "_links": {
+          "self": {
+            "href": "https://example.com/server/api/core/metadataschemas/3"
+          }
+        }
+      }
+    ]
+  },
+  "_links": {
+    "first": {
+      "href": "https://example.com/server/api/core/metadataschemas?page=0&size=20"
+    },
+    "self": {
+      "href": "https://example.com/server/api/core/metadataschemas?page=0&size=20"
+    },
+    "last": {
+      "href": "https://example.com/server/api/core/metadataschemas?page=0&size=20"
+    }
+  },
+  "page": {
+    "size": 20,
+    "totalElements": 3,
+    "totalPages": 1,
+    "number": 0
+  }
+}
