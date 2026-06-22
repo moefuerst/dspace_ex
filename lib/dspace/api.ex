@@ -4,7 +4,7 @@ defmodule DSpace.API do
 
   ## Basic Usage / Configuration
 
-  `dspace-ex` doesn't prescribe the configuration strategy of consuming applications. For API
+  `dspace_ex` doesn't prescribe the configuration strategy of consuming applications. For API
   interactions, declare a `t:DSpace.API.t/0` structure with the necessary configuration when you
   need it:
 
@@ -37,10 +37,9 @@ defmodule DSpace.API do
           on_response_hook: &MyApp.Session.update_csrf/1
       }
 
-  The hook will receive a map with a `:csrf_token` key. Errors are isolated and will not affect
-  the operation's return value. Invocation is synchronous and will block until the hook returns.
-  It's probably best to think about using a separate process or a task to invoke the function for
-  asynchronous handling, depending on your session management strategy.
+  The hook will receive a map with a `:csrf_token` key. Invocation is synchronous and will block
+  until the hook returns. It's probably best to think about using a separate process or a task to
+  invoke the function for asynchronous handling, depending on your session management strategy.
   """
 
   import DSpace.Utils
@@ -101,7 +100,7 @@ defmodule DSpace.API do
     * `:access_token` - Optional login token or API key used for authentication.
     * `:csrf_token` - Optional CSRF token. Needed for all modifying requests
     * `:api_version` - Optional DSpace API version as a string, defaults to latest version
-      `dspace-ex` was fully tested against
+      `dspace_ex` was fully tested against
     * `:user_agent` - Optional User agent string, defaults to `dspace-ex/<version>`
     * `:http_impl` - Optional HTTP adapter implementation and options as `{module, options}`
     * `:on_response_hook` - Optional callback function invoked when CSRF tokens are updated

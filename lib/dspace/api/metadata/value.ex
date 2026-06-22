@@ -5,7 +5,7 @@ defmodule DSpace.API.Metadata.Value do
   A metadata value in DSpace can have additional properties like language, an authority key, and
   security level alongside its main content.
 
-  This struct is not used internally by `dspace-ex`, API responses are returned as plain maps
+  This struct is not used internally by `dspace_ex`, API responses are returned as plain maps
   and deserialisation is left to the caller. You can use this struct and its functions for
   building, converting and querying metadata values in your application if you want a typed
   representation when constructing or inspecting metadata values.

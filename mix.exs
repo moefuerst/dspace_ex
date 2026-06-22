@@ -3,7 +3,7 @@ defmodule DSpace.MixProject do
 
   @version "0.0.1"
   @description "DSpace client library for Elixir"
-  @source_url "https://github.com/moefuerst/dspace-ex"
+  @source_url "https://github.com/moefuerst/dspace_ex"
 
   def project do
     [
