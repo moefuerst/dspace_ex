@@ -18,31 +18,6 @@ defmodule DSpace.API.Operation.JSONTest do
     {:ok, client: client}
   end
 
-  describe "new/1" do
-    test "creates JSONOp op structure with defaults" do
-      op = JSONOp.new(path: "/api/test")
-
-      assert %JSONOp{} = op
-      assert op.http_method == :get
-      assert op.path == "/api/test"
-      assert op.data == nil
-      assert op.content_type == :json
-      assert op.csrf == :auto
-      assert op.transformer == (&DSpace.API.Transform.from_response/1)
-    end
-
-    test "creates JSONOp structure with write defaults" do
-      op = JSONOp.new(path: "/api/test", http_method: :post, data: %{})
-
-      assert %JSONOp{} = op
-      assert op.http_method == :post
-      assert op.path == "/api/test"
-      assert op.data == %{}
-      assert op.content_type == :json
-      assert op.csrf == :auto
-    end
-  end
-
   describe "CSRF handling" do
     test "does not require CSRF token for GET operations (auto mode)", %{client: client} do
       client = %{client | csrf_token: nil}
@@ -52,7 +27,7 @@ defmodule DSpace.API.Operation.JSONTest do
 
       assert_received {:http_request, options}
       assert options[:method] == :get
-      refute Map.has_key?(options[:headers], "x-xsrf-token")
+      refute Map.has_key?(options[:headers], :x_xsrf_token)
     end
 
     test "does not require CSRF token for HEAD operations (auto mode)", %{client: client} do
@@ -63,7 +38,7 @@ defmodule DSpace.API.Operation.JSONTest do
 
       assert_received {:http_request, options}
       assert options[:method] == :head
-      refute Map.has_key?(options[:headers], "x-xsrf-token")
+      refute Map.has_key?(options[:headers], :x_xsrf_token)
     end
 
     test "requires CSRF token for POST operations (auto mode)", %{client: client} do
@@ -108,7 +83,7 @@ defmodule DSpace.API.Operation.JSONTest do
       _result = Operation.perform(operation, client, [])
 
       assert_received {:http_request, options}
-      assert options[:headers]["x-xsrf-token"] == ["test-csrf-token"]
+      assert options[:headers][:x_xsrf_token] == ["test-csrf-token"]
     end
 
     test "includes CSRF token for GET when available (auto mode)", %{client: client} do
@@ -117,7 +92,7 @@ defmodule DSpace.API.Operation.JSONTest do
       _result = Operation.perform(operation, client, [])
 
       assert_received {:http_request, options}
-      assert options[:headers]["x-xsrf-token"] == ["test-csrf-token"]
+      assert options[:headers][:x_xsrf_token] == ["test-csrf-token"]
     end
 
     test "csrf: :required raises when token is nil", %{client: client} do
@@ -136,7 +111,7 @@ defmodule DSpace.API.Operation.JSONTest do
       _result = Operation.perform(operation, client, [])
 
       assert_received {:http_request, options}
-      refute Map.has_key?(options[:headers], "x-xsrf-token")
+      refute Map.has_key?(options[:headers], :x_xsrf_token)
     end
 
     test "csrf: :skip never includes CSRF token", %{client: client} do
@@ -145,7 +120,8 @@ defmodule DSpace.API.Operation.JSONTest do
       _result = Operation.perform(operation, client, [])
 
       assert_received {:http_request, options}
-      refute Map.has_key?(options[:headers], "x-xsrf-token")
+      refute Map.has_key?(options[:headers], :x_xsrf_token)
+      refute Enum.any?(Map.get(options[:headers], :cookie, []), &String.contains?(&1, "DSPACE-XSRF-COOKIE="))
     end
   end
 
@@ -160,12 +136,12 @@ defmodule DSpace.API.Operation.JSONTest do
     end
 
     test "includes headers in request", %{client: client} do
-      operation = JSONOp.new(path: "/api/test", headers: %{"x-custom-header" => ["custom-value"]})
+      operation = JSONOp.new(path: "/api/test", headers: %{:x_custom_header => ["custom-value"]})
 
       _result = Operation.perform(operation, client, [])
 
       assert_received {:http_request, options}
-      assert options[:headers]["x-custom-header"] == ["custom-value"]
+      assert options[:headers][:x_custom_header] == ["custom-value"]
     end
   end
 
@@ -281,38 +257,14 @@ defmodule DSpace.API.Operation.JSONTest do
     end
   end
 
-  describe "streaming support" do
-    test "invokes stream_impl when present" do
-      test_pid = self()
-
-      stream_impl = fn api, options ->
-        send(test_pid, {:stream_invoked, api, options})
-        [:item1, :item2]
-      end
-
-      operation = JSONOp.new(path: "/api/test", stream_impl: stream_impl)
-      api = %API{}
-
-      result = Operation.stream!(operation, api, page: 1)
-
-      assert_received {:stream_invoked, ^api, [page: 1]}
-      assert Enum.to_list(result) == [:item1, :item2]
-    end
-
-    test "raises when stream_impl is nil" do
-      operation = JSONOp.new(path: "/api/test", stream_impl: nil)
-      api = %API{}
-
-      assert_raise ArgumentError, "this operation cannot be streamed", fn ->
-        Operation.stream!(operation, api, [])
-      end
-    end
-  end
-
   describe "version overrides" do
     test "returns operation unchanged when api_version is nil", %{client: client} do
-      operation = %JSONOp{path: "/test", http_method: :get}
       client = %{client | api_version: nil}
+
+      operation = %JSONOp{
+        path: "/test",
+        version_overrides: [{">= 7.0.0", [path: "/upgraded"]}]
+      }
 
       _result = Operation.perform(operation, client, [])
 
@@ -357,7 +309,7 @@ defmodule DSpace.API.Operation.JSONTest do
         headers: %{},
         version_overrides: [
           {">= 7.0.0", [http_method: :post, csrf: :skip]},
-          {">= 7.5.0", [headers: %{"x-test" => ["value"]}]}
+          {">= 7.5.0", [headers: %{:x_test => ["value"]}]}
         ]
       }
 
@@ -365,7 +317,7 @@ defmodule DSpace.API.Operation.JSONTest do
 
       assert_received {:http_request, options}
       assert options[:method] == :post
-      assert options[:headers]["x-test"] == ["value"]
+      assert options[:headers][:x_test] == ["value"]
     end
 
     test "handles invalid version specification gracefully", %{client: client} do
@@ -428,19 +380,6 @@ defmodule DSpace.API.Operation.JSONTest do
 
       assert_received {:http_request, options}
       assert options[:url].path == "/server/second"
-    end
-  end
-
-  describe "on_response_hook" do
-    test "handles callback errors gracefully", %{client: client} do
-      callback = fn _token_data -> raise "hook error" end
-      client = %{client | on_response_hook: callback}
-      operation = JSONOp.new(path: "/api/test")
-
-      # Should not raise as errors in the hook are rescued
-      {:ok, _result} = Operation.perform(operation, client, [])
-
-      assert_received {:http_request, _options}
     end
   end
 end

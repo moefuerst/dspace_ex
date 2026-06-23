@@ -54,14 +54,12 @@ defmodule DSpace.Utils do
   @doc """
   Wraps the given term in a result tuple.
 
-    * If the term is already a result tuple, it is returned as-is.
-    * If the term is an exception, it is wrapped in an `{:error, exception}` tuple.
-    * Otherwise, the term is wrapped in an `{:ok, value}` tuple.
+    * If the term is already a result tuple, it is returned as-is
+    * If the term is an exception, it is wrapped in an `{:error, exception}` tuple
+    * Otherwise, the term is wrapped in an `{:ok, value}` tuple
   """
-  @spec wrap({:ok, value}) :: {:ok, value} when value: term()
-  @spec wrap({:error, reason}) :: {:error, reason} when reason: term()
-  @spec wrap(value) :: {:error, value} when value: Exception.t()
-  @spec wrap(value) :: {:ok, value} when value: term()
+  @spec wrap({:ok, value} | {:error, reason} | value | exception) :: {:ok, value} | {:error, reason}
+        when value: term(), reason: term(), exception: Exception.t()
   def wrap({:ok, value}), do: {:ok, value}
   def wrap({:error, reason}), do: {:error, reason}
   def wrap(error) when is_exception(error), do: {:error, error}
