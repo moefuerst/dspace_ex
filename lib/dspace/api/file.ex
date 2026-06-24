@@ -12,7 +12,7 @@ defmodule DSpace.API.File do
 
   There is no single-request "upload a file to an item", since a file must always be created
   inside a "bundle". To add a file to an item you (1) obtain or create the target bundle with
-  `create_bundle/3`, then (2) `create_in_bundle/3` the file into it
+  `create_bundle/1`, then (2) `create_in_bundle/3` the file into it.
   """
 
   @behaviour DSpace.API.Resource
@@ -24,6 +24,7 @@ defmodule DSpace.API.File do
   alias DSpace.API.HTTP.Response
   alias DSpace.API.Item
   alias DSpace.API.Operation
+  alias DSpace.API.Resource
   alias DSpace.API.StreamBuilder
   alias DSpace.API.Transform
 
@@ -412,7 +413,7 @@ defmodule DSpace.API.File do
   @doc """
   Fetches a single file by UUID.
   """
-  @impl true
+  @impl Resource
   @spec fetch(binary(), keyword()) :: Operation.JSON.t()
   def fetch(uuid, _options) when is_nonempty_binary(uuid) do
     %Operation.JSON{path: @ep_bitstreams <> "/" <> uuid}
@@ -430,7 +431,7 @@ defmodule DSpace.API.File do
     * `:page` - Page number (0-based)
     * `:size` - Items per page
   """
-  @impl true
+  @impl Resource
   @spec list(keyword()) :: Operation.JSON.t()
   def list(options \\ []) when is_list(options) do
     case Keyword.pop(options, :bundle) do
@@ -445,7 +446,7 @@ defmodule DSpace.API.File do
   @doc """
   Updates a file's metadata.
   """
-  @impl true
+  @impl Resource
   @spec update(binary(), [Operation.JSON.t()], keyword()) :: Operation.JSON.t()
   def update(uuid, updates, _options) when is_nonempty_binary(uuid) and is_list(updates) do
     %Operation.JSON{
@@ -460,7 +461,7 @@ defmodule DSpace.API.File do
 
   All files in a bulk delete must be attached to an item.
   """
-  @impl true
+  @impl Resource
   @spec delete(binary() | [binary()], keyword()) :: Operation.JSON.t()
   def delete(uuid_or_uuids, options \\ [])
 
@@ -514,8 +515,8 @@ defmodule DSpace.API.File do
       end
 
     fields = %{
-      "file" => file_field,
-      "properties" => {JSON.encode!(properties), content_type: "application/json"}
+      file: file_field,
+      properties: {JSON.encode!(properties), content_type: "application/json"}
     }
 
     {%{operation | data: fields}, client, options}
