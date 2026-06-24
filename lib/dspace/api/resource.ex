@@ -50,14 +50,14 @@ defmodule DSpace.API.Resource do
   @callback fetch(dso_uuid(), options()) :: Operation.t()
 
   @doc """
-  Builds an operation to fetch resources via DSpace search ("discovery").
-  """
-  @callback find(options()) :: Operation.t()
-
-  @doc """
   Builds an operation to fetch a list of resources.
   """
   @callback list(options()) :: Operation.t()
+
+  @doc """
+  Builds an operation to fetch resources via DSpace search ("discovery").
+  """
+  @callback find(options()) :: Operation.t()
 
   @doc """
   Builds an operation to create a new resource on DSpace.
@@ -67,7 +67,7 @@ defmodule DSpace.API.Resource do
   @doc """
   Builds an operation to update an existing resource on DSpace.
 
-  The payload is expected to be a list of `t:DSpace.API.Resource.resource_update.t/0`.
+  The payload is a list of `t:DSpace.API.Resource.resource_update.t/0`.
   """
   @callback update(dso_uuid(), [resource_update()], options()) :: Operation.t()
 

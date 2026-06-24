@@ -10,6 +10,7 @@ defmodule DSpace.API.Collection do
   import DSpace.Utils, only: [is_nonempty_binary: 1, pop_pagination: 1]
 
   alias DSpace.API.Operation
+  alias DSpace.API.Resource
   alias DSpace.API.Search
   alias DSpace.API.StreamBuilder
   alias DSpace.API.Transform
@@ -65,7 +66,7 @@ defmodule DSpace.API.Collection do
   @doc """
   Fetches a single collection by UUID.
   """
-  @impl true
+  @impl Resource
   @spec fetch(binary(), keyword()) :: Operation.t()
   def fetch(uuid, _options \\ []) when is_nonempty_binary(uuid) do
     %Operation.JSON{path: @ep_core <> "/" <> uuid}
@@ -102,7 +103,7 @@ defmodule DSpace.API.Collection do
       iex> Collection.find(query: "research", scope: "community-uuid")
       %DSpace.API.Operation.JSON{...}
   """
-  @impl true
+  @impl Resource
   @spec find(keyword()) :: Operation.t()
   def find(options \\ []) when is_list(options) do
     search_options =
@@ -124,7 +125,7 @@ defmodule DSpace.API.Collection do
     * `:page` - Page number (0-based, defaults to 0)
     * `:size` - Number of items per page (usually defaults to 20)
   """
-  @impl true
+  @impl Resource
   @spec list(keyword()) :: Operation.t()
   def list(options \\ []) do
     {pagination, other_options} = pop_pagination(options)
@@ -150,7 +151,7 @@ defmodule DSpace.API.Collection do
 
     * `:parent` - UUID of the parent community or collection
   """
-  @impl true
+  @impl Resource
   @spec create(map(), keyword()) :: Operation.t()
   def create(collection, options \\ []) when is_map(collection) do
     params = add_parent([], options[:parent])
@@ -166,7 +167,7 @@ defmodule DSpace.API.Collection do
   @doc """
   Updates an existing collection.
   """
-  @impl true
+  @impl Resource
   @spec update(binary(), list(), keyword()) :: Operation.t()
   def update(uuid, updates, _options \\ []) when is_nonempty_binary(uuid) and is_list(updates) do
     %Operation.JSON{
@@ -179,7 +180,7 @@ defmodule DSpace.API.Collection do
   @doc """
   Replaces an existing collection.
   """
-  @impl true
+  @impl Resource
   @spec replace(binary(), map(), keyword()) :: Operation.t()
   def replace(uuid, collection, _options \\ []) when is_nonempty_binary(uuid) and is_map(collection) do
     %Operation.JSON{
@@ -192,7 +193,7 @@ defmodule DSpace.API.Collection do
   @doc """
   Deletes a collection.
   """
-  @impl true
+  @impl Resource
   @spec delete(binary(), keyword()) :: Operation.t()
   def delete(uuid, _options \\ []) when is_nonempty_binary(uuid) do
     %Operation.JSON{

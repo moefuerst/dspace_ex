@@ -15,15 +15,15 @@ defmodule DSpace.API.Item do
 
   @behaviour DSpace.API.Resource
 
-  import DSpace.Utils, only: [is_nonempty_binary: 1, pop_pagination: 1]
+  import DSpace.Utils, only: [is_nonempty_binary: 1, maybe_add_base_url: 2, pop_pagination: 1]
 
   alias DSpace.API.Error
   alias DSpace.API.HTTP.Response
   alias DSpace.API.Operation
+  alias DSpace.API.Resource
   alias DSpace.API.Search
   alias DSpace.API.StreamBuilder
   alias DSpace.API.Transform
-  alias DSpace.Utils
 
   @ep_core "/api/core/items"
   @ep_core_by_id @ep_core <> "/search/findAllByIds"
@@ -396,7 +396,7 @@ defmodule DSpace.API.Item do
   @doc """
   Fetches a single item by UUID.
   """
-  @impl true
+  @impl Resource
   @spec fetch(binary(), keyword()) :: Operation.JSON.t()
   def fetch(uuid, _options \\ []) when is_nonempty_binary(uuid) do
     %Operation.JSON{path: @ep_core <> "/" <> uuid}
@@ -433,7 +433,7 @@ defmodule DSpace.API.Item do
       iex> Item.find(query: "data", scope: "collection-uuid")
       %DSpace.API.Operation.JSON{...}
   """
-  @impl true
+  @impl Resource
   @spec find(keyword()) :: Operation.JSON.t()
   def find(options \\ []) when is_list(options) do
     search_options = Keyword.put(options, :dsoType, "Item")
@@ -459,7 +459,7 @@ defmodule DSpace.API.Item do
     * `:page` - Page number (0-based, defaults to 0)
     * `:size` - Number of items per page (usually defaults to 20)
   """
-  @impl true
+  @impl Resource
   @spec list(keyword()) :: Operation.JSON.t()
   def list(options \\ []) do
     {maybe_ids, options} = Keyword.pop(options, :id)
@@ -496,7 +496,7 @@ defmodule DSpace.API.Item do
 
     * `:parent` - Required. UUID of the collection that will own this item
   """
-  @impl true
+  @impl Resource
   @spec create(map(), keyword()) :: Operation.JSON.t()
   def create(item, options \\ []) when is_map(item) do
     params = add_parent([], options[:parent])
@@ -512,7 +512,7 @@ defmodule DSpace.API.Item do
   @doc """
   Updates an existing item.
   """
-  @impl true
+  @impl Resource
   @spec update(binary(), list(), keyword()) :: Operation.JSON.t()
   def update(uuid, updates, _options \\ []) when is_nonempty_binary(uuid) and is_list(updates) do
     %Operation.JSON{
@@ -525,7 +525,7 @@ defmodule DSpace.API.Item do
   @doc """
   Replaces an existing item.
   """
-  @impl true
+  @impl Resource
   @spec replace(binary(), map(), keyword()) :: Operation.JSON.t()
   def replace(uuid, item, _options \\ []) when is_nonempty_binary(uuid) and is_map(item) do
     %Operation.JSON{
@@ -546,7 +546,7 @@ defmodule DSpace.API.Item do
       * `:configured` - behavior retrieved from configuration
       * `nil` - no virtual metadata is expanded (default)
   """
-  @impl true
+  @impl Resource
   @spec delete(binary(), keyword()) :: Operation.JSON.t()
   def delete(uuid, options \\ []) when is_nonempty_binary(uuid) do
     params = maybe_copy_virtual_metadata([], options[:copy_virtual_metadata])
@@ -587,7 +587,7 @@ defmodule DSpace.API.Item do
   end
 
   defp build_uri_payload(operation, %DSpace.API{endpoint: endpoint} = client, options) do
-    item_uri = Utils.maybe_add_base_url(@ep_core <> "/" <> operation.data, endpoint)
+    item_uri = maybe_add_base_url(@ep_core <> "/" <> operation.data, endpoint)
 
     {%{operation | data: [item_uri]}, client, options}
   end
@@ -595,7 +595,7 @@ defmodule DSpace.API.Item do
   defp build_workflow_payload(operation, %DSpace.API{endpoint: endpoint} = client, options) do
     uri_list =
       Enum.map(operation.data, fn id ->
-        Utils.maybe_add_base_url(@ep_workspace <> "/" <> Integer.to_string(id), endpoint)
+        maybe_add_base_url(@ep_workspace <> "/" <> Integer.to_string(id), endpoint)
       end)
 
     {%{operation | data: uri_list}, client, options}

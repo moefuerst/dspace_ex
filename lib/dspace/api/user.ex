@@ -10,6 +10,7 @@ defmodule DSpace.API.User do
   import DSpace.Utils, only: [is_nonempty_binary: 1, pop_pagination: 1]
 
   alias DSpace.API.Operation
+  alias DSpace.API.Resource
   alias DSpace.API.StreamBuilder
   alias DSpace.API.Transform
 
@@ -68,7 +69,7 @@ defmodule DSpace.API.User do
   @doc """
   Fetches a single user by UUID.
   """
-  @impl true
+  @impl Resource
   @spec fetch(binary(), keyword()) :: Operation.t()
   def fetch(uuid, _options \\ []) when is_nonempty_binary(uuid) do
     %Operation.JSON{path: @ep_users <> "/" <> uuid}
@@ -83,7 +84,7 @@ defmodule DSpace.API.User do
 
     * `search_term` - general search term
   """
-  @impl true
+  @impl Resource
   @spec find(keyword()) :: Operation.t()
   def find(options \\ []) when is_list(options) do
     {pagination, other_options} = pop_pagination(options)
@@ -107,7 +108,7 @@ defmodule DSpace.API.User do
     * `:page` - Page number (0-based, defaults to 0)
     * `:size` - Number of items per page (usually defaults to 20)
   """
-  @impl true
+  @impl Resource
   @spec list(keyword()) :: Operation.t()
   def list(options \\ []) do
     {pagination, other_options} = pop_pagination(options)
@@ -149,7 +150,7 @@ defmodule DSpace.API.User do
       {:ok, created_user} =
         User.create(user_data) |> DSpace.API.request(client)
   """
-  @impl true
+  @impl Resource
   @spec create(map(), keyword()) :: Operation.t()
   def create(user_data, _options \\ []) when is_map(user_data) do
     %Operation.JSON{
@@ -162,7 +163,7 @@ defmodule DSpace.API.User do
   @doc """
   Updates an existing user.
   """
-  @impl true
+  @impl Resource
   @spec update(binary(), list(), keyword()) :: Operation.t()
   def update(uuid, updates, _options \\ []) when is_nonempty_binary(uuid) and is_list(updates) do
     %Operation.JSON{
@@ -184,7 +185,7 @@ defmodule DSpace.API.User do
     * `uuid` - The UUID of the user to replace
     * `user_data` - Complete user data map
   """
-  @impl true
+  @impl Resource
   @spec replace(binary(), map(), keyword()) :: Operation.t()
   def replace(uuid, user_data, _options \\ []) when is_nonempty_binary(uuid) and is_map(user_data) do
     %Operation.JSON{
@@ -214,7 +215,7 @@ defmodule DSpace.API.User do
 
     * `uuid` - The UUID of the user to delete
   """
-  @impl true
+  @impl Resource
   @spec delete(binary(), keyword()) :: Operation.t()
   def delete(uuid, _options \\ []) when is_nonempty_binary(uuid) do
     %Operation.JSON{

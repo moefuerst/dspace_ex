@@ -74,7 +74,7 @@ defmodule DSpace.API.Search do
     * `:page` - Page number (0-based, defaults to 0)
     * `:size` - Number of items per page (usually defaults to 20)
   """
-  @spec query(binary() | search_options()) :: Operation.JSON.t()
+  @spec query(query_string :: binary() | search_options()) :: Operation.JSON.t()
   def query(options) when is_list(options) do
     params = build_query_params(options)
 

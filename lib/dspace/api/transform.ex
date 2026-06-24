@@ -1,5 +1,7 @@
 defmodule DSpace.API.Transform do
-  @moduledoc false
+  @moduledoc """
+  Functions for transforming API responses.
+  """
 
   import DSpace.Utils, only: [is_nonempty_binary: 1]
 
