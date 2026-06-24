@@ -166,9 +166,11 @@ defmodule DSpace.API.Auth do
 
   # Makes a best-effort attempt to update a client configuration with a new CSRF token if it's
   # missing. A failure currently swallows the error and returns the original operation (which will
-  # subsequently fail and return an error).
+  # subsequently fail).
   defp maybe_fetch_csrf(operation, %API{csrf_token: nil} = client, options) do
-    case API.request(refresh_csrf_token(), client, options) do
+    refresh_options = Keyword.delete(options, :transform)
+
+    case API.request(refresh_csrf_token(), client, refresh_options) do
       {:ok, token} ->
         updated_client = %{client | csrf_token: token}
         {operation, updated_client, options}

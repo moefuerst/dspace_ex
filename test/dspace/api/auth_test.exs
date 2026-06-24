@@ -90,6 +90,32 @@ defmodule DSpace.API.AuthTest do
         API.request(operation, api)
       end
     end
+
+    test "operation fetches CSRF when missing with tranform override", %{bypass: bypass, api: api} do
+      api = %{api | csrf_token: nil}
+
+      # Expect CSRF fetch
+      Bypass.expect_once(bypass, "GET", "/api/security/csrf", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("dspace-xsrf-token", "auto-csrf-123")
+        |> respond_with_json(204, "")
+      end)
+
+      # Expect login
+      Bypass.expect_once(bypass, "POST", "/api/authn/login", fn conn ->
+        assert Plug.Conn.get_req_header(conn, "x-xsrf-token") == ["auto-csrf-123"]
+
+        conn
+        |> Plug.Conn.put_resp_header("authorization", "Bearer auto-token-456")
+        |> respond_with_json(200, ~s({"token": "auto-token-456"}))
+      end)
+
+      operation = Auth.login(@user, @pass)
+      {:ok, response} = API.request(operation, api, transform: false)
+
+      assert %DSpace.API.HTTP.Response{body: body} = response
+      assert Map.get(body, "token") == "auto-token-456"
+    end
   end
 
   describe "fetch_api_key/0" do
