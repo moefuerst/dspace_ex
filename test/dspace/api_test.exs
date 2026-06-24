@@ -77,7 +77,7 @@ defmodule DSpace.APITest do
     @user "test@example.com"
     @pass "password123"
 
-    test "login/3 returns access token when login succeeds", %{bypass: bypass, api: api} do
+    test "login/3 returns updated client when login succeeds", %{bypass: bypass, api: api} do
       Bypass.expect(bypass, fn conn ->
         conn
         # sic, DSpace *does* return the access token this way...
@@ -86,9 +86,11 @@ defmodule DSpace.APITest do
         |> respond_with_json(200, "")
       end)
 
-      {:ok, token} = API.login(api, @user, @pass)
+      {:ok, updated_client} = API.login(api, @user, @pass)
 
-      assert token == "xyz123"
+      assert is_struct(updated_client, API)
+      assert updated_client.access_token == "xyz123"
+      assert updated_client.csrf_token == "abc123"
     end
 
     test "login/3 returns error when login fails", %{bypass: bypass, api: api} do
@@ -114,12 +116,8 @@ defmodule DSpace.APITest do
       updated_client = API.login!(api, @user, @pass)
 
       assert is_struct(updated_client, API)
-
-      assert updated_client.access_token == "xyz123",
-             "Token should be updated"
-
-      assert updated_client.csrf_token == "abc123",
-             "CSRF token should be updated"
+      assert updated_client.access_token == "xyz123"
+      assert updated_client.csrf_token == "abc123"
     end
 
     test "login!/3 raises when login fails", %{bypass: bypass, api: api} do
@@ -293,7 +291,7 @@ defmodule DSpace.APITest do
       assert_receive {:callback_invoked, %{csrf_token: "new-csrf-token"}}
     end
 
-    test "gracefully handles nil response hook", %{bypass: bypass, api: api} do
+    test "handles nil response hook", %{bypass: bypass, api: api} do
       api = %{api | on_response_hook: nil}
       operation = %Operation.JSON{path: "/test", transformer: &Function.identity/1}
 

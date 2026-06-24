@@ -79,7 +79,7 @@ defmodule DSpace.API do
   # Public API
 
   @doc """
-  Creates a new client.
+  Creates a new API client.
 
   ## Parameters
 
@@ -97,11 +97,10 @@ defmodule DSpace.API do
       * an `t:URI.t/0` structure
       * a string
       * a 0-arity function that returns a `t:URI.t/0` structure or a string
-    * `:access_token` - Optional login token or API key used for authentication.
+    * `:access_token` - Optional login token or API key used for authentication
     * `:csrf_token` - Optional CSRF token. Needed for all modifying requests
-    * `:api_version` - Optional DSpace API version as a string, defaults to latest version
-      `dspace_ex` was fully tested against
-    * `:user_agent` - Optional User agent string, defaults to `dspace-ex/<version>`
+    * `:api_version` - Optional DSpace API version as a string, defaults to `#{@api_version}`
+    * `:user_agent` - Optional User agent string, defaults to `#{@user_agent}`
     * `:http_impl` - Optional HTTP adapter implementation and options as `{module, options}`
     * `:on_response_hook` - Optional callback function invoked when CSRF tokens are updated
   """
@@ -144,7 +143,7 @@ defmodule DSpace.API do
     * `api` - A `t:DSpace.API.t/0` structure
     * `access_token` - Login token or API key as a string
   """
-  @spec put_access_token(t(), binary()) :: t()
+  @spec put_access_token(t(), access_token :: binary()) :: t()
   def put_access_token(%__MODULE__{} = api, access_token) when is_nonempty_binary(access_token) do
     %{api | access_token: access_token}
   end
@@ -157,7 +156,7 @@ defmodule DSpace.API do
     * `api` - A `t:DSpace.API.t/0` structure
     * `csrf_token` - CSRF token as a string
   """
-  @spec put_csrf_token(t(), binary()) :: t()
+  @spec put_csrf_token(t(), csrf_token :: binary()) :: t()
   def put_csrf_token(%__MODULE__{} = api, csrf_token) when is_nonempty_binary(csrf_token) do
     %{api | csrf_token: csrf_token}
   end
@@ -185,7 +184,7 @@ defmodule DSpace.API do
     * `http_impl` - A tuple of `{module, options}` where module implements `DSpace.API.HTTP`
       behaviour.
   """
-  @spec put_http_impl(t(), {module(), keyword()}) :: t()
+  @spec put_http_impl(t(), adapter :: {module(), keyword()}) :: t()
   def put_http_impl(%__MODULE__{} = api, {module, options} = http_impl) when is_atom(module) and is_list(options) do
     %{api | http_impl: http_impl}
   end
@@ -198,7 +197,7 @@ defmodule DSpace.API do
     * `api` - A `t:DSpace.API.t/0` structure
     * `user_agent` - User agent as a string
   """
-  @spec put_user_agent(t(), binary()) :: t()
+  @spec put_user_agent(t(), user_agent :: binary()) :: t()
   def put_user_agent(%__MODULE__{} = api, user_agent) when is_nonempty_binary(user_agent) do
     %{api | user_agent: user_agent}
   end
@@ -211,39 +210,21 @@ defmodule DSpace.API do
     * `api` - A `t:DSpace.API.t/0` structure
     * `version` - DSpace API version as a string
   """
-  @spec put_api_version(t(), binary()) :: t()
+  @spec put_api_version(t(), version :: binary()) :: t()
   def put_api_version(%__MODULE__{} = api, version) when is_nonempty_binary(version) do
     %{api | api_version: version}
   end
 
   @doc """
-  Authenticates with a DSpace API using the provided credentials.
+  Authenticates with a DSpace API and returns an updated client structure.
 
-  Returns an access token. Managing token lifecycle (checking expiry, deciding when to refresh) is
-  the responsibility of the consuming application. The token is a JWT and contains an `exp` claim.
-  See `DSpace.API.Auth.refresh_access_token/0`.
+  Returns returns a `t:DSpace.API.t/0` client structure with updated access- and CSRF tokens.
+  Managing token lifecycle (checking expiry, deciding when to refresh) is the responsibility of
+  the consuming application. The token is a JWT and contains an `exp` claim. See
+  `DSpace.API.Auth.refresh_access_token/0`.
 
   Executing this operation will fetch a CSRF token from the API first if none is configured in the
   client struct, since that is a prerequisite for hitting the login endpoint.
-
-  ## Parameters
-
-    * `api` - A `t:DSpace.API.t/0` structure
-    * `username` - Username as a string
-    * `password` - Password as a string
-  """
-  @spec login(t(), binary(), binary()) :: {:ok, binary()} | {:error, Exception.t()}
-  def login(%__MODULE__{} = api, username, password) when is_nonempty_binary(username) and is_nonempty_binary(password) do
-    username
-    |> Auth.login(password)
-    |> request(api)
-  end
-
-  @doc """
-  Authenticates with the DSpace API using a client and the provided credentials.
-
-  Similar to `login/3`, but returns a `t:DSpace.API.t/0` client structure with updated access- and
-  CSRF tokens. This function is mainly useful in testing and script usage.
 
   ## Parameters
 
@@ -259,18 +240,34 @@ defmodule DSpace.API do
       client =
         [endpoint: "https://example.com/server"]
         |> DSpace.API.new()
-        |> DSpace.API.login!("username", "password")
+        |> DSpace.API.login("username", "password")
 
       items =
         Item.list()
         |> DSpace.API.stream!(client)
   """
-  @spec login!(t(), binary(), binary()) :: t()
-  def login!(%__MODULE__{} = api, username, password) do
+  @spec login(t(), username, password) :: {:ok, t()} | {:error, Exception.t()}
+        when username: binary(), password: binary()
+  def login(%__MODULE__{} = api, username, password) when is_nonempty_binary(username) and is_nonempty_binary(password) do
     login = %{Auth.login(username, password) | transformer: &Auth.tokens_from_response/1}
 
     case request(login, api) do
-      {:ok, {auth_token, csrf_token}} -> %{api | access_token: auth_token, csrf_token: csrf_token}
+      {:ok, {auth_token, csrf_token}} -> {:ok, %{api | access_token: auth_token, csrf_token: csrf_token}}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc """
+  Authenticates the client with a DSpace API and raises on errors.
+
+  Similar to `login/3`, but returns the updated client structure directly or raises on errors.
+  """
+  @spec login!(t(), username, password) :: t()
+        when username: binary(), password: binary()
+  def login!(%__MODULE__{} = api, username, password)
+      when is_nonempty_binary(username) and is_nonempty_binary(password) do
+    case login(api, username, password) do
+      {:ok, api} -> api
       {:error, reason} -> raise reason
     end
   end
@@ -278,7 +275,9 @@ defmodule DSpace.API do
   @doc """
   Verifies if the passed client is authenticated with the DSpace API.
 
-  This function also returns `false` if the check fails.
+  Returns `false` if the server indicates the client is not authenticated, or if the server is
+  unreachable. Callers who want to separate transport errors from authentication status should
+  request `DSpace.API.Auth.status/0` directly.
 
   ## Parameters
 
@@ -286,9 +285,7 @@ defmodule DSpace.API do
   """
   @spec authenticated?(t()) :: boolean()
   def authenticated?(%__MODULE__{} = api) do
-    request!(Auth.status(), api)
-  rescue
-    _ -> false
+    match?({:ok, true}, request(Auth.status(), api))
   end
 
   @doc """
