@@ -106,7 +106,8 @@ defmodule DSpace.API.File do
   files. If you use a Req-based HTTP adapter (which is this library's default), passing `:into` as
   an override option to `DSpace.API.request/3` will stream the body to disk:
 
-      File.download(uuid)
+      uuid
+      |> File.download()
       |> DSpace.API.request(client, into: File.stream!("myfile.pdf"))
 
   ## Options
@@ -231,7 +232,7 @@ defmodule DSpace.API.File do
   @doc """
   Fetches the thumbnail of a file.
 
-  Note: Thumbnails are only available for files in the `ORIGINAL` bundle.
+  Note: Thumbnails are usually only available for files in the `ORIGINAL` bundle.
   """
   @spec thumbnail(binary()) :: Operation.JSON.t()
   def thumbnail(uuid) when is_nonempty_binary(uuid) do
@@ -329,7 +330,7 @@ defmodule DSpace.API.File do
   @doc """
   Creates a new file bundle.
 
-  A file bundle *must* have a parent (an item).
+  A file bundle *must* have an item parent.
 
   ## Options
 
@@ -360,15 +361,13 @@ defmodule DSpace.API.File do
 
   @doc """
   Fetches the primary file of a file bundle.
-
-  Returns the primary file, or `{:ok, nil}` if the bundle has no primary file.
   """
   @spec fetch_primary_from_bundle(binary()) :: Operation.JSON.t()
   def fetch_primary_from_bundle(bundle_uuid) when is_nonempty_binary(bundle_uuid) do
     %Operation.JSON{
       path: @ep_bundles <> "/" <> bundle_uuid <> "/primaryBitstream",
       expected_status: [200, 204],
-      transformer: &not_found_on_no_content(&1, "No primary file found for this bundle")
+      transformer: &not_found_on_no_content(&1, "Primary file not found for this bundle")
     }
   end
 
@@ -393,7 +392,11 @@ defmodule DSpace.API.File do
   Takes the raw list of move operations, e.g. to move the file at index 1 to the front:
 
       File.reorder(bundle_uuid, [
-        %{"op" => "move", "from" => "/_links/bitstreams/1/href", "path" => "/_links/bitstreams/0/href"}
+        %{
+          "op" => "move",
+          "from" => "/_links/bitstreams/1/href",
+          "path" => "/_links/bitstreams/0/href"
+        }
       ])
   """
   @spec reorder(binary(), [map()]) :: Operation.JSON.t()
@@ -422,8 +425,10 @@ defmodule DSpace.API.File do
   @doc """
   Lists files within a bundle.
 
-  The main bitstreams endpoint is not browsable, so listing is always bundle-scoped. Equivalent to
-  `list_in_bundle/2`. This operation can be streamed.
+  The main "bitstreams" endpoint is not browsable, so listing is always bundle-scoped. Equivalent
+  to `list_in_bundle/2`.
+
+  This operation can be streamed.
 
   ## Options
 

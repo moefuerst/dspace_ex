@@ -12,7 +12,10 @@ defmodule DSpace.API.CommunityTest do
         respond_with_json(conn, 200, community_fixture)
       end)
 
-      {:ok, result} = uuid |> Community.fetch() |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Community.fetch()
+        |> API.request(api)
 
       assert_valid_dspace_resource(result, "community", ["name", "handle", "metadata"])
       assert result["uuid"] == uuid
@@ -52,7 +55,10 @@ defmodule DSpace.API.CommunityTest do
         }))
       end)
 
-      {:ok, result} = [page: 2, size: 10] |> Community.list() |> API.request(api)
+      {:ok, result} =
+        [page: 2, size: 10]
+        |> Community.list()
+        |> API.request(api)
 
       {_communities, metadata, _next_url} = result
       assert metadata["page"]["number"] == 2
@@ -70,7 +76,10 @@ defmodule DSpace.API.CommunityTest do
         respond_with_json(conn, 200, communities_fixture)
       end)
 
-      {:ok, result} = [page: 1, size: 20] |> Community.list_toplevel() |> API.request(api)
+      {:ok, result} =
+        [page: 1, size: 20]
+        |> Community.list_toplevel()
+        |> API.request(api)
 
       {communities, metadata, next_url} = result
       assert_valid_paginated_response({communities, metadata, next_url})
@@ -112,7 +121,10 @@ defmodule DSpace.API.CommunityTest do
         respond_with_json(conn, 200, search_fixture)
       end)
 
-      {:ok, result} = [query: search_term] |> Community.find() |> API.request(api)
+      {:ok, result} =
+        [query: search_term]
+        |> Community.find()
+        |> API.request(api)
 
       {objects, _metadata, _next_url} = result
       assert is_list(objects)
@@ -153,7 +165,7 @@ defmodule DSpace.API.CommunityTest do
       Bypass.expect_once(bypass, "POST", "/api/core/communities", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         refute Map.has_key?(params, "parent")
         assert request_data["name"] == "New Top Level Community"
@@ -161,7 +173,10 @@ defmodule DSpace.API.CommunityTest do
         respond_with_json(conn, 201, community_fixture)
       end)
 
-      {:ok, result} = community_data |> Community.create() |> API.request(api)
+      {:ok, result} =
+        community_data
+        |> Community.create()
+        |> API.request(api)
 
       assert_valid_dspace_resource(result, "community")
       assert result["uuid"] == "7669c72a-3f2a-451f-a3b9-9210e7a4c02f"
@@ -175,7 +190,7 @@ defmodule DSpace.API.CommunityTest do
       Bypass.expect_once(bypass, "POST", "/api/core/communities", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         assert params["parent"] == parent_uuid
         assert request_data["name"] == "Sub Community"
@@ -183,7 +198,10 @@ defmodule DSpace.API.CommunityTest do
         respond_with_json(conn, 201, community_fixture)
       end)
 
-      {:ok, result} = community_data |> Community.create(parent: parent_uuid) |> API.request(api)
+      {:ok, result} =
+        community_data
+        |> Community.create(parent: parent_uuid)
+        |> API.request(api)
 
       assert_valid_dspace_resource(result, "community")
       assert result["uuid"] == "7669c72a-3f2a-451f-a3b9-9210e7a4c02f"
@@ -198,14 +216,17 @@ defmodule DSpace.API.CommunityTest do
 
       Bypass.expect_once(bypass, "PATCH", "/api/core/communities/#{uuid}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_operations = Jason.decode!(body)
+        request_operations = JSON.decode!(body)
 
         assert request_operations == update_operations
 
         respond_with_json(conn, 200, community_fixture)
       end)
 
-      {:ok, result} = uuid |> Community.update(update_operations) |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Community.update(update_operations)
+        |> API.request(api)
 
       assert_valid_dspace_resource(result, "community")
       assert result["uuid"] == uuid
@@ -218,14 +239,17 @@ defmodule DSpace.API.CommunityTest do
 
       Bypass.expect_once(bypass, "PUT", "/api/core/communities/#{uuid}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         assert request_data == replacement_data
 
         respond_with_json(conn, 200, community_fixture)
       end)
 
-      {:ok, result} = uuid |> Community.replace(replacement_data) |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Community.replace(replacement_data)
+        |> API.request(api)
 
       assert_valid_dspace_resource(result, "community")
       assert result["uuid"] == uuid
@@ -240,7 +264,10 @@ defmodule DSpace.API.CommunityTest do
         respond_with_json(conn, 204, "")
       end)
 
-      {:ok, result} = uuid |> Community.delete() |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Community.delete()
+        |> API.request(api)
 
       assert result == :ok
     end
@@ -259,7 +286,10 @@ defmodule DSpace.API.CommunityTest do
         respond_with_json(conn, 200, collections_fixture)
       end)
 
-      {:ok, result} = uuid |> Community.list_collections(page: 1, size: 5) |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Community.list_collections(page: 1, size: 5)
+        |> API.request(api)
 
       {collections, metadata, next_url} = result
       assert_valid_paginated_response({collections, metadata, next_url})
@@ -278,7 +308,10 @@ defmodule DSpace.API.CommunityTest do
         respond_with_json(conn, 200, communities_fixture)
       end)
 
-      {:ok, result} = uuid |> Community.list_subcommunities(page: 2, size: 15) |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Community.list_subcommunities(page: 2, size: 15)
+        |> API.request(api)
 
       {subcommunities, metadata, next_url} = result
       assert_valid_paginated_response({subcommunities, metadata, next_url})
@@ -298,7 +331,10 @@ defmodule DSpace.API.CommunityTest do
         end
       )
 
-      {:ok, result} = uuid |> Community.fetch_parent() |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Community.fetch_parent()
+        |> API.request(api)
 
       assert_valid_dspace_resource(result, "community")
       assert result["uuid"] == "7669c72a-3f2a-451f-a3b9-9210e7a4c02f"
@@ -316,7 +352,10 @@ defmodule DSpace.API.CommunityTest do
         end
       )
 
-      {:ok, result} = uuid |> Community.fetch_parent() |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Community.fetch_parent()
+        |> API.request(api)
 
       assert result == %{}
     end

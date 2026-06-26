@@ -76,19 +76,18 @@ defmodule DSpace.API.AuthTest do
       assert %Error{type: :unauthorized} = error
     end
 
-    test "operation crashes when CSRF fetch fails", %{bypass: bypass, api: api} do
+    test "operation returns the CSRF fetch error instead of attempting login", %{bypass: bypass, api: api} do
       api = %{api | csrf_token: nil}
 
-      # Expect CSRF fetch
+      # Expect CSRF fetch to fail
       Bypass.expect(bypass, "GET", "/api/security/csrf", fn conn ->
         respond_with_json(conn, 500, ~s({"message": "CSRF Fetch Error"}))
       end)
 
       operation = Auth.login(@user, @pass)
+      {:error, error} = API.request(operation, api)
 
-      assert_raise ArgumentError, "executing this operation requires a CSRF token", fn ->
-        API.request(operation, api)
-      end
+      assert %Error{type: :server_error} = error
     end
 
     test "operation fetches CSRF when missing with tranform override", %{bypass: bypass, api: api} do

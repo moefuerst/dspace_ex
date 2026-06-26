@@ -82,7 +82,9 @@ defmodule DSpace.API.User do
 
   ## Options
 
-    * `search_term` - general search term
+    * `:search_term` - general search term
+    * `:page` - Page number (0-based, defaults to 0)
+    * `:size` - Number of items per page (usually defaults to 20)
   """
   @impl Resource
   @spec find(keyword()) :: Operation.t()

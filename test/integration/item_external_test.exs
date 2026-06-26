@@ -13,7 +13,7 @@ defmodule DSpace.ItemExternalTest do
     {:ok, client: client, item: hierarchy.item}
   end
 
-  describe "Item.update/3" do
+  describe "update/3" do
     test "replaces metadata values given their full path", %{client: client, item: item} do
       uuid = item["uuid"]
 

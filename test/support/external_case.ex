@@ -22,6 +22,14 @@ defmodule DSpace.ExternalCase do
     {:ok, endpoint: endpoint}
   end
 
+  @doc """
+  Returns a DSpace API client structure.
+
+  ## Options
+
+    * `:authenticate` - whether to authenticate the client with DSpace admin credentials from
+      the environment (default: `false`)
+  """
   def dspace_test_api(options \\ []) do
     endpoint = System.fetch_env!("DSPACE_ENDPOINT")
     version = System.get_env("DSPACE_VERSION", "9.2.0")
@@ -42,6 +50,33 @@ defmodule DSpace.ExternalCase do
     else
       client
     end
+  end
+
+  @doc """
+  Asserts that a core API resource has the expected structure.
+  """
+  def assert_valid_dspace_resource(resource, expected_type, required_fields \\ []) do
+    assert Map.has_key?(resource, "uuid")
+    assert Map.has_key?(resource, "type")
+    assert resource["type"] == expected_type
+
+    if Map.has_key?(resource, "_links") do
+      assert is_map(resource["_links"])
+    end
+
+    Enum.each(required_fields, fn field ->
+      assert Map.has_key?(resource, field), "Resource missing required field: #{field}"
+    end)
+  end
+
+  @doc """
+  Asserts that a paginated API response has the expected structure.
+  """
+  def assert_valid_paginated_response({items, metadata, next_url}) when is_list(items) do
+    assert is_list(items)
+    assert is_map(metadata)
+    assert Map.has_key?(metadata, "page")
+    assert is_binary(next_url) or is_nil(next_url)
   end
 
   defmodule Fixtures do

@@ -170,7 +170,7 @@ defmodule DSpace.API.UserTest do
 
       Bypass.expect_once(bypass, "POST", "/api/eperson/epersons", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         assert request_data["email"] == "newuser@example.com"
         assert request_data["name"] == "newuser@example.com"
@@ -221,7 +221,7 @@ defmodule DSpace.API.UserTest do
 
       Bypass.expect_once(bypass, "PATCH", "/api/eperson/epersons/#{uuid}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         assert length(request_data) == 2
         first_op = Enum.at(request_data, 0)
@@ -252,7 +252,7 @@ defmodule DSpace.API.UserTest do
 
       Bypass.expect_once(bypass, "PATCH", "/api/eperson/epersons/#{uuid}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         operation = List.first(request_data)
         assert operation["path"] == "/certificate"
@@ -278,7 +278,7 @@ defmodule DSpace.API.UserTest do
 
       Bypass.expect_once(bypass, "PATCH", "/api/eperson/epersons/#{uuid}", fn conn ->
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         operation = List.first(request_data)
         assert operation["path"] == "/canLogin"
@@ -304,7 +304,7 @@ defmodule DSpace.API.UserTest do
 
       Bypass.expect_once(bypass, "PATCH", "/api/eperson/epersons/#{uuid}", fn conn ->
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         operation = List.first(request_data)
         assert operation["path"] == "/email"
@@ -337,7 +337,7 @@ defmodule DSpace.API.UserTest do
 
       Bypass.expect_once(bypass, "PUT", "/api/eperson/epersons/#{uuid}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         assert request_data["email"] == "replaced@example.com"
 

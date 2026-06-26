@@ -4,8 +4,8 @@ defmodule DSpace.API.HTTP do
 
   Facilitates HTTP requests using the configured adapter and normalizes responses.
 
-  This module also specifies the expected behavior of an HTTP adapter. The behavior basically
-  aligns with Req's API, so alternative implementations need to come with batteries included
+  This module also specifies the behavior of an HTTP adapter. The behavior basically aligns with
+  Req's API, so alternative implementations need to come with batteries included
   (e.g., JSON parsing) and sensible defaults provided. All request parameters and adapter
   configuration options are passed as a single keyword list to the `request/1` function.
 
@@ -42,7 +42,8 @@ defmodule DSpace.API.HTTP do
 
   ## Response
 
-  An adapter implementation returns the response as a `t:DSpace.API.HTTP.Response.t/0` with the fields:
+  An adapter implementation returns the response as a `t:DSpace.API.HTTP.Response.t/0` with the
+  fields:
 
     * `:status` - HTTP status code as integer
     * `:headers` - HTTP response headers as a map

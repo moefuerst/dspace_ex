@@ -12,7 +12,10 @@ defmodule DSpace.API.CollectionTest do
         respond_with_json(conn, 200, collection_fixture)
       end)
 
-      {:ok, result} = uuid |> Collection.fetch() |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Collection.fetch()
+        |> API.request(api)
 
       assert_valid_dspace_resource(result, "collection", ["name", "handle", "metadata"])
       assert result["uuid"] == uuid
@@ -54,7 +57,10 @@ defmodule DSpace.API.CollectionTest do
         }))
       end)
 
-      {:ok, result} = [page: 2, size: 10] |> Collection.list() |> API.request(api)
+      {:ok, result} =
+        [page: 2, size: 10]
+        |> Collection.list()
+        |> API.request(api)
 
       {_collections, metadata, _next_url} = result
       assert metadata["page"]["number"] == 2
@@ -71,7 +77,7 @@ defmodule DSpace.API.CollectionTest do
       Bypass.expect_once(bypass, "POST", "/api/core/collections", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         assert params["parent"] == parent_uuid
         assert request_data["name"] == "New Collection"
@@ -80,7 +86,9 @@ defmodule DSpace.API.CollectionTest do
       end)
 
       {:ok, result} =
-        collection_data |> Collection.create(parent: parent_uuid) |> API.request(api)
+        collection_data
+        |> Collection.create(parent: parent_uuid)
+        |> API.request(api)
 
       assert_valid_dspace_resource(result, "collection")
     end
@@ -101,7 +109,7 @@ defmodule DSpace.API.CollectionTest do
 
       Bypass.expect_once(bypass, "PATCH", "/api/core/collections/#{uuid}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         operation = List.first(request_data)
         assert operation["op"] == "replace"
@@ -115,7 +123,10 @@ defmodule DSpace.API.CollectionTest do
         }))
       end)
 
-      {:ok, result} = uuid |> Collection.update(update_operations) |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Collection.update(update_operations)
+        |> API.request(api)
 
       assert result["uuid"] == uuid
       assert result["name"] == "Updated Publications Collection"
@@ -127,7 +138,7 @@ defmodule DSpace.API.CollectionTest do
 
       Bypass.expect_once(bypass, "PUT", "/api/core/collections/#{uuid}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         assert request_data["name"] == "Replaced Collection"
 
@@ -153,7 +164,10 @@ defmodule DSpace.API.CollectionTest do
         respond_with_json(conn, 204, "")
       end)
 
-      {:ok, result} = uuid |> Collection.delete() |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Collection.delete()
+        |> API.request(api)
 
       assert result == :ok
     end
@@ -172,7 +186,10 @@ defmodule DSpace.API.CollectionTest do
         respond_with_json(conn, 200, items_fixture)
       end)
 
-      {:ok, result} = uuid |> Collection.list_items(page: 1, size: 20) |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Collection.list_items(page: 1, size: 20)
+        |> API.request(api)
 
       {items, metadata, next_url} = result
       assert_valid_paginated_response({items, metadata, next_url})
@@ -219,7 +236,10 @@ defmodule DSpace.API.CollectionTest do
         respond_with_json(conn, 200, search_fixture)
       end)
 
-      {:ok, result} = [query: search_term] |> Collection.find() |> API.request(api)
+      {:ok, result} =
+        [query: search_term]
+        |> Collection.find()
+        |> API.request(api)
 
       {objects, _metadata, _next_url} = result
       assert objects != []
@@ -259,7 +279,10 @@ defmodule DSpace.API.CollectionTest do
         }))
       end)
 
-      {:ok, _result} = options |> Collection.find() |> API.request(api)
+      {:ok, _result} =
+        options
+        |> Collection.find()
+        |> API.request(api)
     end
   end
 

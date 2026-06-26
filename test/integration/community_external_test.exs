@@ -15,6 +15,7 @@ defmodule DSpace.CommunityExternalTest do
   end
 
   test "creates community under the toplevel community", %{community: community} do
+    # community was created as part of fixture setup
     assert String.starts_with?(community["name"], "Test Community")
   end
 
@@ -45,7 +46,8 @@ defmodule DSpace.CommunityExternalTest do
              |> API.request!(client)
 
     # The API might report success but does not actually delete toplevel communities, even with
-    # admin credentials. Unclear if this is a configuration issue, bug or intended behaviour.
+    # admin credentials. Unclear if this is a configuration issue with the specific instance,
+    # bug or intended behaviour.
 
     # Re-fetch all toplevel communities and check whether the community is really gone.
     toplevel_uuids =
@@ -54,7 +56,6 @@ defmodule DSpace.CommunityExternalTest do
       |> Stream.map(& &1["uuid"])
       |> Enum.to_list()
 
-    # Assert the buggy behaviour.
     assert uuid in toplevel_uuids,
            "DSpace toplevel deletion bug appears to be fixed, " <>
              "community #{uuid} was actually removed. " <>

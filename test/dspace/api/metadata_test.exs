@@ -12,7 +12,10 @@ defmodule DSpace.API.MetadataTest do
         respond_with_json(conn, 200, field_fixture)
       end)
 
-      {:ok, result} = field_id |> Metadata.fetch_field() |> API.request(api)
+      {:ok, result} =
+        field_id
+        |> Metadata.fetch_field()
+        |> API.request(api)
 
       assert result["type"] == "metadatafield"
       assert result["id"] == 8
@@ -52,7 +55,10 @@ defmodule DSpace.API.MetadataTest do
         respond_with_json(conn, 200, fields_fixture)
       end)
 
-      {:ok, result} = [schema: schema_prefix] |> Metadata.list_fields() |> API.request(api)
+      {:ok, result} =
+        [schema: schema_prefix]
+        |> Metadata.list_fields()
+        |> API.request(api)
 
       {fields, _metadata, _next_url} = result
       assert is_list(fields)
@@ -74,7 +80,10 @@ defmodule DSpace.API.MetadataTest do
         respond_with_json(conn, 200, custom_response)
       end)
 
-      {:ok, result} = [page: 1, size: 10] |> Metadata.list_fields() |> API.request(api)
+      {:ok, result} =
+        [page: 1, size: 10]
+        |> Metadata.list_fields()
+        |> API.request(api)
 
       {_fields, metadata, _next_url} = result
       assert metadata["page"]["number"] == 1
@@ -94,7 +103,10 @@ defmodule DSpace.API.MetadataTest do
         respond_with_json(conn, 200, fields_fixture)
       end)
 
-      {:ok, result} = [name: field_name] |> Metadata.find_fields() |> API.request(api)
+      {:ok, result} =
+        [name: field_name]
+        |> Metadata.find_fields()
+        |> API.request(api)
 
       assert is_map(result)
     end
@@ -110,7 +122,10 @@ defmodule DSpace.API.MetadataTest do
         respond_with_json(conn, 200, fields_fixture)
       end)
 
-      {:ok, result} = [schema: schema_prefix] |> Metadata.find_fields() |> API.request(api)
+      {:ok, result} =
+        [schema: schema_prefix]
+        |> Metadata.find_fields()
+        |> API.request(api)
 
       assert is_map(result)
     end
@@ -129,7 +144,9 @@ defmodule DSpace.API.MetadataTest do
       end)
 
       {:ok, result} =
-        [element: element, qualifier: qualifier] |> Metadata.find_fields() |> API.request(api)
+        [element: element, qualifier: qualifier]
+        |> Metadata.find_fields()
+        |> API.request(api)
 
       assert is_map(result)
     end
@@ -145,7 +162,10 @@ defmodule DSpace.API.MetadataTest do
         respond_with_json(conn, 200, fields_fixture)
       end)
 
-      {:ok, result} = [query: query_term] |> Metadata.find_fields() |> API.request(api)
+      {:ok, result} =
+        [query: query_term]
+        |> Metadata.find_fields()
+        |> API.request(api)
 
       assert is_map(result)
     end
@@ -161,7 +181,9 @@ defmodule DSpace.API.MetadataTest do
       end)
 
       {:ok, _result} =
-        [query: "contributor", page: 0, size: 5] |> Metadata.find_fields() |> API.request(api)
+        [query: "contributor", page: 0, size: 5]
+        |> Metadata.find_fields()
+        |> API.request(api)
     end
   end
 
@@ -184,7 +206,7 @@ defmodule DSpace.API.MetadataTest do
       Bypass.expect_once(bypass, "POST", "/api/core/metadatafields", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         assert params["schemaId"] == schema_id
         assert request_data["element"] == "subject"
@@ -194,7 +216,10 @@ defmodule DSpace.API.MetadataTest do
         respond_with_json(conn, 201, field_fixture)
       end)
 
-      {:ok, result} = field_data |> Metadata.create_field(schema_id: schema_id) |> API.request(api)
+      {:ok, result} =
+        field_data
+        |> Metadata.create_field(schema_id: schema_id)
+        |> API.request(api)
 
       assert result["type"] == "metadatafield"
     end
@@ -212,7 +237,7 @@ defmodule DSpace.API.MetadataTest do
       Bypass.expect_once(bypass, "POST", "/api/core/metadatafields", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         assert params["schemaId"] == schema_id
         assert request_data["element"] == "title"
@@ -222,7 +247,10 @@ defmodule DSpace.API.MetadataTest do
         respond_with_json(conn, 201, field_fixture)
       end)
 
-      {:ok, result} = field_data |> Metadata.create_field(schema_id: schema_id) |> API.request(api)
+      {:ok, result} =
+        field_data
+        |> Metadata.create_field(schema_id: schema_id)
+        |> API.request(api)
 
       assert result["type"] == "metadatafield"
     end
@@ -254,14 +282,17 @@ defmodule DSpace.API.MetadataTest do
 
       Bypass.expect_once(bypass, "PUT", "/api/core/metadatafields/#{field_id}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         assert request_data["scopeNote"] == "Updated scope note"
 
         respond_with_json(conn, 200, field_fixture)
       end)
 
-      {:ok, result} = field_id |> Metadata.update_field(updates) |> API.request(api)
+      {:ok, result} =
+        field_id
+        |> Metadata.update_field(updates)
+        |> API.request(api)
 
       assert result["type"] == "metadatafield"
     end
@@ -295,7 +326,10 @@ defmodule DSpace.API.MetadataTest do
         respond_with_json(conn, 204, "")
       end)
 
-      {:ok, result} = field_id |> Metadata.delete_field() |> API.request(api)
+      {:ok, result} =
+        field_id
+        |> Metadata.delete_field()
+        |> API.request(api)
 
       assert result == :ok
     end
@@ -310,7 +344,10 @@ defmodule DSpace.API.MetadataTest do
         respond_with_json(conn, 200, schema_fixture)
       end)
 
-      {:ok, result} = schema_id |> Metadata.fetch_schema() |> API.request(api)
+      {:ok, result} =
+        schema_id
+        |> Metadata.fetch_schema()
+        |> API.request(api)
 
       assert result["type"] == "metadataschema"
       assert result["id"] == 1
@@ -354,7 +391,10 @@ defmodule DSpace.API.MetadataTest do
         respond_with_json(conn, 200, custom_response)
       end)
 
-      {:ok, result} = [page: 1, size: 5] |> Metadata.list_schemas() |> API.request(api)
+      {:ok, result} =
+        [page: 1, size: 5]
+        |> Metadata.list_schemas()
+        |> API.request(api)
 
       {_schemas, metadata, _next_url} = result
       assert metadata["page"]["number"] == 1
@@ -371,7 +411,7 @@ defmodule DSpace.API.MetadataTest do
 
       Bypass.expect_once(bypass, "POST", "/api/core/metadataschemas", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         assert request_data["prefix"] == "example"
         assert request_data["namespace"] == "http://example.org/"
@@ -403,14 +443,17 @@ defmodule DSpace.API.MetadataTest do
 
       Bypass.expect_once(bypass, "PUT", "/api/core/metadataschemas/#{schema_id}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         assert request_data["namespace"] == "http://updated.example.org/"
 
         respond_with_json(conn, 200, schema_fixture)
       end)
 
-      {:ok, result} = schema_id |> Metadata.update_schema(updates) |> API.request(api)
+      {:ok, result} =
+        schema_id
+        |> Metadata.update_schema(updates)
+        |> API.request(api)
 
       assert result["type"] == "metadataschema"
     end
@@ -424,7 +467,10 @@ defmodule DSpace.API.MetadataTest do
         respond_with_json(conn, 204, "")
       end)
 
-      {:ok, result} = schema_id |> Metadata.delete_schema() |> API.request(api)
+      {:ok, result} =
+        schema_id
+        |> Metadata.delete_schema()
+        |> API.request(api)
 
       assert result == :ok
     end

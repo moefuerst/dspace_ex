@@ -6,24 +6,9 @@ defmodule DSpace.API.SearchTest do
   alias DSpace.API.Operation
   alias DSpace.API.Search
 
-  describe "basic search functionality" do
-    test "query/1 with binary returns JSON operation" do
-      query = "test search term"
-      operation = Search.query(query)
-
-      assert %Operation.JSON{} = operation
-      assert operation.params[:query] == query
-    end
-
-    test "query operation has correct path" do
-      operation = Search.query("test")
-      assert operation.path == "/api/discover/search/objects"
-    end
-
-    test "query with empty query string raises FunctionClauseError" do
-      assert_raise FunctionClauseError, fn ->
-        Search.query("")
-      end
+  test "query with empty query string raises FunctionClauseError" do
+    assert_raise FunctionClauseError, fn ->
+      Search.query("")
     end
   end
 

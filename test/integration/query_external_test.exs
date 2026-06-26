@@ -135,7 +135,7 @@ defmodule DSpace.QueryExternalTest do
   end
 
   describe "search endpoint" do
-    test "default search configuration", %{client: client} do
+    test "returns default search configuration", %{client: client} do
       %{body: result} =
         [configuration: :default]
         |> Search.query()

@@ -18,7 +18,7 @@ defmodule DSpace.API.Monitor do
 
   ## Parameters
 
-    * `component`: The name of the system component to check the health status of. If not
+    * `component` - The name of the system component to check the health status of. If not
       provided, the combined health status of the API will be returned.
 
   Retrieving the health status of individual system components requires administrator privileges.

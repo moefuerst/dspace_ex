@@ -1,6 +1,14 @@
 defmodule DSpace.API.Operation.JSON do
   @moduledoc """
   Represents a JSON operation against the DSpace API.
+
+  This module is usually not used directly. Operation data structures are constructed by API
+  operation modules. Building your own operations is useful in cases where `dspace_ex` doesn't
+  support a specific API functionality yet.
+
+  The `before_step` field allows to specify a function to be called at execution time. It takes
+  the operation, the client configuration and override options and allows to modify them before
+  the HTTP request is made or produce other side effects based on their data.
   """
 
   defstruct http_method: :get,
@@ -153,9 +161,17 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
     {%{:content_type => ["text/uri-list"]}, [body: Enum.join(data, "\n")]}
   end
 
-  defp build_content_options(%{content_type: :json, data: data}), do: {%{}, [json: data]}
-  defp build_content_options(%{content_type: :form, data: data}), do: {%{}, [form: data]}
-  defp build_content_options(%{content_type: :multipart, data: data}), do: {%{}, [form_multipart: data]}
+  defp build_content_options(%{content_type: :json, data: data}) do
+    {%{:content_type => ["application/json"]}, [json: data]}
+  end
+
+  defp build_content_options(%{content_type: :form, data: data}) do
+    {%{:content_type => ["application/x-www-form-urlencoded"]}, [form: data]}
+  end
+
+  defp build_content_options(%{content_type: :multipart, data: data}) do
+    {%{:content_type => ["multipart/form-data"]}, [form_multipart: data]}
+  end
 
   defp resolve_csrf(:auto, method) when method in [:post, :put, :patch, :delete], do: :required
   defp resolve_csrf(:auto, _method), do: :optional
@@ -215,12 +231,12 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
     :ok
   end
 
-  defp maybe_invoke_on_response_hook(%API{on_response_hook: callback}, response) when is_function(callback, 1) do
+  defp maybe_invoke_on_response_hook(%API{on_response_hook: hook}, response) when is_function(hook, 1) do
     %Response{headers: headers} = response
 
     case extract_csrf(headers) do
       {:ok, token} ->
-        callback.(%{csrf_token: token})
+        hook.(%{csrf_token: token})
 
         :ok
 
@@ -235,9 +251,9 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
 
   defp extract_csrf(_headers), do: :error
 
-  defp maybe_override_transformer(options, transformer) when is_function(transformer, 1) do
+  defp maybe_override_transformer(options, transform_fn) do
     case Keyword.get(options, :transform, true) do
-      true -> transformer
+      true -> transform_fn
       false -> &Function.identity/1
       custom when is_function(custom, 1) -> custom
     end

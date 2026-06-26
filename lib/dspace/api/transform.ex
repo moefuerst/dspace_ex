@@ -49,9 +49,9 @@ defmodule DSpace.API.Transform do
 
   Returns a three-element tuple `{data, meta, next}`:
 
-    * `data`: List of transformed resources
-    * `meta`: Meta information from the API response
-    * `next`: URL for next page or nil if no more pages
+    * `data` - List of transformed resources
+    * `meta` - Meta information from the API response
+    * `next` - URL for next page or nil if no more pages
 
   ## Parameters
 
@@ -59,6 +59,7 @@ defmodule DSpace.API.Transform do
     * `options` - A keyword list with the following keys:
       * `:extract` - A path to navigate to the resources (required)
       * `:next` - A path to navigate to the continuation token
+        (defaults to `["_links", "next", "href"]`)
       * `:transform` - A function to process each resource (defaults to identity)
   """
   @spec transform_collection(struct() | map(), keyword()) :: {list(term()), map(), term()}

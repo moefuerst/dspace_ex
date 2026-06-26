@@ -55,24 +55,28 @@ defmodule DSpace.API.Metadata.ValueTest do
 
     test "invalid confidence_score atom is accepted at construction, fails at serialization" do
       value = Value.new("test", confidence: :bogus)
+
       assert value.confidence == :bogus
       assert_raise FunctionClauseError, fn -> Value.to_map(value) end
     end
 
     test "integer confidence instead of atom is accepted at construction, fails at serialization" do
       value = Value.new("test", confidence: 600)
+
       assert value.confidence == 600
       assert_raise FunctionClauseError, fn -> Value.to_map(value) end
     end
 
     test "integer security_level instead of atom is accepted at construction, fails at serialization" do
       value = Value.new("test", security_level: 0)
+
       assert value.security_level == 0
       assert_raise FunctionClauseError, fn -> Value.to_map(value) end
     end
 
     test "invalid security_level atom is accepted at construction, fails at serialization" do
       value = Value.new("test", security_level: :secret)
+
       assert value.security_level == :secret
       assert_raise FunctionClauseError, fn -> Value.to_map(value) end
     end
@@ -162,6 +166,7 @@ defmodule DSpace.API.Metadata.ValueTest do
 
     test "invalid confidence in opts is accepted at construction, fails at serialization" do
       value = Value.relation("display", "uuid", confidence: :bogus)
+
       assert value.confidence == :bogus
       assert_raise FunctionClauseError, fn -> Value.to_map(value) end
     end
@@ -239,13 +244,17 @@ defmodule DSpace.API.Metadata.ValueTest do
 
     test "from_map/1 with securityLevel 1 maps to :trusted" do
       map = %{"value" => "test", "securityLevel" => 1}
+
       result = Value.from_map(map)
+
       assert result.security_level == :trusted
     end
 
     test "to_map/1 with security_level :admin_owner emits securityLevel 2" do
       value = %Value{value: "test", security_level: :admin_owner}
+
       result = Value.to_map(value)
+
       assert result["securityLevel"] == 2
     end
 
@@ -259,13 +268,17 @@ defmodule DSpace.API.Metadata.ValueTest do
 
     test "from_map/1 with known confidence integer maps to atom" do
       map = %{"value" => "test", "confidence" => 500}
+
       result = Value.from_map(map)
+
       assert result.confidence == :uncertain
     end
 
     test "to_map/1 with confidence :accepted emits confidence 600" do
       value = %Value{value: "test", confidence: :accepted}
+
       result = Value.to_map(value)
+
       assert result["confidence"] == 600
     end
 
@@ -301,7 +314,9 @@ defmodule DSpace.API.Metadata.ValueTest do
 
     test "from_map/1 with extra unknown keys ignores them" do
       map = %{"value" => "test", "unknownKey" => "ignored"}
+
       result = Value.from_map(map)
+
       assert result.value == "test"
     end
 

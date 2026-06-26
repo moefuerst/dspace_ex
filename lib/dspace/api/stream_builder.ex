@@ -26,7 +26,7 @@ defmodule DSpace.API.StreamBuilder do
     * `operation` - The operation to perform, configured with a transformer that returns the
       response as a tuple `{items, meta, next}` where `items` is a list of resources, `meta` is
       metadata, and `next` is the URL for the next page or `nil` if there are no more pages.
-    * `options` - Request options.
+    * `options` - Keyword list of request options.
   """
   @spec new(API.t(), struct(), keyword()) :: Enumerable.t()
   def new(client, operation, options) do

@@ -1,6 +1,6 @@
 defmodule DSpace.API.Search do
   @moduledoc """
-  Functions for working with DSpace search ("discovery").
+  Operations for working with DSpace search ("discovery").
 
   Provides functionality for searching across "DSpace objects" including items, collections, and
   communities. Supports faceted search, filtering, and sorting.

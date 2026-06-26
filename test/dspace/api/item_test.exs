@@ -13,7 +13,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 200, item_fixture)
       end)
 
-      {:ok, result} = uuid |> Item.fetch() |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Item.fetch()
+        |> API.request(api)
 
       assert_valid_dspace_resource(result, "item", ["name", "handle", "metadata"])
       assert result["uuid"] == uuid
@@ -60,7 +63,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 200, items_fixture)
       end)
 
-      {:ok, result} = [id: uuids] |> Item.list() |> API.request(api)
+      {:ok, result} =
+        [id: uuids]
+        |> Item.list()
+        |> API.request(api)
 
       {items, _metadata, _next_url} = result
       assert is_list(items)
@@ -86,7 +92,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 200, response)
       end)
 
-      {:ok, result} = [page: 2, size: 10] |> Item.list() |> API.request(api)
+      {:ok, result} =
+        [page: 2, size: 10]
+        |> Item.list()
+        |> API.request(api)
 
       {_items, metadata, _next_url} = result
       assert metadata["page"]["number"] == 2
@@ -126,7 +135,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 200, search_fixture)
       end)
 
-      {:ok, result} = [query: search_term] |> Item.find() |> API.request(api)
+      {:ok, result} =
+        [query: search_term]
+        |> Item.find()
+        |> API.request(api)
 
       {objects, _metadata, _next_url} = result
       assert is_list(objects)
@@ -156,7 +168,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 200, search_fixture)
       end)
 
-      {:ok, result} = options |> Item.find() |> API.request(api)
+      {:ok, result} =
+        options
+        |> Item.find()
+        |> API.request(api)
 
       {objects, _metadata, _next_url} = result
       assert is_list(objects)
@@ -172,7 +187,7 @@ defmodule DSpace.API.ItemTest do
       Bypass.expect_once(bypass, "POST", "/api/core/items", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         assert params["owningCollection"] == collection_uuid
         assert request_data["name"] == "New Research Item"
@@ -180,7 +195,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 201, item_fixture)
       end)
 
-      {:ok, result} = item_data |> Item.create(parent: collection_uuid) |> API.request(api)
+      {:ok, result} =
+        item_data
+        |> Item.create(parent: collection_uuid)
+        |> API.request(api)
 
       assert_valid_dspace_resource(result, "item")
       assert result["uuid"] == "8f62713a-c495-467b-a918-2e392f781d2e"
@@ -203,14 +221,17 @@ defmodule DSpace.API.ItemTest do
 
       Bypass.expect_once(bypass, "PATCH", "/api/core/items/#{uuid}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_operations = Jason.decode!(body)
+        request_operations = JSON.decode!(body)
 
         assert request_operations == update_operations
 
         respond_with_json(conn, 200, item_fixture)
       end)
 
-      {:ok, result} = uuid |> Item.update(update_operations) |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Item.update(update_operations)
+        |> API.request(api)
 
       assert_valid_dspace_resource(result, "item")
       assert result["uuid"] == uuid
@@ -223,14 +244,17 @@ defmodule DSpace.API.ItemTest do
 
       Bypass.expect_once(bypass, "PUT", "/api/core/items/#{uuid}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_data = Jason.decode!(body)
+        request_data = JSON.decode!(body)
 
         assert request_data == replacement_data
 
         respond_with_json(conn, 200, item_fixture)
       end)
 
-      {:ok, result} = uuid |> Item.replace(replacement_data) |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Item.replace(replacement_data)
+        |> API.request(api)
 
       assert_valid_dspace_resource(result, "item")
       assert result["uuid"] == uuid
@@ -245,7 +269,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 204, "")
       end)
 
-      {:ok, result} = uuid |> Item.delete() |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Item.delete()
+        |> API.request(api)
 
       assert result == :ok
     end
@@ -261,7 +288,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 204, "")
       end)
 
-      {:ok, result} = uuid |> Item.delete(copy_virtual_metadata: :all) |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Item.delete(copy_virtual_metadata: :all)
+        |> API.request(api)
 
       assert result == :ok
     end
@@ -282,7 +312,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 201, ~s({"status": "created"}))
       end)
 
-      {:ok, result} = uuid |> Item.register_doi() |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Item.register_doi()
+        |> API.request(api)
 
       assert result["status"] == "created"
     end
@@ -308,7 +341,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 201, ws_fixture)
       end)
 
-      {:ok, result} = [parent: collection_uuid] |> Item.create_draft() |> API.request(api)
+      {:ok, result} =
+        [parent: collection_uuid]
+        |> Item.create_draft()
+        |> API.request(api)
 
       assert result["id"] == 239_514
       assert result["type"] == "workspaceitem"
@@ -343,7 +379,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 200, ws_fixture)
       end)
 
-      {:ok, result} = 239_514 |> Item.fetch_draft_by_id() |> API.request(api)
+      {:ok, result} =
+        239_514
+        |> Item.fetch_draft_by_id()
+        |> API.request(api)
 
       assert result["id"] == 239_514
       assert result["type"] == "workspaceitem"
@@ -370,7 +409,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 200, ws_fixture)
       end)
 
-      {:ok, result} = item_uuid |> Item.fetch_draft() |> API.request(api)
+      {:ok, result} =
+        item_uuid
+        |> Item.fetch_draft()
+        |> API.request(api)
 
       assert result["id"] == 239_514
       assert result["type"] == "workspaceitem"
@@ -383,7 +425,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 204, "")
       end)
 
-      {:error, reason} = item_uuid |> Item.fetch_draft() |> API.request(api)
+      {:error, reason} =
+        item_uuid
+        |> Item.fetch_draft()
+        |> API.request(api)
 
       assert %Error{type: :not_found} = reason
     end
@@ -411,12 +456,15 @@ defmodule DSpace.API.ItemTest do
 
       Bypass.expect_once(bypass, "PATCH", "/api/submission/workspaceitems/239514", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_ops = Jason.decode!(body)
+        request_ops = JSON.decode!(body)
         assert request_ops == patch_ops
         respond_with_json(conn, 200, ws_fixture)
       end)
 
-      {:ok, result} = 239_514 |> Item.update_draft(patch_ops) |> API.request(api)
+      {:ok, result} =
+        239_514
+        |> Item.update_draft(patch_ops)
+        |> API.request(api)
 
       assert result["id"] == 239_514
       assert result["type"] == "workspaceitem"
@@ -442,7 +490,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 204, "")
       end)
 
-      {:ok, result} = 239_514 |> Item.delete_draft() |> API.request(api)
+      {:ok, result} =
+        239_514
+        |> Item.delete_draft()
+        |> API.request(api)
 
       assert result == :ok
     end
@@ -489,7 +540,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 201, wf_fixture)
       end)
 
-      {:ok, result} = ws_id |> Item.submit() |> API.request(api)
+      {:ok, result} =
+        ws_id
+        |> Item.submit()
+        |> API.request(api)
 
       assert result["id"] == 1911
       assert result["step"] == "editstep"
@@ -514,7 +568,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 201, wf_fixture)
       end)
 
-      {:ok, result} = ws_ids |> Item.submit() |> API.request(api)
+      {:ok, result} =
+        ws_ids
+        |> Item.submit()
+        |> API.request(api)
 
       assert result["id"] == 1911
     end
@@ -524,7 +581,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 201, "")
       end)
 
-      {:ok, result} = 1234 |> Item.submit() |> API.request(api)
+      {:ok, result} =
+        1234
+        |> Item.submit()
+        |> API.request(api)
 
       assert result == :archived
     end
@@ -545,7 +605,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 200, wf_fixture)
       end)
 
-      {:ok, result} = 1911 |> Item.fetch_workflow_by_id() |> API.request(api)
+      {:ok, result} =
+        1911
+        |> Item.fetch_workflow_by_id()
+        |> API.request(api)
 
       assert result["id"] == 1911
       assert result["step"] == "editstep"
@@ -572,7 +635,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 200, wf_fixture)
       end)
 
-      {:ok, result} = item_uuid |> Item.fetch_workflow() |> API.request(api)
+      {:ok, result} =
+        item_uuid
+        |> Item.fetch_workflow()
+        |> API.request(api)
 
       assert result["id"] == 1911
       assert result["step"] == "editstep"
@@ -586,7 +652,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 204, "")
       end)
 
-      {:error, reason} = item_uuid |> Item.fetch_workflow() |> API.request(api)
+      {:error, reason} =
+        item_uuid
+        |> Item.fetch_workflow()
+        |> API.request(api)
 
       assert %Error{type: :not_found} = reason
     end
@@ -666,7 +735,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 200, wf_list_fixture)
       end)
 
-      {:ok, result} = [submitter: submitter_uuid] |> Item.list_in_workflow() |> API.request(api)
+      {:ok, result} =
+        [submitter: submitter_uuid]
+        |> Item.list_in_workflow()
+        |> API.request(api)
 
       {items, _metadata, _next} = result
       assert length(items) == 2
@@ -704,7 +776,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 204, "")
       end)
 
-      {:ok, result} = 1911 |> Item.delete_from_workflow() |> API.request(api)
+      {:ok, result} =
+        1911
+        |> Item.delete_from_workflow()
+        |> API.request(api)
 
       assert result == :ok
     end
@@ -716,7 +791,10 @@ defmodule DSpace.API.ItemTest do
         respond_with_json(conn, 204, "")
       end)
 
-      {:ok, result} = 1911 |> Item.delete_from_workflow(expunge: true) |> API.request(api)
+      {:ok, result} =
+        1911
+        |> Item.delete_from_workflow(expunge: true)
+        |> API.request(api)
 
       assert result == :ok
     end
