@@ -144,9 +144,38 @@ defmodule DSpace.API.HTTP.ReqTest do
       assert {:ok, %HTTP.Response{body: %{"error" => "internal server error"}, status: 500}} =
                result
     end
+
+    test "attaches configured plugins before making a request", %{bypass: bypass} do
+      Bypass.expect_once(bypass, "GET", "/plugin", fn conn ->
+        assert Plug.Conn.get_req_header(conn, "x-plugin") == ["attached"]
+
+        respond_with_json(conn, 200, ~s({"plugin": "attached"}))
+      end)
+
+      result =
+        HTTP.Req.request(
+          base_url: url(bypass),
+          url: "/plugin",
+          plugins: [&example_plugin/1],
+          # Disable retry to fail fast
+          retry: false
+        )
+
+      assert {:ok, %HTTP.Response{body: %{"plugin" => "attached"}, status: 200}} = result
+    end
   end
 
   # Private helpers
 
   defp url(bypass), do: "http://localhost:#{bypass.port}"
+
+  defp example_plugin(request) do
+    request
+    |> Req.Request.register_options([:plugin_header])
+    |> Req.Request.append_request_steps(plugin_header: &plugin_header/1)
+  end
+
+  defp plugin_header(request) do
+    Req.Request.put_header(request, "x-plugin", "attached")
+  end
 end
