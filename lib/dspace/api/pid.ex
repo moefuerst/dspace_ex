@@ -17,13 +17,15 @@ defmodule DSpace.API.PID do
   Attempts to find a "DSpace Object" matching the provided identifier (DOI, Handle, etc.). If
   found, redirects the request to the endpoint for that resource.
 
-  Executing this operation will return the resource or an API error.
+  If the configured HTTP adapter follows redirects, executing this operation will return the
+  resource.
   """
   @spec resolve(binary()) :: Operation.JSON.t()
   def resolve(identifier) when is_nonempty_binary(identifier) do
     %Operation.JSON{
       path: @ep_resolve,
-      params: [id: identifier]
+      params: [id: identifier],
+      expected_status: [302, 200]
     }
   end
 end
