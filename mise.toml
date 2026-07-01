@@ -5,6 +5,7 @@ elixir = "1.20.1"
 [tasks.install-maintenance]
 description = "Install maintenance packages"
 run = [
+  "mix archive.install hex mix_version",
   "mix archive.install hex hex_licenses",
   "mix archive.install hex shipit",
 ]

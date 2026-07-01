@@ -21,13 +21,13 @@ compile: ## Compile the project
 docs: ## Generate code documentation
 	$(RUN) mix docs
 
-precommit: ## Run the precommit checks
+precommit: ## Run code quality checks
 	$(RUN_TEST) mix precommit
 
 test: ## Run the test suite
 	$(RUN_TEST) mix test
 
-check: ## Run code quality checks
+check: ## Run code audit
 	$(RUN_TEST) mix check
 
 test.ci: ## Run the test suite + mutation testing

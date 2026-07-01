@@ -32,5 +32,8 @@ dspace-*.tar
 # VM crash dump
 erl_crash.dump
 
+# Dialyzer PLT files
+/priv/plts/
+
 # environment
 .env
