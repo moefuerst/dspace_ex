@@ -7,12 +7,6 @@ defmodule DSpace.API.File do
   deposited files, `THUMBNAIL` for generated previews, and `LICENSE`).
 
   In `dspace_ex`, a file is called a "file". You're welcome.
-
-  ## Uploading Files
-
-  There is no single-request "upload a file to an item", since a file must always be created
-  inside a "bundle". To add a file to an item you (1) obtain or create the target bundle with
-  `create_bundle/1`, then (2) `create_in_bundle/3` the file into it.
   """
 
   @behaviour DSpace.API.Resource
@@ -51,44 +45,46 @@ defmodule DSpace.API.File do
   # Public API
 
   @doc """
-  Uploads a new file binary into a bundle.
+  Uploads a file to an item.
+
+  A file must always be created inside a "bundle", so adding a file to an item is really two API
+  requests: (1) create the target bundle with `create_bundle/2`, then (2) `create_in_bundle/3` the
+  file into it. Executing this operation chains both steps: it creates a bundle on the parent item
+  and then creates the file inside it, returning the created file.
 
   ## Parameters
 
-    * `bundle_uuid` - UUID of the bundle the file is created in
     * `file` - the file to upload, see `t:upload/0`
     * `options` - keyword list of options
 
   ## Options
 
-    * `properties` - optional properties map. Supports `"name"` (stored filename) and
-      `"metadata"`. If `"name"` is absent, the upload's filename is used.
-
-  Note: If the payload is passed in form of a path to a file on disk, the file will only be read
-  from disk when the request is actually sent with `DSpace.API.request/3`, not when calling this
-  function.
+    * `:parent` - UUID of the parent item (required)
+    * `:bundle` - optional bundle attributes map, see `create_bundle/2`
+    * `:properties` - optional file properties map, see `create_in_bundle/3`
 
   ## Examples
 
-      # From a path on disk
-      File.create_in_bundle(bundle_uuid, "files/test.pdf")
+      File.upload("files/test.pdf", parent: item_uuid)
 
-      # From in-memory content with metadata
-      File.create_in_bundle(bundle_uuid, {"report.pdf", pdf_binary, "application/pdf"}, %{
-        "metadata" => %{"dc.description" => [%{"value" => "Final report"}]}
-      })
+      File.upload({"report.pdf", pdf_binary, "application/pdf"},
+        parent: item_uuid,
+        bundle: %{"name" => "ORIGINAL"},
+        properties: %{"metadata" => %{"dc.description" => [%{"value" => "Final report"}]}}
+      )
   """
-  @spec create_in_bundle(binary(), upload(), keyword()) :: Operation.JSON.t()
-  def create_in_bundle(bundle_uuid, file, options \\ []) when is_nonempty_binary(bundle_uuid) and is_list(options) do
+  @spec upload(upload(), keyword()) :: Operation.t()
+  def upload(file, options \\ []) when is_list(options) do
+    parent = Keyword.fetch!(options, :parent)
+    bundle = Keyword.get(options, :bundle, %{})
     properties = Keyword.get(options, :properties, %{})
 
-    %Operation.JSON{
-      path: @ep_bundles <> "/" <> bundle_uuid <> "/bitstreams",
-      http_method: :post,
-      content_type: :multipart,
-      data: %{file: file, properties: properties},
-      before_step: &build_upload_payload/3
-    }
+    Operation.Chain.new([
+      fn _nil, context -> {create_bundle(bundle, parent: parent), context} end,
+      fn %{"uuid" => bundle_uuid}, context ->
+        {create_in_bundle(bundle_uuid, file, properties: properties), context}
+      end
+    ])
   end
 
   @doc """
@@ -156,6 +152,47 @@ defmodule DSpace.API.File do
       params: params,
       expected_status: [200, 204],
       transformer: &not_found_on_no_content(&1, "No file found matching the given parameters")
+    }
+  end
+
+  @doc """
+  Uploads a new file binary into a bundle.
+
+  ## Parameters
+
+    * `bundle_uuid` - UUID of the bundle the file is created in
+    * `file` - the file to upload, see `t:upload/0`
+    * `options` - keyword list of options
+
+  ## Options
+
+    * `properties` - optional properties map. Supports `"name"` (stored filename) and
+      `"metadata"`. If `"name"` is absent, the upload's filename is used.
+
+  Note: If the payload is passed in form of a path to a file on disk, the file will only be read
+  from disk when the request is actually sent with `DSpace.API.request/3`, not when calling this
+  function.
+
+  ## Examples
+
+      # From a path on disk
+      File.create_in_bundle(bundle_uuid, "files/test.pdf")
+
+      # From in-memory content with metadata
+      File.create_in_bundle(bundle_uuid, {"report.pdf", pdf_binary, "application/pdf"}, %{
+        "metadata" => %{"dc.description" => [%{"value" => "Final report"}]}
+      })
+  """
+  @spec create_in_bundle(binary(), upload(), keyword()) :: Operation.JSON.t()
+  def create_in_bundle(bundle_uuid, file, options \\ []) when is_nonempty_binary(bundle_uuid) and is_list(options) do
+    properties = Keyword.get(options, :properties, %{})
+
+    %Operation.JSON{
+      path: @ep_bundles <> "/" <> bundle_uuid <> "/bitstreams",
+      http_method: :post,
+      content_type: :multipart,
+      data: %{file: file, properties: properties},
+      before_step: &build_upload_payload/3
     }
   end
 
@@ -332,17 +369,21 @@ defmodule DSpace.API.File do
 
   A file bundle *must* have an item parent.
 
+  ## Parameters
+
+    * `bundle` - bundle attributes as a map. Supports `"name"` (defaults to `"ORIGINAL"`) and
+      `"metadata"`.
+    * `options` - keyword list of options
+
   ## Options
 
-    * `parent` - the UUID of the parent item
-    * `name` - the name of the bundle. If not provided, "ORIGINAL" is used.
-    * `metadata` - optional metadata map
+    * `:parent` - UUID of the parent item (required)
   """
-  @spec create_bundle(keyword()) :: Operation.JSON.t()
-  def create_bundle(options \\ []) do
+  @spec create_bundle(map(), keyword()) :: Operation.JSON.t()
+  def create_bundle(bundle \\ %{}, options \\ []) when is_map(bundle) and is_list(options) do
     parent = Keyword.fetch!(options, :parent)
 
-    Item.create_file_bundle(parent, options)
+    Item.create_file_bundle(parent, bundle)
   end
 
   @doc """

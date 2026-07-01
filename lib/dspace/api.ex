@@ -26,11 +26,13 @@ defmodule DSpace.API do
   ## Session Management
 
   Per DSpace API contract, *all* responses need to be monitored for CSRF token updates, regardless
-  of client or use context (The actual implementation does not currently refresh it with every
-  request, only with login/logout, when the token refresh endpoints are called, or the client
-  sends an invalid token). The `:on_response_hook` field allows applications to handle these.
-  When set, the function will be invoked whenever a response header contains a CSRF token (which
-  should be every response).
+  of client or use context. The actual implementation of the DSpace backend does not currently
+  refresh CSRF tokens with every request, only with login/logout, when the token refresh endpoints
+  are called, or the client sends an invalid token.
+
+  The `:on_response_hook` field allows applications to handle CSRF token updates. When set, the
+  function will be invoked whenever a response header contains a CSRF token (which should be every
+  response).
 
       client = %DSpace.API{
           endpoint: "https://example.com/server",
@@ -249,11 +251,11 @@ defmodule DSpace.API do
   @spec login(t(), username, password) :: {:ok, t()} | {:error, Exception.t()}
         when username: binary(), password: binary()
   def login(%__MODULE__{} = api, username, password) when is_nonempty_binary(username) and is_nonempty_binary(password) do
-    login = %{Auth.login(username, password) | transformer: &Auth.tokens_from_response/1}
+    login = Auth.login(username, password)
 
-    case request(login, api) do
+    case request(login, api, transform: &Auth.tokens_from_response/1) do
       {:ok, {auth_token, csrf_token}} -> {:ok, %{api | access_token: auth_token, csrf_token: csrf_token}}
-      {:error, reason} -> {:error, reason}
+      {:error, _reason} = error -> error
     end
   end
 

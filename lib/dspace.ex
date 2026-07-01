@@ -12,7 +12,5 @@
 # You should have received a copy of the GNU Affero General Public License along with this
 # program. If not, see <https://www.gnu.org/licenses/>.
 defmodule DSpace do
-  @moduledoc """
-  dspace_ex is a DSpace client library for Elixir.
-  """
+  @moduledoc false
 end

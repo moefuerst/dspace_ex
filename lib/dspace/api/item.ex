@@ -319,20 +319,21 @@ defmodule DSpace.API.Item do
   Executing this operation will return an error if a bundle with the same name already exists in
   the item.
 
-  ## Options
+  ## Parameters
 
-    * `name` - the name of the bundle. If not provided, "ORIGINAL" is used.
-    * `metadata` - optional metadata map
+    * `uuid` - UUID of the item
+    * `bundle` - bundle attributes as a map. Supports `"name"` (defaults to `"ORIGINAL"`) and
+      `"metadata"`.
   """
-  @spec create_file_bundle(binary(), keyword()) :: Operation.JSON.t()
-  def create_file_bundle(uuid, options \\ []) when is_nonempty_binary(uuid) and is_list(options) do
-    name = Keyword.get(options, :name, @default_file_bundle_name)
-    metadata = Keyword.get(options, :metadata, %{})
-
+  @spec create_file_bundle(binary(), map()) :: Operation.JSON.t()
+  def create_file_bundle(uuid, bundle \\ %{}) when is_nonempty_binary(uuid) and is_map(bundle) do
     %Operation.JSON{
       path: @ep_core <> "/" <> uuid <> "/bundles",
       http_method: :post,
-      data: %{"name" => name, "metadata" => metadata}
+      data:
+        bundle
+        |> Map.put_new("name", @default_file_bundle_name)
+        |> Map.put_new("metadata", %{})
     }
   end
 
@@ -354,9 +355,7 @@ defmodule DSpace.API.Item do
   @doc """
   Fetches the "workspace item" associated with an item.
 
-  In DSpace-speak, draft state data associated with an item is called a "workspace item" and
-  modelled as a separate entity from the main item. Equivalent to `fetch_draft/1`. See for
-  options.
+  Alias, prefer `fetch_draft/1`.
   """
   @spec fetch_workspace(binary()) :: Operation.JSON.t()
   def fetch_workspace(uuid), do: fetch_draft(uuid)
@@ -364,9 +363,7 @@ defmodule DSpace.API.Item do
   @doc """
   Creates a "workspace item".
 
-  In DSpace-speak, draft state data associated with an item is called a "workspace item" and
-  modelled as a separate entity from the main item. Equivalent to `create_draft/1`.
-  See for options.
+  Alias, prefer `create_draft/1`.
   """
   @spec create_in_workspace(keyword()) :: Operation.JSON.t()
   def create_in_workspace(options), do: create_draft(options)
@@ -374,9 +371,7 @@ defmodule DSpace.API.Item do
   @doc """
   Updates a "workspace item".
 
-  In DSpace-speak, draft state data associated with an item is called a "workspace item" and
-  modelled as a separate entity from the main item. Equivalent to `update_draft/2`. See for
-  options.
+  Alias, prefer `update_draft/2`.
   """
   @spec update_in_workspace(pos_integer(), list()) :: Operation.JSON.t()
   def update_in_workspace(ws_id, patch_operations), do: update_draft(ws_id, patch_operations)
@@ -384,9 +379,7 @@ defmodule DSpace.API.Item do
   @doc """
   Deletes a "workspace item".
 
-  In DSpace-speak, draft state data associated with an item is called a "workspace item" and
-  modelled as a separate entity from the main item. Equivalent to `delete_draft/1`. See for
-  options.
+  Alias, prefer `delete_draft/1`.
   """
   @spec delete_from_workspace(pos_integer()) :: Operation.JSON.t()
   def delete_from_workspace(ws_id), do: delete_draft(ws_id)
@@ -541,10 +534,10 @@ defmodule DSpace.API.Item do
   ## Options
 
     * `:copy_virtual_metadata` - Turn virtual metadata to actual metadata in related items
-      * `:all` - all relationships are verified and virtual metadata is migrated
-      * `"relationship_type_id"` - only specific relationship type IDs are migrated
-      * `:configured` - behavior retrieved from configuration
       * `nil` - no virtual metadata is expanded (default)
+      * `:all` - all relationships are verified and virtual metadata is migrated
+      * `:configured` - behavior retrieved from configuration
+      * `"relationship_type_id"` - only specific relationship type IDs are migrated
   """
   @impl Resource
   @spec delete(binary(), keyword()) :: Operation.JSON.t()

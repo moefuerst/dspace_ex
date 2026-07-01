@@ -34,14 +34,20 @@ defmodule DSpace.API.Auth do
   """
   @spec login(binary(), binary()) :: Operation.t()
   def login(username, password) when is_nonempty_binary(username) and is_nonempty_binary(password) do
-    %Operation.JSON{
+    login_operation = %Operation.JSON{
       path: @ep_login,
       http_method: :post,
       content_type: :form,
       data: %{user: username, password: password},
-      transformer: &access_token_from_response/1,
-      before_step: &maybe_fetch_csrf/3
+      transformer: &access_token_from_response/1
     }
+
+    # Prefetches a CSRF token when the client doesn't carry one yet, since hitting the login
+    # endpoint requires it.
+    Operation.Chain.new([
+      &maybe_fetch_csrf/2,
+      &login_with_csrf(&1, &2, login_operation)
+    ])
   end
 
   @doc """
@@ -91,7 +97,7 @@ defmodule DSpace.API.Auth do
   @doc """
   Fetches an API key for the currently authenticated user.
 
-  In DSpace-speak the API key is called "machine token". The returned token is valid until
+  In DSpace-CRIS-speak the API key is called "machine token". The returned token is valid until
   manually revoked using `delete_api_key/0`.
   """
   @spec fetch_api_key() :: Operation.t()
@@ -164,25 +170,23 @@ defmodule DSpace.API.Auth do
 
   # Private helpers
 
-  # Makes a best-effort attempt to update a client configuration with a new CSRF token if it's
-  # missing. A failure currently swallows the error and returns the original operation (which will
-  # subsequently fail).
-  defp maybe_fetch_csrf(operation, %API{csrf_token: nil} = client, options) do
-    refresh_options = Keyword.delete(options, :transform)
-
-    case API.request(refresh_csrf_token(), client, refresh_options) do
-      {:ok, token} ->
-        updated_client = %{client | csrf_token: token}
-        {operation, updated_client, options}
-
-      {:error, _reason} ->
-        {operation, client, options}
-    end
+  defp maybe_fetch_csrf(_nil, %{client: %API{csrf_token: token}} = context) when is_nonempty_binary(token) do
+    {:skip, context}
   end
 
-  defp maybe_fetch_csrf(operation, %API{csrf_token: token} = client, options) when is_nonempty_binary(token) do
-    {operation, client, options}
+  defp maybe_fetch_csrf(_nil, %{client: %API{csrf_token: nil}} = context) do
+    {refresh_csrf_token(), context}
   end
+
+  defp login_with_csrf(csrf_token, context, login_operation) do
+    {login_operation, put_csrf_token(context, csrf_token)}
+  end
+
+  defp put_csrf_token(context, token) when is_nonempty_binary(token) do
+    %{context | client: %{context.client | csrf_token: token}}
+  end
+
+  defp put_csrf_token(context, nil), do: context
 
   defp token_from_response(%Response{} = response) do
     case extract_token_from_body(response) do
@@ -217,8 +221,9 @@ defmodule DSpace.API.Auth do
 
   defp extract_csrf(_response), do: {:error, :csrf_token_missing}
 
-  # DSpace returns the access token from the server in the response's *`authorization` header*.
-  # This approach diverges from OAuth standards (e.g. RFC 6749) and is a misuse per RFC 7235.
+  # DSpace returns the access token in an `authorization` response header. This differs from the
+  # standard OAuth token response (RFC 6749-style flow), which typically places tokens in the
+  # response body.
   defp extract_access_token(%{headers: %{"authorization" => ["Bearer " <> token | _]}}) when is_nonempty_binary(token) do
     {:ok, token}
   end
