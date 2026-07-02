@@ -2,8 +2,7 @@
 # Copyright (C) 2025-2026 Moritz F. Fürst
 #
 # dspace_ex is free software: you can redistribute it and/or modify it under the terms of the GNU
-# Affero General Public License as published by the Free Software Foundation, either version 3 of
-# the License, or (at your option) any later version.
+# Affero General Public License, Version 3.0, as published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 # without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
