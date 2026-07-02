@@ -300,7 +300,7 @@ mix compile
 
 ## Documentation
 
-The project documentation is [available via HexDocs](https://dspace_ex.hexdocs.pm).
+The project documentation is [available via HexDocs](https://dspace-ex.hexdocs.pm).
 
 To generate it locally, run:
 
@@ -386,12 +386,15 @@ operation protocol was inspired by [ex-aws](https://github.com/ex-aws).
 
 ## License
 
+Copyright (C) 2026 The dspace_ex Project Contributors
+Copyright (C) 2025-2026 Moritz F. Fürst
+
 This project is licensed under the GNU Affero General Public License, Version 3.0 only.
 
-Pursuant to Section 14 of the GNU Affero General Public License, Version 3.0, 
-[Moritz F. Fürst](https://moritzfuerst.net) is hereby designated as the proxy who is authorized to
-issue a public statement accepting any future version of the GNU Affero General Public License for
-use with this Program. Therefore, notwithstanding the specification that this Program is licensed
-under the GNU Affero General Public License, Version 3.0 only, a public acceptance by the
-Designated Proxy of any subsequent version of the GNU Affero General Public License shall
-permanently authorize the use of that accepted version for this Program.
+Pursuant to Section 14 of the GNU Affero General Public License, Version 3.0, Moritz F. Fürst is
+hereby designated as the proxy who is authorized to issue a public statement accepting any future
+version of the GNU Affero General Public License for use with this Program. Therefore,
+notwithstanding the specification that this Program is licensed under the GNU Affero General
+Public License, Version 3.0 only, a public acceptance by the Designated Proxy of any subsequent
+version of the GNU Affero General Public License shall permanently authorize the use of that
+accepted version for this Program.
