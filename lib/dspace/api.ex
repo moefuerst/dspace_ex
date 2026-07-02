@@ -275,6 +275,39 @@ defmodule DSpace.API do
   end
 
   @doc """
+  Updates the path of an operation with a continuation URL.
+
+  This function is intended to be used with paginated responses, where the continuation URL
+  is returned as the third element of the response tuple `{items, meta, next_url}`.
+
+  Alternatively, stream operations that return paginated results, as `stream!/3` wraps
+  pagination automatically and returns a lazy Stream of resources.
+
+  ## Parameters
+
+    * `operation` - A `t:DSpace.API.Operation.t/0`
+    * `next_url` - The continuation URL returned as the third element of a paginated response
+      tuple `{items, meta, next_url}`
+
+  ## Example
+
+      client = DSpace.API.new("https://example.com/server")
+      operation = Collection.list()
+
+      {:ok, {collections, _meta, next_url}} = DSpace.API.request(operation, client)
+
+      {:ok, {more_collections, _meta, _next_url}} =
+        operation
+        |> DSpace.API.next_page(next_url)
+        |> DSpace.API.request(client)
+  """
+  @spec next_page(Operation.JSON.t(), binary()) :: Operation.JSON.t()
+  def next_page(%Operation.JSON{} = operation, next_url) when is_nonempty_binary(next_url) do
+    # `next_url` is already fully built, so we drop the params of the initial operation
+    %{operation | path: next_url, params: []}
+  end
+
+  @doc """
   Verifies if the passed client is authenticated with the DSpace API.
 
   Returns `false` if the server indicates the client is not authenticated, or if the server is
@@ -306,6 +339,15 @@ defmodule DSpace.API do
         transformed value
       * `false` - passes the raw `t:DSpace.API.HTTP.Response.t/0` struct
     * request option overrides passed to the HTTP adapter
+
+  ## Examples
+
+      client = DSpace.API.new("https://example.com/server")
+
+      {:ok, item} =
+        "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"
+        |> DSpace.API.Item.fetch()
+        |> DSpace.API.request(client)
   """
   @spec request(Operation.t(), t(), keyword()) :: {:ok, term()} | {:error, Exception.t()}
   def request(operation, %__MODULE__{} = api, options \\ []) when is_list(options) do
@@ -329,6 +371,17 @@ defmodule DSpace.API do
   Makes a request to the API and returns a stream.
 
   For parameters and options, see `request/3`.
+
+  ## Examples
+
+      client = DSpace.API.new("https://example.com/server")
+
+      stream =
+        [query: "software errors"]
+        |> DSpace.API.Item.find()
+        |> DSpace.API.stream!(client)
+
+      Enum.take(stream, 5)
   """
   @spec stream!(Operation.t(), t(), keyword()) :: Enumerable.t()
   def stream!(operation, %__MODULE__{} = api, options \\ []) when is_list(options) do

@@ -79,6 +79,11 @@ containing the resources, metadata, and an URL to fetch the next page:
 {:ok, {collections, meta, next_url}} =
   DSpace.API.Collection.list()
   |> DSpace.API.request(client)
+
+{:ok, {more_collections, meta, next_url}} =
+  DSpace.API.Collection.list()
+  |> DSpace.API.next_page(next_url)
+  |> DSpace.API.request(client)
 ```
 
 `DSpace.API.stream!/3` wraps pagination automatically and returns a lazy Stream of resources:
