@@ -200,7 +200,7 @@ defmodule DSpace.API.Item do
   list of IDs.
 
   If no editorial workflow is configured for the collection, the item is published immediately and
-  `:archived` is returned instead of a "workflow item" map.
+  `:published` is returned instead of a "workflow item" map.
   """
   @spec submit(pos_integer() | [pos_integer()], keyword()) :: Operation.JSON.t()
   def submit(ws_id, options \\ [])
@@ -212,7 +212,7 @@ defmodule DSpace.API.Item do
   def submit(ws_id, _options) when is_list(ws_id) and ws_id != [] do
     transformer = fn
       %Response{body: body} when is_map(body) and map_size(body) > 0 -> body
-      _ -> :archived
+      _ -> :published
     end
 
     %Operation.JSON{

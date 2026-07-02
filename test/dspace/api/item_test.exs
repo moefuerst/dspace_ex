@@ -576,7 +576,7 @@ defmodule DSpace.API.ItemTest do
       assert result["id"] == 1911
     end
 
-    test "returns :archived when 201 response body is empty (no workflow configured)", %{bypass: bypass, api: api} do
+    test "returns :published when 201 response body is empty (no workflow configured)", %{bypass: bypass, api: api} do
       Bypass.expect_once(bypass, "POST", "/api/workflow/workflowitems", fn conn ->
         respond_with_json(conn, 201, "")
       end)
@@ -586,7 +586,7 @@ defmodule DSpace.API.ItemTest do
         |> Item.submit()
         |> API.request(api)
 
-      assert result == :archived
+      assert result == :published
     end
   end
 
