@@ -259,7 +259,7 @@ defmodule DSpace.API.Item do
 
   ## Options
 
-    * `:submitter` - UUID of the submitter (eperson) to filter by; must be a non-empty binary
+    * `:submitter` - UUID of the submitter (user) to filter by; must be a non-empty binary
     * `:page` - Page number (0-based)
     * `:size` - Items per page
   """
@@ -299,7 +299,7 @@ defmodule DSpace.API.Item do
   ## Options
 
     * `:expunge` - If `true`, permanently deletes the item instead of returning it to the
-    * submitter's workspace (defaults to `false`)
+      submitter's workspace (defaults to `false`)
   """
   @spec delete_from_workflow(pos_integer(), keyword()) :: Operation.JSON.t()
   def delete_from_workflow(wf_id, options \\ []) when is_integer(wf_id) and wf_id > 0 do
@@ -407,24 +407,19 @@ defmodule DSpace.API.Item do
   ## Examples
 
       # Find all items
-      iex> Item.find()
-      %DSpace.API.Operation.JSON{path: "/api/discover/search/objects", ...}
+      Item.find()
 
       # Find all items with filters
-      iex> Item.find(filters: [%{filter: "author", operator: "contains", value: "Smith"}])
-      %DSpace.API.Operation.JSON{...}
+      Item.find(filters: [%{filter: "author", operator: "contains", value: "Smith"}])
 
       # Simple item search with text query
-      iex> Item.find(query: "elixir programming")
-      %DSpace.API.Operation.JSON{path: "/api/discover/search/objects", ...}
+      Item.find(query: "elixir programming")
 
       # Search with additional filters
-      iex> Item.find(query: "research", filters: [%{filter: "author", operator: "contains", value: "Armstrong"}])
-      %DSpace.API.Operation.JSON{...}
+      Item.find(query: "research", filters: [%{filter: "author", operator: "contains", value: "Armstrong"}])
 
       # Search within a specific collection
-      iex> Item.find(query: "data", scope: "collection-uuid")
-      %DSpace.API.Operation.JSON{...}
+      Item.find(query: "data", scope: "collection-uuid")
   """
   @impl Resource
   @spec find(keyword()) :: Operation.JSON.t()

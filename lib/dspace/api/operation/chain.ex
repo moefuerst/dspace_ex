@@ -3,7 +3,7 @@ defmodule DSpace.API.Operation.Chain do
   Represents a chain of operations executed sequentially against the DSpace API.
 
   This module is usually not used directly. Operation data structures are constructed by API
-  operation modules. Building your own operations is useful in cases where `dspace_ex` doesn't
+  operation modules. Building your own operations is useful in cases where dspace_ex doesn't
   support a specific API functionality yet.
 
   A chain is useful when one API interaction depends on another, e.g. when the result of a first

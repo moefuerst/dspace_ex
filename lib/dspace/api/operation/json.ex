@@ -3,7 +3,7 @@ defmodule DSpace.API.Operation.JSON do
   Represents a JSON operation against the DSpace API.
 
   This module is usually not used directly. Operation data structures are constructed by API
-  operation modules. Building your own operations is useful in cases where `dspace_ex` doesn't
+  operation modules. Building your own operations is useful in cases where dspace_ex doesn't
   support a specific API functionality yet.
 
   The `before_step` field allows to specify a function to be called at execution time. It takes

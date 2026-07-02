@@ -28,9 +28,12 @@ defmodule DSpace.API.Transform do
   ## Parameters
 
     * `map` - A map or `t:DSpace.API.HTTP.Response.t/0` containing the resource(s)
-    * `options` - A keyword list with the following keys:
-      * `:extract` - A path to navigate to the resource(s) (defaults to `nil`)
-      * `:transform` - A function to process each resource (defaults to identity)
+    * `options` - Keyword list of options
+
+  ## Options
+
+    * `:extract` - A path to navigate to the resource(s) (defaults to `nil`)
+    * `:transform` - A function to process each resource (defaults to identity)
   """
   @spec transform(Response.t() | map(), keyword()) :: list(term())
   def transform(%Response{body: body}, options) when is_map(body), do: transform(body, options)
@@ -56,11 +59,14 @@ defmodule DSpace.API.Transform do
   ## Parameters
 
     * `map` - A map or `t:DSpace.API.HTTP.Response.t/0` containing the resource collection
-    * `options` - A keyword list with the following keys:
-      * `:extract` - A path to navigate to the resources (required)
-      * `:next` - A path to navigate to the continuation token
+    * `options` - Keyword list of options
+
+  ## Options
+
+    * `:extract` - A path to navigate to the resources (required)
+    * `:next` - A path to navigate to the continuation token
         (defaults to `["_links", "next", "href"]`)
-      * `:transform` - A function to process each resource (defaults to identity)
+    * `:transform` - A function to process each resource (defaults to identity)
   """
   @spec transform_collection(struct() | map(), keyword()) :: {list(term()), map(), term()}
   def transform_collection(%Response{body: body}, options) when is_map(body) do

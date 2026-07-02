@@ -4,7 +4,7 @@ defmodule DSpace.API do
 
   ## Basic Usage / Configuration
 
-  `dspace_ex` doesn't prescribe the configuration strategy of consuming applications. For API
+  dspace_ex doesn't prescribe the configuration strategy of consuming applications. For API
   interactions, declare a `t:DSpace.API.t/0` structure with the necessary configuration when you
   need it:
 
@@ -297,12 +297,14 @@ defmodule DSpace.API do
 
     * `operation` - A `t:DSpace.API.Operation.t/0`
     * `api` - A `t:DSpace.API.t/0` structure
-    * `options` - Options for the request
+    * `options` - Keyword list of options for the request
 
   ## Options
 
-    * `:transform` - Whether to transform the response. If set to false, returns a
-      `t:DSpace.API.HTTP.Response.t/0` structure (defaults to true)
+    * `:transform` - How to transform the API response. Can bei either
+      * a 1-arity function that takes a `t:DSpace.API.HTTP.Response.t/0` struct and returns a
+        transformed value
+      * `false` - passes the raw `t:DSpace.API.HTTP.Response.t/0` struct
     * request option overrides passed to the HTTP adapter
   """
   @spec request(Operation.t(), t(), keyword()) :: {:ok, term()} | {:error, Exception.t()}

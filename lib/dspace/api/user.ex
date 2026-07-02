@@ -44,7 +44,7 @@ defmodule DSpace.API.User do
   ## Parameters
 
     * `uuid` - The UUID of the user
-    * `options` - Additional options for pagination
+    * `options` - Keyword list of options
 
   ## Options
 
