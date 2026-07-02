@@ -219,6 +219,22 @@ defmodule DSpace.API.Auth do
     {:ok, token}
   end
 
+  defp extract_csrf(%{headers: %{"set-cookie" => cookies}}) do
+    token =
+      cookies
+      |> Enum.flat_map(&String.split(&1, ";"))
+      |> Enum.map(&String.trim/1)
+      |> Enum.find_value(fn
+        "DSPACE-XSRF-COOKIE=" <> token -> token
+        _ -> nil
+      end)
+
+    case token do
+      nil -> {:error, :csrf_token_missing}
+      token -> {:ok, token}
+    end
+  end
+
   defp extract_csrf(_response), do: {:error, :csrf_token_missing}
 
   # DSpace returns the access token in an `authorization` response header. This differs from the

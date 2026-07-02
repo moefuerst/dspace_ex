@@ -316,4 +316,74 @@ defmodule DSpace.API.AuthTest do
       assert token == "shorty456"
     end
   end
+
+  describe "extract_csrf/1" do
+    test "extracts token from cookie header when xsrf-token header is absent", %{bypass: bypass, api: api} do
+      api = %{api | api_version: "7.6.2"}
+
+      Bypass.expect_once(bypass, "GET", "/api/security/csrf", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_cookie("DSPACE-XSRF-COOKIE", "fresh-csrf-token",
+          path: "/server",
+          secure: true,
+          http_only: true,
+          same_site: "None"
+        )
+        |> respond_with_json(204, "")
+      end)
+
+      operation = Auth.refresh_csrf_token()
+      {:ok, token} = API.request(operation, api)
+
+      assert token == "fresh-csrf-token"
+    end
+
+    test "extracts token from second cookie header when first is an expired cookie", %{bypass: bypass, api: api} do
+      api = %{api | api_version: "7.6.2"}
+
+      Bypass.expect_once(bypass, "GET", "/api/security/csrf", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_cookie("DSPACE-XSRF-COOKIE", "",
+          path: "/server",
+          max_age: 0,
+          secure: true,
+          http_only: true,
+          same_site: "None"
+        )
+        |> Plug.Conn.put_resp_cookie("DSPACE-XSRF-COOKIE", "fresh-csrf-token",
+          path: "/server",
+          secure: true,
+          http_only: true,
+          same_site: "None"
+        )
+        |> respond_with_json(204, "")
+      end)
+
+      operation = Auth.refresh_csrf_token()
+      {:ok, token} = API.request(operation, api)
+
+      assert token == "fresh-csrf-token"
+    end
+
+    test "prefers xsrf-token header over cookie header when both are present", %{bypass: bypass, api: api} do
+      api = %{api | api_version: "7.6.2"}
+
+      Bypass.expect_once(bypass, "GET", "/api/security/csrf", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("dspace-xsrf-token", "header-csrf-token")
+        |> Plug.Conn.put_resp_cookie("DSPACE-XSRF-COOKIE", "cookie-csrf-token",
+          path: "/server",
+          secure: true,
+          http_only: true,
+          same_site: "None"
+        )
+        |> respond_with_json(204, "")
+      end)
+
+      operation = Auth.refresh_csrf_token()
+      {:ok, token} = API.request(operation, api)
+
+      assert token == "header-csrf-token"
+    end
+  end
 end
