@@ -1,0 +1,79 @@
+name: E2E Tests
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  external-test:
+    env:
+      PROJECT: dspace-ex-e2e
+      DSPACE_VER: dspace-cris-2025_02_x
+
+    timeout-minutes: 40
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Restore snapshot cache
+        id: cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: dspace-snapshot.tar.gz
+          key: dspace-snapshot-${{ env.DSPACE_VER }}-${{ hashFiles('docker/compose-dspace.yml') }}
+
+      - name: Create Docker volumes
+        run: |
+          docker volume create ${PROJECT}_pgdata || true
+          docker volume create ${PROJECT}_solr_data || true
+          docker volume create ${PROJECT}_assetstore || true
+
+      - name: Restore snapshot into volumes
+        if: steps.cache.outputs.cache-hit == 'true'
+        run: |
+          docker run --rm \
+            -v ${PROJECT}_pgdata:/pgdata \
+            -v ${PROJECT}_solr_data:/solr \
+            -v ${PROJECT}_assetstore:/assetstore \
+            -v $PWD:/backup alpine \
+            sh -c "tar xzf /backup/dspace-snapshot.tar.gz -C /"
+
+      - name: Show resolved compose config
+        run: docker compose -f docker/compose-dspace.yml -p ${PROJECT} config
+
+      - name: Bootstrap DSpace
+        run: |
+          docker compose -f docker/compose-dspace.yml \
+            -p ${PROJECT} up -d --wait --wait-timeout 600
+
+      - name: Create snapshot archive
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          docker run --rm \
+            -v ${PROJECT}_pgdata:/pgdata \
+            -v ${PROJECT}_solr_data:/solr \
+            -v ${PROJECT}_assetstore:/assetstore \
+            -v $PWD:/backup alpine \
+            sh -c "
+              tar czf /backup/dspace-snapshot.tar.gz \
+                /pgdata /solr /assetstore
+            "
+
+      - name: Save snapshot cache
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: dspace-snapshot.tar.gz
+          key: dspace-snapshot-${{ env.DSPACE_VER }}-${{ hashFiles('docker/compose-dspace.yml') }}
+
+      - name: Run external tests
+        run: make test.external
