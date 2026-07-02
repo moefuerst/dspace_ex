@@ -132,24 +132,19 @@ defmodule DSpace.API.Community do
   ## Examples
 
       # Find all communities
-      iex> Community.find([])
-      %DSpace.API.Operation.JSON{path: "/api/discover/search/objects", ...}
+      Community.find([])
 
       # Find all communities with filters
-      iex> Community.find(filters: [%{filter: "subject", operator: "contains", value: "science"}])
-      %DSpace.API.Operation.JSON{...}
+      Community.find(filters: [%{filter: "subject", operator: "contains", value: "science"}])
 
       # Simple community search with text query
-      iex> Community.find(query: "research community")
-      %DSpace.API.Operation.JSON{...}
+      Community.find(query: "research community")
 
       # Search with additional filters
-      iex> Community.find(query: "library", filters: [%{filter: "subject", operator: "contains", value: "science"}])
-      %DSpace.API.Operation.JSON{...}
+      Community.find(query: "library", filters: [%{filter: "subject", operator: "contains", value: "science"}])
 
       # Search within a specific parent community
-      iex> Community.find(query: "academic", scope: "parent-community-uuid")
-      %DSpace.API.Operation.JSON{...}
+      Community.find(query: "academic", scope: "parent-community-uuid")
   """
   @impl Resource
   @spec find(keyword()) :: Operation.t()

@@ -84,24 +84,20 @@ defmodule DSpace.API.Collection do
   ## Examples
 
       # Find all collections
-      iex> Collection.find([])
-      %DSpace.API.Operation.JSON{path: "/api/discover/search/objects", ...}
+      Collection.find([])
 
       # Find all collections with filters
-      iex> Collection.find(filters: [%{filter: "title", operator: "contains", value: "special"}])
-      %DSpace.API.Operation.JSON{...}
+      Collection.find(filters: [%{filter: "title", operator: "contains", value: "special"}])
 
       # Simple collection search with text query
-      iex> Collection.find(query: "digital archives")
-      %DSpace.API.Operation.JSON{path: "/api/discover/search/objects", ...}
+      Collection.find(query: "digital archives")
 
       # Search with additional filters
-      iex> Collection.find(query: "library", filters: [%{filter: "title", operator: "contains", value: "special"}])
-      %DSpace.API.Operation.JSON{...}
+      Collection.find(query: "library", filters: [%{filter: "title", operator: "contains", value: "special"}])
 
       # Search within a specific community
-      iex> Collection.find(query: "research", scope: "community-uuid")
-      %DSpace.API.Operation.JSON{...}
+      Collection.find(query: "research", scope: "community-uuid")
+
   """
   @impl Resource
   @spec find(keyword()) :: Operation.t()
@@ -145,11 +141,11 @@ defmodule DSpace.API.Collection do
   @doc """
   Creates a new collection.
 
-  Collections *must* have a parent (a community or another collection).
+  Collections must have a parent (a community or another collection).
 
   ## Options
 
-    * `:parent` - UUID of the parent community or collection
+    * `:parent` - UUID of the parent community or collection (required)
   """
   @impl Resource
   @spec create(map(), keyword()) :: Operation.t()

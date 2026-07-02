@@ -6,7 +6,7 @@ defmodule DSpace.API.File do
   named grouping of different files attached to an Item (the most common are `ORIGINAL` for the
   deposited files, `THUMBNAIL` for generated previews, and `LICENSE`).
 
-  In `dspace_ex`, a file is called a "file". You're welcome.
+  In dspace_ex, a file is called a "file". You're welcome.
   """
 
   @behaviour DSpace.API.Resource
