@@ -1,7 +1,7 @@
 defmodule DSpace.MixProject do
   use Mix.Project
 
-  @version "0.1.0-alpha2"
+  @version "0.1.0"
   @description "DSpace client library for Elixir"
   @source_url "https://github.com/moefuerst/dspace_ex"
 
@@ -168,7 +168,7 @@ defmodule DSpace.MixProject do
       licenses: ["AGPL-3.0-only"],
       source_url: @source_url,
       links: %{
-        "Changelog" => "#{@source_url}/blob/master/CHANGELOG.md",
+        "Changelog" => "#{@source_url}/blob/main/CHANGELOG.md",
         "GitHub" => @source_url
       }
     ]

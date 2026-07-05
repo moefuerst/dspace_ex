@@ -40,7 +40,7 @@ default HTTP adapter used by the library.
 ```elixir
 def deps do
   [
-    {:dspace_ex, "~> 0.1.0-alpha2"},
+    {:dspace_ex, "~> 0.1.0"},
     {:req, "~> 0.5 or ~> 1.0"}
   ]
 end
@@ -391,7 +391,7 @@ operation protocol was inspired by [ex-aws](https://github.com/ex-aws).
 
 ## License
 
-Copyright (C) 2026 The dspace_ex Project Contributors
+Copyright (C) 2026 The dspace_ex Project Contributors  
 Copyright (C) 2025-2026 Moritz F. Fürst
 
 This project is licensed under the GNU Affero General Public License, Version 3.0 only.
