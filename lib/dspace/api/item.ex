@@ -487,7 +487,15 @@ defmodule DSpace.API.Item do
   @impl Resource
   @spec create(map(), keyword()) :: Operation.JSON.t()
   def create(item, options \\ []) when is_map(item) do
-    params = add_parent([], options[:parent])
+    parent = Keyword.fetch!(options, :parent)
+    params = add_parent([], parent)
+
+    item =
+      item
+      |> Map.put_new("inArchive", true)
+      |> Map.put_new("discoverable", true)
+      |> Map.put_new("withdrawn", false)
+      |> Map.put_new("type", "item")
 
     %Operation.JSON{
       path: @ep_core,
