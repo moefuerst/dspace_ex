@@ -207,7 +207,7 @@ defmodule DSpace.API.ItemTest do
     test "requires owning collection for creation" do
       item_data = test_item_data()
 
-      assert_raise FunctionClauseError, fn ->
+      assert_raise KeyError, fn ->
         Item.create(item_data, [])
       end
     end
@@ -352,7 +352,7 @@ defmodule DSpace.API.ItemTest do
     end
 
     test "requires a collection option" do
-      assert_raise FunctionClauseError, fn ->
+      assert_raise KeyError, fn ->
         Item.create_draft([])
       end
     end
