@@ -22,6 +22,7 @@ defmodule DSpace.API.Item do
   alias DSpace.API.Operation
   alias DSpace.API.Resource
   alias DSpace.API.Search
+  alias DSpace.API.Source
   alias DSpace.API.StreamBuilder
   alias DSpace.API.Transform
 
@@ -90,7 +91,7 @@ defmodule DSpace.API.Item do
       content_type: :uri_list,
       data: uuid,
       # The API expects a full "core" URL for the item, not just the UUID
-      before_step: &build_uri_payload/3
+      before_step: &build_core_uri_payload/3
     }
   end
 
@@ -152,16 +153,40 @@ defmodule DSpace.API.Item do
   ## Options
 
     * `:parent` - Required. UUID of the collection that will own this item.
+    * `:from` - A map containing the source ID as a string and the name of an external authority
+      source as an atom or string, e.g. `%{id: "12345678", source: :pubmed}`. See also
+      `DSpace.API.Source.fetch/2`.
   """
   @spec create_draft(keyword()) :: Operation.JSON.t()
   def create_draft(options) when is_list(options) do
-    params = add_parent([], options[:parent])
+    {maybe_from, options} = Keyword.pop(options, :from)
+    parent = Keyword.fetch!(options, :parent)
 
-    %Operation.JSON{
+    params = add_parent([], parent)
+
+    base_op = %Operation.JSON{
       path: @ep_workspace,
       http_method: :post,
       params: params
     }
+
+    case maybe_from do
+      %{id: id, source: source}
+      when is_nonempty_binary(id) and (is_nonempty_binary(source) or is_atom(source)) ->
+        # Source.fetch/2 constructs the path needed
+        %{path: source_path} = Source.fetch(id, source: source)
+
+        %{
+          base_op
+          | content_type: :uri_list,
+            data: source_path,
+            # The API expects a full URL for the source
+            before_step: &build_uri_payload/3
+        }
+
+      _ ->
+        base_op
+    end
   end
 
   @doc """
@@ -583,6 +608,12 @@ defmodule DSpace.API.Item do
   end
 
   defp build_uri_payload(operation, %DSpace.API{endpoint: endpoint} = client, options) do
+    item_uri = maybe_add_base_url(operation.data, endpoint)
+
+    {%{operation | data: [item_uri]}, client, options}
+  end
+
+  defp build_core_uri_payload(operation, %DSpace.API{endpoint: endpoint} = client, options) do
     item_uri = maybe_add_base_url(@ep_core <> "/" <> operation.data, endpoint)
 
     {%{operation | data: [item_uri]}, client, options}
