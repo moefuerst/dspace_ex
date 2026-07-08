@@ -34,7 +34,9 @@ defmodule DSpace.API.Operation.Chain do
                    | {:skip, ctx :: DSpace.API.Operation.Chain.Context.t()})
 
   defmodule Context do
-    @moduledoc false
+    @moduledoc """
+    Context for a chain operation, holding the client and request options.
+    """
     defstruct [:client, :options]
 
     @type t :: %__MODULE__{

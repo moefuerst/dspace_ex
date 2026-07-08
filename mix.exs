@@ -146,6 +146,7 @@ defmodule DSpace.MixProject do
         DSpace.API.Operation,
         DSpace.API.Operation.JSON,
         DSpace.API.Operation.Chain,
+        DSpace.API.Operation.Chain.Context,
         DSpace.API.StreamBuilder,
         DSpace.API.Transform
       ]
