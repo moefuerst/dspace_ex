@@ -557,7 +557,7 @@ defmodule DSpace.API.File do
       if content_type do
         {content, filename: filename, content_type: content_type}
       else
-        {content, filename: filename}
+        {content, filename: filename, content_type: "application/octet-stream"}
       end
 
     fields = %{

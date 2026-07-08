@@ -9,6 +9,7 @@ defmodule DSpace.API.FileTest do
       Sham.expect_once(sham, "POST", "/api/core/bundles/bundle-id/bitstreams", fn conn ->
         [content_type] = Plug.Conn.get_req_header(conn, "content-type")
         assert String.starts_with?(content_type, "multipart/form-data")
+        assert String.contains?(content_type, "boundary=")
 
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         assert String.contains?(body, ~s(name="file"))

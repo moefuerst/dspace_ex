@@ -161,16 +161,20 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
     {%{:content_type => ["text/uri-list"]}, [body: Enum.join(data, "\n")]}
   end
 
+  # Do not set a header for body encodings supported by Req
+  # https://req.hexdocs.pm/Req.Steps.html#encode_body/1
+  #
+  # Req will set the appropriate header automatically
   defp build_content_options(%{content_type: :json, data: data}) do
-    {%{:content_type => ["application/json"]}, [json: data]}
+    {%{}, [json: data]}
   end
 
   defp build_content_options(%{content_type: :form, data: data}) do
-    {%{:content_type => ["application/x-www-form-urlencoded"]}, [form: data]}
+    {%{}, [form: data]}
   end
 
   defp build_content_options(%{content_type: :multipart, data: data}) do
-    {%{:content_type => ["multipart/form-data"]}, [form_multipart: data]}
+    {%{}, [form_multipart: data]}
   end
 
   defp resolve_csrf(:auto, method) when method in [:post, :put, :patch, :delete], do: :required
