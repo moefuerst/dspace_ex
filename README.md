@@ -153,8 +153,8 @@ obtained via authentication flow before making authenticated requests.
 
 Default options for `Req` can be set in the `http_impl` tuple when injecting the implementation
 into a `DSpace.API` structure by passing a list of options. The `DSpace.API.HTTP.Req` adapter
-supports passing a `:plugins` list as part of the adapter options lets your application attach 
-custom Req steps for telemetry, logging, etc. that participate in the full request/response 
+supports passing a `:plugins` list as part of the adapter options. This lets your application
+attach custom Req steps for telemetry, logging, etc. that participate in the full request/response
 pipeline:
 
 ```elixir
@@ -265,6 +265,17 @@ dispatching to a `GenServer` or `Task`. Configuring a hook is optional.
 
 The project can be developed with a local Elixir/Erlang installation or through Docker.
 
+### Using Local Elixir/Erlang
+
+The required local tool versions are listed in `mise.toml` for use with 
+[mise-en-place](https://mise.jdx.dev/) or similar tools.
+
+```bash
+mise install
+mix deps.get
+mix compile
+```
+
 ### Using Docker
 
 If you don't have Elixir and Erlang installed on your machine, you can fetch and install the 
@@ -289,17 +300,6 @@ To show all available targets, run
 
 ```bash
 make help
-```
-
-### Using Local Elixir/Erlang
-
-The required local tool versions are listed in `mise.toml` for use with 
-[mise-en-place](https://mise.jdx.dev/) or similar tools.
-
-```bash
-mise install
-mix deps.get
-mix compile
 ```
 
 
