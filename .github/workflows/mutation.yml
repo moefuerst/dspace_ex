@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  audit:
-    name: audit (OTP 28.5.0.2 / Elixir 1.20.1)
+  mutation:
+    name: mutation testing (OTP 28.5.0.2 / Elixir 1.20.1)
 
     env:
       MIX_ENV: test
