@@ -184,7 +184,20 @@ defmodule DSpace.ExternalCase do
     end
 
     @doc """
-    Creates a complete hierarchy: community -> collection -> item.
+    Creates a hierarchy of resources: community -> collection.
+    """
+    def create_collection_hierarchy(client, opts \\ []) do
+      community = community(client, Keyword.get(opts, :community, []))
+      collection = collection(client, community, Keyword.get(opts, :collection, []))
+
+      %{
+        community: community,
+        collection: collection
+      }
+    end
+
+    @doc """
+    Creates a hierarchy of resources: community -> collection -> item.
     """
     def create_item_hierarchy(client, opts \\ []) do
       community = community(client, Keyword.get(opts, :community, []))

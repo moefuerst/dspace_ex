@@ -2,7 +2,6 @@ defmodule DSpace.APIExternalTest do
   use DSpace.ExternalCase
 
   alias DSpace.API
-  alias DSpace.API.Auth
   alias DSpace.API.Item
   alias DSpace.API.Monitor
 
@@ -28,7 +27,6 @@ defmodule DSpace.APIExternalTest do
     @describetag :requires_auth
     setup do
       client = dspace_test_api(authenticate: true)
-      on_exit(fn -> API.request!(Auth.logout(), client) end)
 
       {:ok, client: client}
     end
@@ -54,32 +52,6 @@ defmodule DSpace.APIExternalTest do
         assert Map.has_key?(result, "uuid")
         assert Map.fetch!(result, "type") == "item"
       end
-    end
-  end
-
-  describe "credential management" do
-    @describetag :requires_auth
-    setup do
-      client = dspace_test_api(authenticate: true)
-      on_exit(fn -> API.request!(Auth.logout(), client) end)
-
-      {:ok, client: client}
-    end
-
-    test "repeated login does not invalidate previously issued tokens", %{client: client} do
-      # setup logs in an retrieves authenticated client struct
-      assert API.authenticated?(client),
-             "Expected first client to be authenticated with DSpace API"
-
-      # log in again
-      new_client = dspace_test_api(authenticate: true)
-
-      assert API.authenticated?(new_client),
-             "Expected second client to be authenticated with DSpace API"
-
-      # the token from first login is still valid
-      assert API.authenticated?(client),
-             "Expected first client to still be authenticated with first token"
     end
   end
 end

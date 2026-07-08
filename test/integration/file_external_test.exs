@@ -15,9 +15,11 @@ defmodule DSpace.FileExternalTest do
 
   describe "create_in_bundle/3" do
     test "uploads a file to an item", %{client: client, item: item} do
+      parent = item["uuid"]
+
       bundle =
         %{}
-        |> File.create_bundle(parent: item["uuid"])
+        |> File.create_bundle(parent: parent)
         |> API.request!(client)
 
       file_path = Path.join(["test", "support", "fixtures", "blank.pdf"])

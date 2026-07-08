@@ -21,19 +21,12 @@ defmodule DSpace.CommunityExternalTest do
 
   @tag :bug
   test "toplevel community deletion is a no-op", %{client: client} do
+    metadata = community_metadata()
+
     toplevel =
       %{
         "name" => "Test Community",
-        "metadata" => %{
-          "dc.title" => [
-            %{
-              "value" => "Test Community",
-              "language" => nil,
-              "authority" => nil,
-              "confidence" => -1
-            }
-          ]
-        }
+        "metadata" => metadata
       }
       |> Community.create()
       |> API.request!(client)
@@ -46,8 +39,8 @@ defmodule DSpace.CommunityExternalTest do
              |> API.request!(client)
 
     # The API might report success but does not actually delete toplevel communities, even with
-    # admin credentials. Unclear if this is a configuration issue with the specific instance,
-    # bug or intended behaviour.
+    # admin credentials. Unclear if this is a configuration issue with a specific instance,
+    # bug, or intended behaviour.
 
     # Re-fetch all toplevel communities and check whether the community is really gone.
     toplevel_uuids =
@@ -60,5 +53,20 @@ defmodule DSpace.CommunityExternalTest do
            "DSpace toplevel deletion bug appears to be fixed, " <>
              "community #{uuid} was actually removed. " <>
              "The sub-community workaround in ExternalCase.Fixtures may no longer be needed."
+  end
+
+  # Private helpers
+
+  defp community_metadata do
+    %{
+      "dc.title" => [
+        %{
+          "value" => "Test Community",
+          "language" => nil,
+          "authority" => nil,
+          "confidence" => -1
+        }
+      ]
+    }
   end
 end
