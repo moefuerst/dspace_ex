@@ -4,11 +4,11 @@ defmodule DSpace.API.UserTest do
   alias DSpace.API.User
 
   describe "retrieving a user by UUID" do
-    test "returns user when it exists", %{bypass: bypass, api: api} do
+    test "returns user when it exists", %{sham: sham, api: api} do
       uuid = "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e"
       user_fixture = load_fixture("fetch_user.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/eperson/epersons/#{uuid}", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/eperson/epersons/#{uuid}", fn conn ->
         respond_with_json(conn, 200, user_fixture)
       end)
 
@@ -20,10 +20,10 @@ defmodule DSpace.API.UserTest do
   end
 
   describe "retrieving multiple users" do
-    test "lists users with pagination support", %{bypass: bypass, api: api} do
+    test "lists users with pagination support", %{sham: sham, api: api} do
       users_fixture = load_fixture("fetch_users.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/eperson/epersons", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/eperson/epersons", fn conn ->
         respond_with_json(conn, 200, users_fixture)
       end)
 
@@ -37,8 +37,8 @@ defmodule DSpace.API.UserTest do
       assert_valid_dspace_resource(first_user, "eperson")
     end
 
-    test "supports custom pagination parameters", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, "GET", "/api/eperson/epersons", fn conn ->
+    test "supports custom pagination parameters", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "GET", "/api/eperson/epersons", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["page"] == "2"
         assert params["size"] == "10"
@@ -59,11 +59,11 @@ defmodule DSpace.API.UserTest do
   end
 
   describe "searching for users by email" do
-    test "finds user by email address", %{bypass: bypass, api: api} do
+    test "finds user by email address", %{sham: sham, api: api} do
       email = "john.doe@example.com"
       user_fixture = load_fixture("fetch_user.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/eperson/epersons/search/byEmail", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/eperson/epersons/search/byEmail", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["email"] == email
 
@@ -76,10 +76,10 @@ defmodule DSpace.API.UserTest do
       assert result["email"] == email
     end
 
-    test "returns empty map when no user is found", %{bypass: bypass, api: api} do
+    test "returns empty map when no user is found", %{sham: sham, api: api} do
       email = "nonexistent@example.com"
 
-      Bypass.expect_once(bypass, "GET", "/api/eperson/epersons/search/byEmail", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/eperson/epersons/search/byEmail", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["email"] == email
 
@@ -95,11 +95,11 @@ defmodule DSpace.API.UserTest do
   end
 
   describe "searching for users by metadata" do
-    test "searches across user metadata fields", %{bypass: bypass, api: api} do
+    test "searches across user metadata fields", %{sham: sham, api: api} do
       query = "john doe"
       users_fixture = load_fixture("fetch_users.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/eperson/epersons/search/byMetadata", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/eperson/epersons/search/byMetadata", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["query"] == query
 
@@ -114,8 +114,8 @@ defmodule DSpace.API.UserTest do
       assert Map.has_key?(first_user, "uuid")
     end
 
-    test "supports pagination in metadata search", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, "GET", "/api/eperson/epersons/search/byMetadata", fn conn ->
+    test "supports pagination in metadata search", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "GET", "/api/eperson/epersons/search/byMetadata", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["query"] == "search term"
         assert params["page"] == "1"
@@ -135,11 +135,11 @@ defmodule DSpace.API.UserTest do
       assert metadata["page"]["size"] == 5
     end
 
-    test "searches by UUID for exact match", %{bypass: bypass, api: api} do
+    test "searches by UUID for exact match", %{sham: sham, api: api} do
       uuid = "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e"
       user_data = test_single_user_in_list(uuid)
 
-      Bypass.expect_once(bypass, "GET", "/api/eperson/epersons/search/byMetadata", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/eperson/epersons/search/byMetadata", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["query"] == uuid
 
@@ -155,7 +155,7 @@ defmodule DSpace.API.UserTest do
   end
 
   describe "creating users" do
-    test "creates user", %{bypass: bypass, api: api} do
+    test "creates user", %{sham: sham, api: api} do
       user_data =
         test_user_data(%{
           "name" => "newuser@example.com",
@@ -168,7 +168,7 @@ defmodule DSpace.API.UserTest do
 
       user_fixture = load_fixture("fetch_user.json")
 
-      Bypass.expect_once(bypass, "POST", "/api/eperson/epersons", fn conn ->
+      Sham.expect_once(sham, "POST", "/api/eperson/epersons", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         request_data = JSON.decode!(body)
 
@@ -186,10 +186,10 @@ defmodule DSpace.API.UserTest do
       assert result["uuid"] == "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e"
     end
 
-    test "handles duplicate email address error", %{bypass: bypass, api: api} do
+    test "handles duplicate email address error", %{sham: sham, api: api} do
       user_data = test_user_data(%{"email" => "existing@example.com"})
 
-      Bypass.expect_once(bypass, "POST", "/api/eperson/epersons", fn conn ->
+      Sham.expect_once(sham, "POST", "/api/eperson/epersons", fn conn ->
         respond_with_json(conn, 422, ~s({
           "status": 422,
           "message": "Email address already exists"
@@ -203,7 +203,7 @@ defmodule DSpace.API.UserTest do
   end
 
   describe "modifying existing users" do
-    test "updates user metadata with patch operations", %{bypass: bypass, api: api} do
+    test "updates user metadata with patch operations", %{sham: sham, api: api} do
       uuid = "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e"
 
       update_operations = [
@@ -219,7 +219,7 @@ defmodule DSpace.API.UserTest do
         }
       ]
 
-      Bypass.expect_once(bypass, "PATCH", "/api/eperson/epersons/#{uuid}", fn conn ->
+      Sham.expect_once(sham, "PATCH", "/api/eperson/epersons/#{uuid}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         request_data = JSON.decode!(body)
 
@@ -242,7 +242,7 @@ defmodule DSpace.API.UserTest do
       assert result["name"] == "jane.smith@example.com"
     end
 
-    test "updates administrative properties", %{bypass: bypass, api: api} do
+    test "updates administrative properties", %{sham: sham, api: api} do
       uuid = "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e"
 
       # Test updating certificate requirement
@@ -250,7 +250,7 @@ defmodule DSpace.API.UserTest do
         %{"op" => "replace", "path" => "/certificate", "value" => true}
       ]
 
-      Bypass.expect_once(bypass, "PATCH", "/api/eperson/epersons/#{uuid}", fn conn ->
+      Sham.expect_once(sham, "PATCH", "/api/eperson/epersons/#{uuid}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         request_data = JSON.decode!(body)
 
@@ -269,14 +269,14 @@ defmodule DSpace.API.UserTest do
       assert result["requireCertificate"] == true
     end
 
-    test "updates login capability", %{bypass: bypass, api: api} do
+    test "updates login capability", %{sham: sham, api: api} do
       uuid = "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e"
 
       login_operations = [
         %{"op" => "replace", "path" => "/canLogin", "value" => false}
       ]
 
-      Bypass.expect_once(bypass, "PATCH", "/api/eperson/epersons/#{uuid}", fn conn ->
+      Sham.expect_once(sham, "PATCH", "/api/eperson/epersons/#{uuid}", fn conn ->
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         request_data = JSON.decode!(body)
 
@@ -295,14 +295,14 @@ defmodule DSpace.API.UserTest do
       assert result["canLogIn"] == false
     end
 
-    test "updates email address", %{bypass: bypass, api: api} do
+    test "updates email address", %{sham: sham, api: api} do
       uuid = "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e"
 
       email_operations = [
         %{"op" => "replace", "path" => "/email", "value" => "newemail@example.com"}
       ]
 
-      Bypass.expect_once(bypass, "PATCH", "/api/eperson/epersons/#{uuid}", fn conn ->
+      Sham.expect_once(sham, "PATCH", "/api/eperson/epersons/#{uuid}", fn conn ->
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         request_data = JSON.decode!(body)
 
@@ -322,7 +322,7 @@ defmodule DSpace.API.UserTest do
       assert result["email"] == "newemail@example.com"
     end
 
-    test "replaces entire user content", %{bypass: bypass, api: api} do
+    test "replaces entire user content", %{sham: sham, api: api} do
       uuid = "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e"
 
       user_data =
@@ -335,7 +335,7 @@ defmodule DSpace.API.UserTest do
           }
         })
 
-      Bypass.expect_once(bypass, "PUT", "/api/eperson/epersons/#{uuid}", fn conn ->
+      Sham.expect_once(sham, "PUT", "/api/eperson/epersons/#{uuid}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         request_data = JSON.decode!(body)
 
@@ -357,10 +357,10 @@ defmodule DSpace.API.UserTest do
   end
 
   describe "removing users" do
-    test "deletes user successfully", %{bypass: bypass, api: api} do
+    test "deletes user successfully", %{sham: sham, api: api} do
       uuid = "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e"
 
-      Bypass.expect_once(bypass, "DELETE", "/api/eperson/epersons/#{uuid}", fn conn ->
+      Sham.expect_once(sham, "DELETE", "/api/eperson/epersons/#{uuid}", fn conn ->
         respond_with_json(conn, 204, "")
       end)
 
@@ -371,11 +371,11 @@ defmodule DSpace.API.UserTest do
   end
 
   describe "retrieving user groups" do
-    test "retrieves direct group membership", %{bypass: bypass, api: api} do
+    test "retrieves direct group membership", %{sham: sham, api: api} do
       uuid = "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e"
       groups_fixture = load_fixture("fetch_groups.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/eperson/epersons/#{uuid}/groups", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/eperson/epersons/#{uuid}/groups", fn conn ->
         respond_with_json(conn, 200, groups_fixture)
       end)
 
@@ -396,10 +396,10 @@ defmodule DSpace.API.UserTest do
       assert is_nil(next_url)
     end
 
-    test "supports custom pagination parameters for groups", %{bypass: bypass, api: api} do
+    test "supports custom pagination parameters for groups", %{sham: sham, api: api} do
       uuid = "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e"
 
-      Bypass.expect_once(bypass, "GET", "/api/eperson/epersons/#{uuid}/groups", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/eperson/epersons/#{uuid}/groups", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["page"] == "1"
         assert params["size"] == "25"
@@ -420,10 +420,10 @@ defmodule DSpace.API.UserTest do
   end
 
   describe "edge cases and error handling" do
-    test "handles server errors gracefully", %{bypass: bypass, api: api} do
+    test "handles server errors gracefully", %{sham: sham, api: api} do
       uuid = "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e"
 
-      Bypass.expect_once(bypass, "GET", "/api/eperson/epersons/#{uuid}", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/eperson/epersons/#{uuid}", fn conn ->
         respond_with_json(conn, 500, ~s({
           "timestamp": "2023-10-15T12:00:00.000+00:00",
           "status": 500,
@@ -437,8 +437,8 @@ defmodule DSpace.API.UserTest do
       assert error.status == 500
     end
 
-    test "handles authorization errors", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, "GET", "/api/eperson/epersons/search/byMetadata", fn conn ->
+    test "handles authorization errors", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "GET", "/api/eperson/epersons/search/byMetadata", fn conn ->
         respond_with_json(conn, 403, ~s({
           "timestamp": "2023-10-15T12:00:00.000+00:00",
           "status": 403,

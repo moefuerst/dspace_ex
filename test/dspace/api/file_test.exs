@@ -5,8 +5,8 @@ defmodule DSpace.API.FileTest do
   alias DSpace.API.File
 
   describe "create_in_bundle/3" do
-    test "uploads multipart file and properties payload", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, "POST", "/api/core/bundles/bundle-id/bitstreams", fn conn ->
+    test "uploads multipart file and properties payload", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "POST", "/api/core/bundles/bundle-id/bitstreams", fn conn ->
         [content_type] = Plug.Conn.get_req_header(conn, "content-type")
         assert String.starts_with?(content_type, "multipart/form-data")
 
@@ -38,11 +38,11 @@ defmodule DSpace.API.FileTest do
   end
 
   describe "fetch_by_item_handle/2" do
-    test "returns the file when found", %{bypass: bypass, api: api} do
+    test "returns the file when found", %{sham: sham, api: api} do
       handle = "20.500.12345/67890"
       file_fixture = load_fixture("fetch_file.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/core/bitstreams/search/byItemHandle", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/core/bitstreams/search/byItemHandle", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["handle"] == handle
         assert params["sequence"] == "1"
@@ -57,8 +57,8 @@ defmodule DSpace.API.FileTest do
       assert_valid_dspace_resource(result, "bitstream", ["name", "sequenceId"])
     end
 
-    test "returns a :not_found error when no file matches (204)", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, "GET", "/api/core/bitstreams/search/byItemHandle", fn conn ->
+    test "returns a :not_found error when no file matches (204)", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "GET", "/api/core/bitstreams/search/byItemHandle", fn conn ->
         respond_with_json(conn, 204, "")
       end)
 

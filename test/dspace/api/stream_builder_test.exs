@@ -8,30 +8,30 @@ defmodule DSpace.API.StreamBuilderTest do
   alias DSpace.API.StreamBuilder
 
   setup do
-    bypass = Bypass.open()
+    sham = Sham.start()
 
     # Disable retry to fail fast in all tests
-    client = %DSpace.API{endpoint: url(bypass), http_impl: {HTTP.Req, [retry: false]}}
+    client = %DSpace.API{endpoint: url(sham), http_impl: {HTTP.Req, [retry: false]}}
 
-    {:ok, bypass: bypass, client: client}
+    {:ok, sham: sham, client: client}
   end
 
   describe "new/3" do
-    test "streams pages until no next URL is returned", %{bypass: bypass, client: client} do
-      Bypass.expect(bypass, "GET", "/items", fn conn ->
+    test "streams pages until no next URL is returned", %{sham: sham, client: client} do
+      Sham.expect(sham, "GET", "/items", fn conn ->
         case conn.query_string do
           "" ->
             respond_with_json(
               conn,
               200,
-              ~s({"items": ["item1", "item2"], "next": "#{url(bypass)}/items?page=2"})
+              ~s({"items": ["item1", "item2"], "next": "#{url(sham)}/items?page=2"})
             )
 
           "page=2" ->
             respond_with_json(
               conn,
               200,
-              ~s({"items": ["item3", "item4"], "next": "#{url(bypass)}/items?page=3"})
+              ~s({"items": ["item3", "item4"], "next": "#{url(sham)}/items?page=3"})
             )
 
           "page=3" ->
@@ -54,8 +54,8 @@ defmodule DSpace.API.StreamBuilderTest do
       assert result == ["item1", "item2", "item3", "item4", "item5", "item6"]
     end
 
-    test "terminates stream when next is nil", %{bypass: bypass, client: client} do
-      Bypass.expect_once(bypass, "GET", "/items", fn conn ->
+    test "terminates stream when next is nil", %{sham: sham, client: client} do
+      Sham.expect_once(sham, "GET", "/items", fn conn ->
         respond_with_json(conn, 200, ~s({"items": ["item1", "item2"], "next": null}))
       end)
 
@@ -70,8 +70,8 @@ defmodule DSpace.API.StreamBuilderTest do
       assert result == ["item1", "item2"]
     end
 
-    test "terminates stream when next is not a URL string", %{bypass: bypass, client: client} do
-      Bypass.expect_once(bypass, "GET", "/items", fn conn ->
+    test "terminates stream when next is not a URL string", %{sham: sham, client: client} do
+      Sham.expect_once(sham, "GET", "/items", fn conn ->
         respond_with_json(conn, 200, ~s({"items": ["item1"], "next": 404}))
       end)
 
@@ -86,8 +86,8 @@ defmodule DSpace.API.StreamBuilderTest do
       assert result == ["item1"]
     end
 
-    test "propagates errors from API requests", %{bypass: bypass, client: client} do
-      Bypass.expect(bypass, "GET", "/items", fn conn ->
+    test "propagates errors from API requests", %{sham: sham, client: client} do
+      Sham.expect(sham, "GET", "/items", fn conn ->
         Plug.Conn.resp(conn, 500, "Server Error")
       end)
 
@@ -101,8 +101,8 @@ defmodule DSpace.API.StreamBuilderTest do
       assert_raise DSpace.API.Error, fn -> Enum.to_list(stream) end
     end
 
-    test "handles empty result pages", %{bypass: bypass, client: client} do
-      Bypass.expect_once(bypass, "GET", "/items", fn conn ->
+    test "handles empty result pages", %{sham: sham, client: client} do
+      Sham.expect_once(sham, "GET", "/items", fn conn ->
         respond_with_json(conn, 200, ~s({"items": [], "next": null}))
       end)
 
@@ -118,5 +118,5 @@ defmodule DSpace.API.StreamBuilderTest do
     end
   end
 
-  defp url(bypass), do: "http://localhost:#{bypass.port}"
+  defp url(sham), do: "http://localhost:#{sham.port}"
 end

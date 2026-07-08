@@ -63,22 +63,22 @@ defmodule DSpace.APITest do
 
   describe "login functionality" do
     setup do
-      bypass = Bypass.open()
+      sham = Sham.start()
 
       api = %API{
-        endpoint: url(bypass),
+        endpoint: url(sham),
         csrf_token: "123",
         http_impl: {DSpace.API.HTTP.Req, [retry: false]}
       }
 
-      {:ok, bypass: bypass, api: api}
+      {:ok, sham: sham, api: api}
     end
 
     @user "test@example.com"
     @pass "password123"
 
-    test "login/3 returns updated client when login succeeds", %{bypass: bypass, api: api} do
-      Bypass.expect(bypass, fn conn ->
+    test "login/3 returns updated client when login succeeds", %{sham: sham, api: api} do
+      Sham.expect(sham, fn conn ->
         conn
         # sic, DSpace *does* return the access token this way...
         |> Plug.Conn.put_resp_header("authorization", "Bearer xyz123")
@@ -93,8 +93,8 @@ defmodule DSpace.APITest do
       assert updated_client.csrf_token == "abc123"
     end
 
-    test "login/3 returns error when login fails", %{bypass: bypass, api: api} do
-      Bypass.expect(bypass, fn conn ->
+    test "login/3 returns error when login fails", %{sham: sham, api: api} do
+      Sham.expect(sham, fn conn ->
         respond_with_json(conn, 500, ~s({"error": "internal server error"}))
       end)
 
@@ -104,8 +104,8 @@ defmodule DSpace.APITest do
       assert 500 == http_status
     end
 
-    test "login!/3 returns updated client when login succeeds", %{bypass: bypass, api: api} do
-      Bypass.expect(bypass, fn conn ->
+    test "login!/3 returns updated client when login succeeds", %{sham: sham, api: api} do
+      Sham.expect(sham, fn conn ->
         conn
         # sic, DSpace *does* return the access token this way...
         |> Plug.Conn.put_resp_header("authorization", "Bearer xyz123")
@@ -120,8 +120,8 @@ defmodule DSpace.APITest do
       assert updated_client.csrf_token == "abc123"
     end
 
-    test "login!/3 raises when login fails", %{bypass: bypass, api: api} do
-      Bypass.expect(bypass, fn conn ->
+    test "login!/3 raises when login fails", %{sham: sham, api: api} do
+      Sham.expect(sham, fn conn ->
         respond_with_json(conn, 500, ~s({"error": "internal server error"}))
       end)
 
@@ -133,14 +133,14 @@ defmodule DSpace.APITest do
 
   describe "authenticated?/1" do
     setup do
-      bypass = Bypass.open()
-      api = %API{endpoint: url(bypass), http_impl: {DSpace.API.HTTP.Req, [retry: false]}}
+      sham = Sham.start()
+      api = %API{endpoint: url(sham), http_impl: {DSpace.API.HTTP.Req, [retry: false]}}
 
-      {:ok, bypass: bypass, api: api}
+      {:ok, sham: sham, api: api}
     end
 
-    test "returns true when API response indicates authenticated", %{bypass: bypass, api: api} do
-      Bypass.expect(bypass, fn conn ->
+    test "returns true when API response indicates authenticated", %{sham: sham, api: api} do
+      Sham.expect(sham, fn conn ->
         respond_with_json(conn, 200, ~s({"authenticated": true}))
       end)
 
@@ -150,10 +150,10 @@ defmodule DSpace.APITest do
     end
 
     test "returns false when API response indicates not authenticated", %{
-      bypass: bypass,
+      sham: sham,
       api: api
     } do
-      Bypass.expect(bypass, fn conn ->
+      Sham.expect(sham, fn conn ->
         respond_with_json(conn, 200, ~s({"authenticated": false}))
       end)
 
@@ -163,10 +163,10 @@ defmodule DSpace.APITest do
     end
 
     test "returns false when API response is missing the authenticated key", %{
-      bypass: bypass,
+      sham: sham,
       api: api
     } do
-      Bypass.expect(bypass, fn conn ->
+      Sham.expect(sham, fn conn ->
         respond_with_json(conn, 200, ~s({"some_other_key": true}))
       end)
 
@@ -175,8 +175,9 @@ defmodule DSpace.APITest do
       assert result == false
     end
 
-    test "returns false on API request error", %{bypass: bypass, api: api} do
-      Bypass.down(bypass)
+    test "returns false on API request error", %{api: api} do
+      # Simulate a request error by setting an invalid endpoint
+      api = API.put_endpoint(api, "http://localhost:1")
 
       result = API.authenticated?(api)
 
@@ -186,13 +187,13 @@ defmodule DSpace.APITest do
 
   describe "request/3" do
     setup do
-      bypass = Bypass.open()
-      api = %API{endpoint: url(bypass), http_impl: {DSpace.API.HTTP.Req, [retry: false]}}
+      sham = Sham.start()
+      api = %API{endpoint: url(sham), http_impl: {DSpace.API.HTTP.Req, [retry: false]}}
 
-      {:ok, bypass: bypass, api: api}
+      {:ok, sham: sham, api: api}
     end
 
-    test "handles an operation with json payload", %{bypass: bypass, api: api} do
+    test "handles an operation with json payload", %{sham: sham, api: api} do
       api = API.put_csrf_token(api, "abc123")
 
       operation = %Operation.JSON{
@@ -203,7 +204,7 @@ defmodule DSpace.APITest do
         transformer: &Function.identity/1
       }
 
-      Bypass.expect_once(bypass, "POST", "/items", fn conn ->
+      Sham.expect_once(sham, "POST", "/items", fn conn ->
         conn = Plug.Conn.fetch_query_params(conn)
         {:ok, body, conn} = Plug.Conn.read_body(conn)
 
@@ -222,7 +223,7 @@ defmodule DSpace.APITest do
       assert response.body == %{"response" => "ok"}
     end
 
-    test "accepts success code other than 200", %{bypass: bypass, api: api} do
+    test "accepts success code other than 200", %{sham: sham, api: api} do
       api = API.put_csrf_token(api, "abc123")
 
       operation = %Operation.JSON{
@@ -232,7 +233,7 @@ defmodule DSpace.APITest do
         transformer: &Function.identity/1
       }
 
-      Bypass.expect_once(bypass, "PUT", "/test/resource", fn conn ->
+      Sham.expect_once(sham, "PUT", "/test/resource", fn conn ->
         assert Plug.Conn.get_req_header(conn, "x-xsrf-token") == ["abc123"]
         respond_with_json(conn, 201, ~s({"response":"ok"}))
       end)
@@ -243,11 +244,11 @@ defmodule DSpace.APITest do
       assert response.status == 201
     end
 
-    test "applies transformation to HTTP response", %{bypass: bypass, api: api} do
+    test "applies transformation to HTTP response", %{sham: sham, api: api} do
       transform_fn = fn response -> %{transformed: true, original_status: response.status} end
       operation = %Operation.JSON{path: "/test", transformer: transform_fn}
 
-      Bypass.expect_once(bypass, "GET", "/test", fn conn ->
+      Sham.expect_once(sham, "GET", "/test", fn conn ->
         respond_with_json(conn, 200, ~s({"data": "test"}))
       end)
 
@@ -257,11 +258,11 @@ defmodule DSpace.APITest do
       assert response == %{transformed: true, original_status: 200}
     end
 
-    test "respects transform: false option to skip transformation", %{bypass: bypass, api: api} do
+    test "respects transform: false option to skip transformation", %{sham: sham, api: api} do
       transform_fn = fn _response -> %{should_not_see_this: true} end
       operation = %Operation.JSON{path: "/test", transformer: transform_fn}
 
-      Bypass.expect_once(bypass, "GET", "/test", fn conn ->
+      Sham.expect_once(sham, "GET", "/test", fn conn ->
         respond_with_json(conn, 200, ~s({"data": "test"}))
       end)
 
@@ -273,14 +274,14 @@ defmodule DSpace.APITest do
       refute Map.has_key?(response, :should_not_see_this)
     end
 
-    test "invokes response hook after HTTP response", %{bypass: bypass, api: api} do
+    test "invokes response hook after HTTP response", %{sham: sham, api: api} do
       test_pid = self()
       callback = fn token_map -> send(test_pid, {:callback_invoked, token_map}) end
       api = %{api | on_response_hook: callback}
 
       operation = %Operation.JSON{path: "/test", transformer: &Function.identity/1}
 
-      Bypass.expect_once(bypass, "GET", "/test", fn conn ->
+      Sham.expect_once(sham, "GET", "/test", fn conn ->
         conn
         |> Plug.Conn.put_resp_header("dspace-xsrf-token", "new-csrf-token")
         |> respond_with_json(200, ~s({"data": "test"}))
@@ -291,11 +292,11 @@ defmodule DSpace.APITest do
       assert_receive {:callback_invoked, %{csrf_token: "new-csrf-token"}}
     end
 
-    test "handles nil response hook", %{bypass: bypass, api: api} do
+    test "handles nil response hook", %{sham: sham, api: api} do
       api = %{api | on_response_hook: nil}
       operation = %Operation.JSON{path: "/test", transformer: &Function.identity/1}
 
-      Bypass.expect_once(bypass, "GET", "/test", fn conn ->
+      Sham.expect_once(sham, "GET", "/test", fn conn ->
         conn
         |> Plug.Conn.put_resp_header("dspace-xsrf-token", "new-csrf-token")
         |> respond_with_json(200, ~s({"data": "test"}))
@@ -311,5 +312,5 @@ defmodule DSpace.APITest do
     # TODO: stream!/3 tests
   end
 
-  defp url(bypass), do: "http://localhost:#{bypass.port}"
+  defp url(sham), do: "http://localhost:#{sham.port}"
 end

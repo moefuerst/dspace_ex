@@ -4,11 +4,11 @@ defmodule DSpace.API.CollectionTest do
   alias DSpace.API.Collection
 
   describe "retrieving a collection by UUID" do
-    test "returns collection when it exists", %{bypass: bypass, api: api} do
+    test "returns collection when it exists", %{sham: sham, api: api} do
       uuid = "577d7908-a2a1-4fc4-a1b1-56f691eae28a"
       collection_fixture = load_fixture("fetch_collection.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/core/collections/#{uuid}", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/core/collections/#{uuid}", fn conn ->
         respond_with_json(conn, 200, collection_fixture)
       end)
 
@@ -23,10 +23,10 @@ defmodule DSpace.API.CollectionTest do
   end
 
   describe "retrieving multiple collections" do
-    test "lists collections with pagination support", %{bypass: bypass, api: api} do
+    test "lists collections with pagination support", %{sham: sham, api: api} do
       collections_fixture = load_fixture("fetch_collections.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/core/collections", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/core/collections", fn conn ->
         respond_with_json(conn, 200, collections_fixture)
       end)
 
@@ -44,8 +44,8 @@ defmodule DSpace.API.CollectionTest do
       assert is_nil(next_url)
     end
 
-    test "supports custom pagination parameters", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, "GET", "/api/core/collections", fn conn ->
+    test "supports custom pagination parameters", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "GET", "/api/core/collections", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["page"] == "2"
         assert params["size"] == "10"
@@ -69,12 +69,12 @@ defmodule DSpace.API.CollectionTest do
   end
 
   describe "creating collections" do
-    test "creates collection within parent community", %{bypass: bypass, api: api} do
+    test "creates collection within parent community", %{sham: sham, api: api} do
       parent_uuid = "parent-community-uuid"
       collection_data = test_collection_data(%{"name" => "New Collection"})
       collection_fixture = load_fixture("fetch_collection.json")
 
-      Bypass.expect_once(bypass, "POST", "/api/core/collections", fn conn ->
+      Sham.expect_once(sham, "POST", "/api/core/collections", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         request_data = JSON.decode!(body)
@@ -103,11 +103,11 @@ defmodule DSpace.API.CollectionTest do
   end
 
   describe "modifying existing collections" do
-    test "updates collection with patch operations", %{bypass: bypass, api: api} do
+    test "updates collection with patch operations", %{sham: sham, api: api} do
       uuid = "577d7908-a2a1-4fc4-a1b1-56f691eae28a"
       update_operations = test_update_operations("dc.title", "Updated Community")
 
-      Bypass.expect_once(bypass, "PATCH", "/api/core/collections/#{uuid}", fn conn ->
+      Sham.expect_once(sham, "PATCH", "/api/core/collections/#{uuid}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         request_data = JSON.decode!(body)
 
@@ -132,11 +132,11 @@ defmodule DSpace.API.CollectionTest do
       assert result["name"] == "Updated Publications Collection"
     end
 
-    test "replaces entire collection content", %{bypass: bypass, api: api} do
+    test "replaces entire collection content", %{sham: sham, api: api} do
       uuid = "577d7908-a2a1-4fc4-a1b1-56f691eae28a"
       collection_data = test_collection_data(%{"name" => "Replaced Collection"})
 
-      Bypass.expect_once(bypass, "PUT", "/api/core/collections/#{uuid}", fn conn ->
+      Sham.expect_once(sham, "PUT", "/api/core/collections/#{uuid}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         request_data = JSON.decode!(body)
 
@@ -157,10 +157,10 @@ defmodule DSpace.API.CollectionTest do
   end
 
   describe "removing collections" do
-    test "deletes collection successfully", %{bypass: bypass, api: api} do
+    test "deletes collection successfully", %{sham: sham, api: api} do
       uuid = "577d7908-a2a1-4fc4-a1b1-56f691eae28a"
 
-      Bypass.expect_once(bypass, "DELETE", "/api/core/collections/#{uuid}", fn conn ->
+      Sham.expect_once(sham, "DELETE", "/api/core/collections/#{uuid}", fn conn ->
         respond_with_json(conn, 204, "")
       end)
 
@@ -174,11 +174,11 @@ defmodule DSpace.API.CollectionTest do
   end
 
   describe "retrieving collection items" do
-    test "retrieves items from collection", %{bypass: bypass, api: api} do
+    test "retrieves items from collection", %{sham: sham, api: api} do
       uuid = "577d7908-a2a1-4fc4-a1b1-56f691eae28a"
       items_fixture = load_fixture("fetch_items.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/core/collections/#{uuid}/mappedItems", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/core/collections/#{uuid}/mappedItems", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["page"] == "1"
         assert params["size"] == "20"
@@ -203,10 +203,10 @@ defmodule DSpace.API.CollectionTest do
   end
 
   describe "searching for collections" do
-    test "finds all collections when no search criteria provided", %{bypass: bypass, api: api} do
+    test "finds all collections when no search criteria provided", %{sham: sham, api: api} do
       search_fixture = load_fixture("search_objects.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/discover/search/objects", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/discover/search/objects", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
 
         refute Map.has_key?(params, "query")
@@ -222,11 +222,11 @@ defmodule DSpace.API.CollectionTest do
       assert is_list(objects)
     end
 
-    test "searches collections with query term", %{bypass: bypass, api: api} do
+    test "searches collections with query term", %{sham: sham, api: api} do
       search_term = "publications"
       search_fixture = load_fixture("search_objects.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/discover/search/objects", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/discover/search/objects", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
 
         assert params["query"] == search_term
@@ -250,7 +250,7 @@ defmodule DSpace.API.CollectionTest do
       assert Map.has_key?(first_result, "handle")
     end
 
-    test "applies filters and pagination to search", %{bypass: bypass, api: api} do
+    test "applies filters and pagination to search", %{sham: sham, api: api} do
       options = [
         query: "research",
         page: 0,
@@ -259,7 +259,7 @@ defmodule DSpace.API.CollectionTest do
         filters: [%{filter: "title", operator: "contains", value: "data"}]
       ]
 
-      Bypass.expect_once(bypass, "GET", "/api/discover/search/objects", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/discover/search/objects", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
 
         assert params["query"] == "research"
