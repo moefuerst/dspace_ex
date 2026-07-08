@@ -58,6 +58,7 @@ defmodule DSpace.API.Auth do
     %Operation.JSON{
       path: @ep_logout,
       http_method: :post,
+      expected_status: [204, 302],
       transformer: fn _ -> :ok end
     }
   end
