@@ -41,6 +41,7 @@ defmodule DSpace.API.StreamBuilder do
   defp fetch_page({nil, _client, _options}), do: {:halt, nil}
 
   defp fetch_page({operation, client, options}) do
+    options = Keyword.delete(options, :transform)
     {items, _meta, next} = API.request!(operation, client, options)
 
     if is_nonempty_binary(next) do

@@ -5,6 +5,7 @@ defmodule DSpace.APITest do
 
   alias DSpace.API
   alias DSpace.API.Operation
+  alias DSpace.API.StreamBuilder
 
   setup do
     api = %API{user_agent: "test", api_version: "1.0.0"}
@@ -77,7 +78,7 @@ defmodule DSpace.APITest do
     @user "test@example.com"
     @pass "password123"
 
-    test "login/3 returns updated client when login succeeds", %{sham: sham, api: api} do
+    test "returns updated client when login succeeds", %{sham: sham, api: api} do
       Sham.expect(sham, fn conn ->
         conn
         # sic, DSpace *does* return the access token this way...
@@ -93,7 +94,7 @@ defmodule DSpace.APITest do
       assert updated_client.csrf_token == "abc123"
     end
 
-    test "login/3 returns error when login fails", %{sham: sham, api: api} do
+    test "returns error when login fails", %{sham: sham, api: api} do
       Sham.expect(sham, fn conn ->
         respond_with_json(conn, 500, ~s({"error": "internal server error"}))
       end)
@@ -309,7 +310,33 @@ defmodule DSpace.APITest do
   end
 
   describe "stream!/3" do
-    # TODO: stream!/3 tests
+    setup do
+      sham = Sham.start()
+      api = %API{endpoint: url(sham), http_impl: {DSpace.API.HTTP.Req, [retry: false]}}
+
+      {:ok, sham: sham, api: api}
+    end
+
+    test "returns a stream when the operation supports streaming", %{api: api} do
+      operation = %Operation.JSON{path: "/test"}
+
+      operation_with_stream_support =
+        %{operation | stream_impl: &StreamBuilder.new(&1, operation, &2)}
+
+      stream = API.stream!(operation_with_stream_support, api)
+
+      assert is_function(stream, 2)
+    end
+
+    test "raises when the operation doesn't support streaming", %{sham: sham, api: api} do
+      operation = %Operation.JSON{path: "/test/items"}
+
+      Sham.expect_none(sham)
+
+      assert_raise ArgumentError, fn ->
+        API.stream!(operation, api, [])
+      end
+    end
   end
 
   defp url(sham), do: "http://localhost:#{sham.port}"
