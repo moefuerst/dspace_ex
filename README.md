@@ -40,7 +40,7 @@ default HTTP adapter used by the library.
 ```elixir
 def deps do
   [
-    {:dspace_ex, "~> 0.1.0"},
+    {:dspace_ex, "~> 0.1"},
     {:req, "~> 0.5 or ~> 1.0"}
   ]
 end

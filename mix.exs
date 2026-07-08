@@ -1,7 +1,7 @@
 defmodule DSpace.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.1.1"
   @description "DSpace client library for Elixir"
   @source_url "https://github.com/moefuerst/dspace_ex"
 
