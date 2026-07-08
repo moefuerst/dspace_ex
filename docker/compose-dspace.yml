@@ -23,6 +23,7 @@ services:
       solr__P__server: http://dspacesolr:8983/solr
       solr__D__statistics__P__autoCommit: "false"
       LOGGING_CONFIG: /dspace/config/log4j2-container.xml
+      LOADASSETS: https://github.com/4Science/DSpace-CRIS-Files/releases/download/cris-2025.02.00/assetstore.tar.gz
     image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris:${DSPACE_VER:-dspace-cris-2025_02_x}-test"
     depends_on:
       dspacedb:
@@ -42,9 +43,20 @@ services:
       - /bin/bash
       - "-c"
       - |
+        set -e
+
+        if [ -n "$${LOADASSETS}" ] && [ ! -f /dspace/assetstore/.assets-loaded ]; then
+          curl -fsSL "$${LOADASSETS}" -o /tmp/assetstore.tar.gz
+          tar -xzf /tmp/assetstore.tar.gz -C /dspace
+          touch /dspace/assetstore/.assets-loaded
+        fi
+
         /dspace/bin/dspace database repair
         /dspace/bin/dspace database migrate
         /dspace/bin/dspace database migrate ignored
+        /dspace/bin/dspace index-discovery -b
+        /dspace/bin/dspace oai import
+        /dspace/bin/dspace oai clean-cache
         java -XX:+UseParallelGC -XX:MaxRAMPercentage=75 org.springframework.boot.loader.launch.JarLauncher
     healthcheck:
       test:
