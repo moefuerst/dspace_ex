@@ -8,7 +8,6 @@ defmodule DSpace.MixProject do
   def project do
     [
       app: :dspace_ex,
-      name: :dspace_ex,
       version: @version,
       elixir: "~> 1.18",
       elixirc_options: elixirc_options(),
@@ -74,12 +73,14 @@ defmodule DSpace.MixProject do
         "test"
       ],
       check: [
-        "hex.audit",
         "deps.unlock --check-unused",
-        "deps.audit",
         "format --check-formatted",
         "credo --strict",
         "dialyzer --quiet-with-result"
+      ],
+      "deps.audit": [
+        "hex.audit",
+        "deps.audit"
       ],
       "test.ci": [
         "test --raise",
