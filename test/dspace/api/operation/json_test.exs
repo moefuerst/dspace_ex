@@ -218,6 +218,22 @@ defmodule DSpace.API.Operation.JSONTest do
       refute Keyword.has_key?(options, :body)
       refute Keyword.has_key?(options, :form_multipart)
     end
+
+    test "does not pre-set multipart content-type header so adapter can add boundary", %{client: client} do
+      operation =
+        JSONOp.new(
+          path: "/api/upload",
+          http_method: :post,
+          content_type: :multipart,
+          data: %{file: {"content", filename: "file.txt"}}
+        )
+
+      _result = Operation.perform(operation, client, [])
+
+      assert_received {:http_request, options}
+      assert options[:form_multipart] == %{file: {"content", filename: "file.txt"}}
+      refute Map.has_key?(options[:headers], :content_type)
+    end
   end
 
   describe "transformer integration" do
