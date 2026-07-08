@@ -370,7 +370,15 @@ defmodule DSpace.API do
   @doc """
   Makes a request to the API and returns a stream.
 
-  For parameters and options, see `request/3`.
+  ## Parameters
+
+    * `operation` - A `t:DSpace.API.Operation.t/0`
+    * `api` - A `t:DSpace.API.t/0` structure
+    * `options` - Keyword list of options for the request
+
+  ## Options
+
+    * request option overrides passed to the HTTP adapter
 
   ## Examples
 
