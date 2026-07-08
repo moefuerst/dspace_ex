@@ -1,6 +1,6 @@
 defmodule DSpace.API.Case do
   @moduledoc """
-  Defines the setup for API tests that use Bypass.
+  Defines the setup for API tests that use Sham.
   """
 
   use ExUnit.CaseTemplate
@@ -13,19 +13,19 @@ defmodule DSpace.API.Case do
       alias DSpace.API
 
       setup do
-        bypass = Bypass.open()
+        sham = Sham.start()
 
         api = %API{
-          endpoint: url(bypass),
+          endpoint: url(sham),
           csrf_token: "abc123",
           # Disable retry to fail fast in all tests
           http_impl: {DSpace.API.HTTP.Req, [retry: false]}
         }
 
-        {:ok, bypass: bypass, api: api}
+        {:ok, sham: sham, api: api}
       end
 
-      def url(bypass), do: "http://localhost:#{bypass.port}"
+      def url(sham), do: "http://localhost:#{sham.port}"
     end
   end
 

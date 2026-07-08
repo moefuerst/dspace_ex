@@ -6,9 +6,9 @@ defmodule DSpace.API.HTTP.ReqTest do
   alias DSpace.API.HTTP
 
   setup do
-    bypass = Bypass.open()
+    sham = Sham.start()
 
-    {:ok, bypass: bypass}
+    {:ok, sham: sham}
   end
 
   describe "Default HTTP adapter implementation using Req" do
@@ -27,8 +27,8 @@ defmodule DSpace.API.HTTP.ReqTest do
       * supports URL concatenation when an endpoint is given via `base_url`
       * returns a `t:DSpace.API.HTTP.Response/0`
     """
-    test "makes a request using request/1", %{bypass: bypass} do
-      Bypass.expect_once(bypass, "POST", "/some-post", fn conn ->
+    test "makes a request using request/1", %{sham: sham} do
+      Sham.expect_once(sham, "POST", "/some-post", fn conn ->
         assert Plug.Conn.get_req_header(conn, "authorization") == ["Bearer my123bearer"]
         assert Plug.Conn.get_req_header(conn, "content-type") == ["application/json"]
         assert Plug.Conn.get_req_header(conn, "accept") == ["application/json"]
@@ -44,7 +44,7 @@ defmodule DSpace.API.HTTP.ReqTest do
       result =
         HTTP.Req.request(
           method: :post,
-          base_url: url(bypass),
+          base_url: url(sham),
           url: "/some-post",
           auth: {:bearer, "my123bearer"},
           headers: %{:accept => ["application/json"], :x_xsrf_token => ["token123"]},
@@ -57,8 +57,8 @@ defmodule DSpace.API.HTTP.ReqTest do
       assert {:ok, %HTTP.Response{body: %{"key" => "other_value"}, status: 200}} = result
     end
 
-    test "makes a form request using request/1", %{bypass: bypass} do
-      Bypass.expect_once(bypass, "POST", "/form-data", fn conn ->
+    test "makes a form request using request/1", %{sham: sham} do
+      Sham.expect_once(sham, "POST", "/form-data", fn conn ->
         assert Plug.Conn.get_req_header(conn, "content-type") == [
                  "application/x-www-form-urlencoded"
                ]
@@ -72,7 +72,7 @@ defmodule DSpace.API.HTTP.ReqTest do
       result =
         HTTP.Req.request(
           method: :post,
-          url: url(bypass) <> "/form-data",
+          url: url(sham) <> "/form-data",
           form: %{username: "admin", password: "secret"},
           # Disable retry to fail fast
           retry: false
@@ -81,8 +81,8 @@ defmodule DSpace.API.HTTP.ReqTest do
       assert {:ok, %HTTP.Response{body: %{"authenticated" => true}, status: 200}} = result
     end
 
-    test "makes a multipart form request using request/1", %{bypass: bypass} do
-      Bypass.expect_once(bypass, "POST", "/upload", fn conn ->
+    test "makes a multipart form request using request/1", %{sham: sham} do
+      Sham.expect_once(sham, "POST", "/upload", fn conn ->
         [content_type] = Plug.Conn.get_req_header(conn, "content-type")
 
         assert String.starts_with?(content_type, "multipart/form-data")
@@ -97,7 +97,7 @@ defmodule DSpace.API.HTTP.ReqTest do
       result =
         HTTP.Req.request(
           method: :post,
-          url: url(bypass) <> "/upload",
+          url: url(sham) <> "/upload",
           form_multipart: %{file: "file_content", metadata: "info"},
           # Disable retry to fail fast
           retry: false
@@ -106,15 +106,15 @@ defmodule DSpace.API.HTTP.ReqTest do
       assert {:ok, %HTTP.Response{body: %{"uploaded" => true}, status: 201}} = result
     end
 
-    test "takes an option to disable response body decoding", %{bypass: bypass} do
-      Bypass.expect_once(bypass, "POST", "/some-post", fn conn ->
+    test "takes an option to disable response body decoding", %{sham: sham} do
+      Sham.expect_once(sham, "POST", "/some-post", fn conn ->
         respond_with_json(conn, 200, ~s({"key":"other_value"}))
       end)
 
       result =
         HTTP.Req.request(
           method: :post,
-          base_url: url(bypass),
+          base_url: url(sham),
           url: "/some-post",
           decode_body: false,
           # Disable retry to fail fast
@@ -124,29 +124,27 @@ defmodule DSpace.API.HTTP.ReqTest do
       assert {:ok, %HTTP.Response{body: ~s({"key":"other_value"})}} = result
     end
 
-    test "propagates exceptions from failed requests using request/1", %{bypass: bypass} do
-      Bypass.down(bypass)
-
-      # Disable retry to fail fast
-      result = HTTP.Req.request(base_url: url(bypass), url: "/some-path", retry: false)
+    test "propagates exceptions from failed requests using request/1" do
+      # Simulate a request error by setting an invalid endpoint; disable retry to fail fast
+      result = HTTP.Req.request(base_url: "http://localhost:1", url: "/some-path", retry: false)
 
       assert {:error, %DSpace.API.HTTP.Error{reason: %Req.TransportError{}}} = result
     end
 
-    test "handles 500 response as response, not exception", %{bypass: bypass} do
-      Bypass.expect_once(bypass, "GET", "/error", fn conn ->
+    test "handles 500 response as response, not exception", %{sham: sham} do
+      Sham.expect_once(sham, "GET", "/error", fn conn ->
         respond_with_json(conn, 500, ~s({"error": "internal server error"}))
       end)
 
       # Disable retry to fail fast
-      result = HTTP.Req.request(base_url: url(bypass), url: "/error", retry: false)
+      result = HTTP.Req.request(base_url: url(sham), url: "/error", retry: false)
 
       assert {:ok, %HTTP.Response{body: %{"error" => "internal server error"}, status: 500}} =
                result
     end
 
-    test "attaches configured plugins before making a request", %{bypass: bypass} do
-      Bypass.expect_once(bypass, "GET", "/plugin", fn conn ->
+    test "attaches configured plugins before making a request", %{sham: sham} do
+      Sham.expect_once(sham, "GET", "/plugin", fn conn ->
         assert Plug.Conn.get_req_header(conn, "x-plugin") == ["attached"]
 
         respond_with_json(conn, 200, ~s({"plugin": "attached"}))
@@ -154,7 +152,7 @@ defmodule DSpace.API.HTTP.ReqTest do
 
       result =
         HTTP.Req.request(
-          base_url: url(bypass),
+          base_url: url(sham),
           url: "/plugin",
           plugins: [&example_plugin/1],
           # Disable retry to fail fast
@@ -167,7 +165,7 @@ defmodule DSpace.API.HTTP.ReqTest do
 
   # Private helpers
 
-  defp url(bypass), do: "http://localhost:#{bypass.port}"
+  defp url(sham), do: "http://localhost:#{sham.port}"
 
   defp example_plugin(request) do
     request

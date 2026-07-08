@@ -24,7 +24,7 @@ defmodule TestHelper do
 
   @doc """
   Responds with DSpace's JSON content type and a pre-formatted JSON string body
-  (for use with Bypass)
+  (for use with Sham)
   """
   def respond_with_json(conn, status_code, json_body_string) do
     conn
@@ -33,7 +33,7 @@ defmodule TestHelper do
   end
 
   @doc """
-  Loads a JSON fixture as a string (for use with Bypass)
+  Loads a JSON fixture as a string (for use with Sham)
   """
   def load_fixture(path) do
     ["test", "support", "fixtures", path]
@@ -54,5 +54,5 @@ end
 ExUnit.configure(exclude: :external)
 ExUnit.start()
 
-Application.ensure_all_started(:bypass)
+Application.ensure_all_started(:sham)
 Application.ensure_all_started(:req)

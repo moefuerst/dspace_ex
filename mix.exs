@@ -57,8 +57,9 @@ defmodule DSpace.MixProject do
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       {:muex, "~> 0.8.0", only: [:dev, :test], runtime: false},
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
-      {:bypass, "~> 2.1", only: [:dev, :test]},
-      {:stream_data, "~> 1.2", only: [:dev, :test]}
+      {:stream_data, "~> 1.2", only: :test},
+      {:sham, "~> 1.0", only: :test},
+      {:bandit, "~> 1.0", only: :test}
     ]
   end
 

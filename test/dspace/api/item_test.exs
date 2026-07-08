@@ -5,11 +5,11 @@ defmodule DSpace.API.ItemTest do
   alias DSpace.API.Item
 
   describe "retrieving an item by UUID" do
-    test "returns item when it exists", %{bypass: bypass, api: api} do
+    test "returns item when it exists", %{sham: sham, api: api} do
       uuid = "8f62713a-c495-467b-a918-2e392f781d2e"
       item_fixture = load_fixture("fetch_item.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/core/items/#{uuid}", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/core/items/#{uuid}", fn conn ->
         respond_with_json(conn, 200, item_fixture)
       end)
 
@@ -24,10 +24,10 @@ defmodule DSpace.API.ItemTest do
   end
 
   describe "retrieving multiple items" do
-    test "lists items with pagination support", %{bypass: bypass, api: api} do
+    test "lists items with pagination support", %{sham: sham, api: api} do
       items_fixture = load_fixture("fetch_items.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/core/items", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/core/items", fn conn ->
         respond_with_json(conn, 200, items_fixture)
       end)
 
@@ -41,11 +41,11 @@ defmodule DSpace.API.ItemTest do
       assert_valid_dspace_resource(first_item, "item")
     end
 
-    test "retrieves specific items by UUIDs", %{bypass: bypass, api: api} do
+    test "retrieves specific items by UUIDs", %{sham: sham, api: api} do
       uuids = ["uuid1", "uuid2", "uuid3"]
       items_fixture = load_fixture("fetch_items.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/core/items/search/findAllByIds", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/core/items/search/findAllByIds", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
 
         case params["id"] do
@@ -72,8 +72,8 @@ defmodule DSpace.API.ItemTest do
       assert is_list(items)
     end
 
-    test "supports custom pagination parameters", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, "GET", "/api/core/items", fn conn ->
+    test "supports custom pagination parameters", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "GET", "/api/core/items", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["page"] == "2"
         assert params["size"] == "10"
@@ -104,10 +104,10 @@ defmodule DSpace.API.ItemTest do
   end
 
   describe "searching for items" do
-    test "finds all items when no search criteria provided", %{bypass: bypass, api: api} do
+    test "finds all items when no search criteria provided", %{sham: sham, api: api} do
       search_fixture = load_fixture("search_objects.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/discover/search/objects", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/discover/search/objects", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
 
         assert params["dsoType"] == "Item"
@@ -122,11 +122,11 @@ defmodule DSpace.API.ItemTest do
       assert is_list(objects)
     end
 
-    test "searches items by query term", %{bypass: bypass, api: api} do
+    test "searches items by query term", %{sham: sham, api: api} do
       search_term = "elixir programming"
       search_fixture = load_fixture("search_objects.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/discover/search/objects", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/discover/search/objects", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
 
         assert params["query"] == search_term
@@ -144,7 +144,7 @@ defmodule DSpace.API.ItemTest do
       assert is_list(objects)
     end
 
-    test "applies filters and pagination to search", %{bypass: bypass, api: api} do
+    test "applies filters and pagination to search", %{sham: sham, api: api} do
       search_fixture = load_fixture("search_objects.json")
 
       options = [
@@ -155,7 +155,7 @@ defmodule DSpace.API.ItemTest do
         filters: [%{filter: "author", operator: "contains", value: "Smith"}]
       ]
 
-      Bypass.expect_once(bypass, "GET", "/api/discover/search/objects", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/discover/search/objects", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
 
         assert params["query"] == "research"
@@ -179,12 +179,12 @@ defmodule DSpace.API.ItemTest do
   end
 
   describe "creating items" do
-    test "creates item in specified collection", %{bypass: bypass, api: api} do
+    test "creates item in specified collection", %{sham: sham, api: api} do
       collection_uuid = "parent-collection-uuid"
       item_data = test_item_data(%{"name" => "New Research Item"})
       item_fixture = load_fixture("fetch_item.json")
 
-      Bypass.expect_once(bypass, "POST", "/api/core/items", fn conn ->
+      Sham.expect_once(sham, "POST", "/api/core/items", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         request_data = JSON.decode!(body)
@@ -214,12 +214,12 @@ defmodule DSpace.API.ItemTest do
   end
 
   describe "modifying existing items" do
-    test "updates item with patch operations", %{bypass: bypass, api: api} do
+    test "updates item with patch operations", %{sham: sham, api: api} do
       uuid = "8f62713a-c495-467b-a918-2e392f781d2e"
       update_operations = test_update_operations("dc.title", "Updated Item Title")
       item_fixture = load_fixture("fetch_item.json")
 
-      Bypass.expect_once(bypass, "PATCH", "/api/core/items/#{uuid}", fn conn ->
+      Sham.expect_once(sham, "PATCH", "/api/core/items/#{uuid}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         request_operations = JSON.decode!(body)
 
@@ -237,12 +237,12 @@ defmodule DSpace.API.ItemTest do
       assert result["uuid"] == uuid
     end
 
-    test "replaces entire item content", %{bypass: bypass, api: api} do
+    test "replaces entire item content", %{sham: sham, api: api} do
       uuid = "8f62713a-c495-467b-a918-2e392f781d2e"
       replacement_data = test_item_data(%{"name" => "Completely New Item"})
       item_fixture = load_fixture("fetch_item.json")
 
-      Bypass.expect_once(bypass, "PUT", "/api/core/items/#{uuid}", fn conn ->
+      Sham.expect_once(sham, "PUT", "/api/core/items/#{uuid}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         request_data = JSON.decode!(body)
 
@@ -262,10 +262,10 @@ defmodule DSpace.API.ItemTest do
   end
 
   describe "removing items" do
-    test "deletes item successfully", %{bypass: bypass, api: api} do
+    test "deletes item successfully", %{sham: sham, api: api} do
       uuid = "8f62713a-c495-467b-a918-2e392f781d2e"
 
-      Bypass.expect_once(bypass, "DELETE", "/api/core/items/#{uuid}", fn conn ->
+      Sham.expect_once(sham, "DELETE", "/api/core/items/#{uuid}", fn conn ->
         respond_with_json(conn, 204, "")
       end)
 
@@ -277,10 +277,10 @@ defmodule DSpace.API.ItemTest do
       assert result == :ok
     end
 
-    test "handles virtual metadata when deleting", %{bypass: bypass, api: api} do
+    test "handles virtual metadata when deleting", %{sham: sham, api: api} do
       uuid = "8f62713a-c495-467b-a918-2e392f781d2e"
 
-      Bypass.expect_once(bypass, "DELETE", "/api/core/items/#{uuid}", fn conn ->
+      Sham.expect_once(sham, "DELETE", "/api/core/items/#{uuid}", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
 
         assert params["copyVirtualMetadata"] == "all"
@@ -298,11 +298,11 @@ defmodule DSpace.API.ItemTest do
   end
 
   describe "DOI registration" do
-    test "registers DOI for existing item", %{bypass: bypass, api: api} do
+    test "registers DOI for existing item", %{sham: sham, api: api} do
       uuid = "8f62713a-c495-467b-a918-2e392f781d2e"
-      expected_item_url = url(bypass) <> "/api/core/items/#{uuid}"
+      expected_item_url = url(sham) <> "/api/core/items/#{uuid}"
 
-      Bypass.expect_once(bypass, "POST", "/api/pid/identifiers", fn conn ->
+      Sham.expect_once(sham, "POST", "/api/pid/identifiers", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         {:ok, body, conn} = Plug.Conn.read_body(conn)
 
@@ -331,11 +331,11 @@ defmodule DSpace.API.ItemTest do
       assert Keyword.get(operation.params, :owningCollection) == collection_uuid
     end
 
-    test "creates workspace item in specified collection", %{bypass: bypass, api: api} do
+    test "creates workspace item in specified collection", %{sham: sham, api: api} do
       collection_uuid = "05457c63-b392-4629-a373-f2d66ee9ee33"
       ws_fixture = load_fixture("workspace_item.json")
 
-      Bypass.expect_once(bypass, "POST", "/api/submission/workspaceitems", fn conn ->
+      Sham.expect_once(sham, "POST", "/api/submission/workspaceitems", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["owningCollection"] == collection_uuid
         respond_with_json(conn, 201, ws_fixture)
@@ -372,10 +372,10 @@ defmodule DSpace.API.ItemTest do
       assert operation.http_method == :get
     end
 
-    test "fetches workspace item by integer ID", %{bypass: bypass, api: api} do
+    test "fetches workspace item by integer ID", %{sham: sham, api: api} do
       ws_fixture = load_fixture("workspace_item.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/submission/workspaceitems/239514", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/submission/workspaceitems/239514", fn conn ->
         respond_with_json(conn, 200, ws_fixture)
       end)
 
@@ -399,11 +399,11 @@ defmodule DSpace.API.ItemTest do
       assert Keyword.get(operation.params, :uuid) == item_uuid
     end
 
-    test "finds workspace item for an item UUID", %{bypass: bypass, api: api} do
+    test "finds workspace item for an item UUID", %{sham: sham, api: api} do
       item_uuid = "cd67ce0e-7f9a-42fc-b8e7-c8bb83ef58ca"
       ws_fixture = load_fixture("workspace_item.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/submission/workspaceitems/search/item", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/submission/workspaceitems/search/item", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["uuid"] == item_uuid
         respond_with_json(conn, 200, ws_fixture)
@@ -418,10 +418,10 @@ defmodule DSpace.API.ItemTest do
       assert result["type"] == "workspaceitem"
     end
 
-    test "returns nil when no workspace item exists for the item", %{bypass: bypass, api: api} do
+    test "returns nil when no workspace item exists for the item", %{sham: sham, api: api} do
       item_uuid = "cd67ce0e-7f9a-42fc-b8e7-c8bb83ef58ca"
 
-      Bypass.expect_once(bypass, "GET", "/api/submission/workspaceitems/search/item", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/submission/workspaceitems/search/item", fn conn ->
         respond_with_json(conn, 204, "")
       end)
 
@@ -447,14 +447,14 @@ defmodule DSpace.API.ItemTest do
       assert operation.data == patch_ops
     end
 
-    test "patches workspace item with JSON Patch operations", %{bypass: bypass, api: api} do
+    test "patches workspace item with JSON Patch operations", %{sham: sham, api: api} do
       ws_fixture = load_fixture("workspace_item.json")
 
       patch_ops = [
         %{"op" => "add", "path" => "/sections/publication/dc.title", "value" => [%{"value" => "Updated Title"}]}
       ]
 
-      Bypass.expect_once(bypass, "PATCH", "/api/submission/workspaceitems/239514", fn conn ->
+      Sham.expect_once(sham, "PATCH", "/api/submission/workspaceitems/239514", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         request_ops = JSON.decode!(body)
         assert request_ops == patch_ops
@@ -485,8 +485,8 @@ defmodule DSpace.API.ItemTest do
       assert operation.transformer.(nil) == :ok
     end
 
-    test "deletes workspace item and associated item", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, "DELETE", "/api/submission/workspaceitems/239514", fn conn ->
+    test "deletes workspace item and associated item", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "DELETE", "/api/submission/workspaceitems/239514", fn conn ->
         respond_with_json(conn, 204, "")
       end)
 
@@ -527,12 +527,12 @@ defmodule DSpace.API.ItemTest do
       assert operation.data == [1234, 5678]
     end
 
-    test "before_step callback builds full workspace item URI for single ID", %{bypass: bypass, api: api} do
+    test "before_step callback builds full workspace item URI for single ID", %{sham: sham, api: api} do
       ws_id = 1234
-      expected_uri = url(bypass) <> "/api/submission/workspaceitems/#{ws_id}"
+      expected_uri = url(sham) <> "/api/submission/workspaceitems/#{ws_id}"
       wf_fixture = load_fixture("workflow_item.json")
 
-      Bypass.expect_once(bypass, "POST", "/api/workflow/workflowitems", fn conn ->
+      Sham.expect_once(sham, "POST", "/api/workflow/workflowitems", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
 
         assert body == expected_uri
@@ -550,17 +550,17 @@ defmodule DSpace.API.ItemTest do
       assert result["type"] == "workflowitem"
     end
 
-    test "before_step callback builds multiple workspace item URIs newline-separated", %{bypass: bypass, api: api} do
+    test "before_step callback builds multiple workspace item URIs newline-separated", %{sham: sham, api: api} do
       ws_ids = [1234, 5678]
 
       expected_body =
         Enum.map_join(ws_ids, "\n", fn id ->
-          url(bypass) <> "/api/submission/workspaceitems/#{id}"
+          url(sham) <> "/api/submission/workspaceitems/#{id}"
         end)
 
       wf_fixture = load_fixture("workflow_item.json")
 
-      Bypass.expect_once(bypass, "POST", "/api/workflow/workflowitems", fn conn ->
+      Sham.expect_once(sham, "POST", "/api/workflow/workflowitems", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
 
         assert body == expected_body
@@ -576,8 +576,8 @@ defmodule DSpace.API.ItemTest do
       assert result["id"] == 1911
     end
 
-    test "returns :published when 201 response body is empty (no workflow configured)", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, "POST", "/api/workflow/workflowitems", fn conn ->
+    test "returns :published when 201 response body is empty (no workflow configured)", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "POST", "/api/workflow/workflowitems", fn conn ->
         respond_with_json(conn, 201, "")
       end)
 
@@ -598,10 +598,10 @@ defmodule DSpace.API.ItemTest do
       assert operation.http_method == :get
     end
 
-    test "fetches workflow item by integer ID", %{bypass: bypass, api: api} do
+    test "fetches workflow item by integer ID", %{sham: sham, api: api} do
       wf_fixture = load_fixture("workflow_item.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/workflow/workflowitems/1911", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/workflow/workflowitems/1911", fn conn ->
         respond_with_json(conn, 200, wf_fixture)
       end)
 
@@ -625,11 +625,11 @@ defmodule DSpace.API.ItemTest do
       assert Keyword.get(operation.params, :uuid) == item_uuid
     end
 
-    test "finds workflow item for an item UUID", %{bypass: bypass, api: api} do
+    test "finds workflow item for an item UUID", %{sham: sham, api: api} do
       item_uuid = "cd67ce0e-7f9a-42fc-b8e7-c8bb83ef58ca"
       wf_fixture = load_fixture("workflow_item.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/workflow/workflowitems/search/item", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/workflow/workflowitems/search/item", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["uuid"] == item_uuid
         respond_with_json(conn, 200, wf_fixture)
@@ -645,10 +645,10 @@ defmodule DSpace.API.ItemTest do
       assert result["type"] == "workflowitem"
     end
 
-    test "returns error when no workflow item exists for the item", %{bypass: bypass, api: api} do
+    test "returns error when no workflow item exists for the item", %{sham: sham, api: api} do
       item_uuid = "cd67ce0e-7f9a-42fc-b8e7-c8bb83ef58ca"
 
-      Bypass.expect_once(bypass, "GET", "/api/workflow/workflowitems/search/item", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/workflow/workflowitems/search/item", fn conn ->
         respond_with_json(conn, 204, "")
       end)
 
@@ -707,10 +707,10 @@ defmodule DSpace.API.ItemTest do
       assert Keyword.get(operation.params, :size) == 5
     end
 
-    test "lists workflow items with pagination", %{bypass: bypass, api: api} do
+    test "lists workflow items with pagination", %{sham: sham, api: api} do
       wf_list_fixture = load_fixture("workflow_items.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/workflow/workflowitems", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/workflow/workflowitems", fn conn ->
         respond_with_json(conn, 200, wf_list_fixture)
       end)
 
@@ -725,11 +725,11 @@ defmodule DSpace.API.ItemTest do
       assert first_item["type"] == "workflowitem"
     end
 
-    test "filters by submitter UUID", %{bypass: bypass, api: api} do
+    test "filters by submitter UUID", %{sham: sham, api: api} do
       submitter_uuid = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
       wf_list_fixture = load_fixture("workflow_items.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/workflow/workflowitems/search/findBySubmitter", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/workflow/workflowitems/search/findBySubmitter", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["uuid"] == submitter_uuid
         respond_with_json(conn, 200, wf_list_fixture)
@@ -771,8 +771,8 @@ defmodule DSpace.API.ItemTest do
       assert operation.transformer.(nil) == :ok
     end
 
-    test "deletes workflow item and returns it to workspace", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, "DELETE", "/api/workflow/workflowitems/1911", fn conn ->
+    test "deletes workflow item and returns it to workspace", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "DELETE", "/api/workflow/workflowitems/1911", fn conn ->
         respond_with_json(conn, 204, "")
       end)
 
@@ -784,8 +784,8 @@ defmodule DSpace.API.ItemTest do
       assert result == :ok
     end
 
-    test "expunge permanently deletes the workflow item", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, "DELETE", "/api/workflow/workflowitems/1911", fn conn ->
+    test "expunge permanently deletes the workflow item", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "DELETE", "/api/workflow/workflowitems/1911", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["expunge"] == "true"
         respond_with_json(conn, 204, "")

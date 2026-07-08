@@ -261,12 +261,12 @@ defmodule DSpace.API.SearchTest do
 
   describe "transformers" do
     test "search transformer extracts data and comprehensive metadata", %{
-      bypass: bypass,
+      sham: sham,
       api: api
     } do
       search_fixture = load_fixture("search_objects.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/discover/search/objects", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/discover/search/objects", fn conn ->
         respond_with_json(conn, 200, search_fixture)
       end)
 

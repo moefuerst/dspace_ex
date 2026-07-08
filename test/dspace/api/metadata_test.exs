@@ -4,11 +4,11 @@ defmodule DSpace.API.MetadataTest do
   alias DSpace.API.Metadata
 
   describe "retrieving metadata fields" do
-    test "fetches a single field by ID", %{bypass: bypass, api: api} do
+    test "fetches a single field by ID", %{sham: sham, api: api} do
       field_id = "8"
       field_fixture = load_fixture("fetch_metadata_field.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/core/metadatafields/#{field_id}", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/core/metadatafields/#{field_id}", fn conn ->
         respond_with_json(conn, 200, field_fixture)
       end)
 
@@ -23,10 +23,10 @@ defmodule DSpace.API.MetadataTest do
       assert result["qualifier"] == "advisor"
     end
 
-    test "lists all metadata fields with pagination", %{bypass: bypass, api: api} do
+    test "lists all metadata fields with pagination", %{sham: sham, api: api} do
       fields_fixture = load_fixture("fetch_metadata_fields.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/core/metadatafields", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/core/metadatafields", fn conn ->
         respond_with_json(conn, 200, fields_fixture)
       end)
 
@@ -44,11 +44,11 @@ defmodule DSpace.API.MetadataTest do
       assert is_binary(next_url)
     end
 
-    test "lists fields filtered by schema", %{bypass: bypass, api: api} do
+    test "lists fields filtered by schema", %{sham: sham, api: api} do
       schema_prefix = "dc"
       fields_fixture = load_fixture("fetch_metadata_fields.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/core/metadatafields/search/bySchema", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/core/metadatafields/search/bySchema", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["schema"] == schema_prefix
 
@@ -65,8 +65,8 @@ defmodule DSpace.API.MetadataTest do
       assert length(fields) == 3
     end
 
-    test "supports custom pagination parameters for field listing", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, "GET", "/api/core/metadatafields", fn conn ->
+    test "supports custom pagination parameters for field listing", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "GET", "/api/core/metadatafields", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["page"] == "1"
         assert params["size"] == "10"
@@ -92,11 +92,11 @@ defmodule DSpace.API.MetadataTest do
   end
 
   describe "searching metadata fields" do
-    test "finds fields by exact name", %{bypass: bypass, api: api} do
+    test "finds fields by exact name", %{sham: sham, api: api} do
       field_name = "dc.contributor.author"
       fields_fixture = load_fixture("fetch_metadata_fields.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/core/metadatafields/search/byFieldName", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/core/metadatafields/search/byFieldName", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["name"] == field_name
 
@@ -111,11 +111,11 @@ defmodule DSpace.API.MetadataTest do
       assert is_map(result)
     end
 
-    test "finds fields by schema prefix", %{bypass: bypass, api: api} do
+    test "finds fields by schema prefix", %{sham: sham, api: api} do
       schema_prefix = "dc"
       fields_fixture = load_fixture("fetch_metadata_fields.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/core/metadatafields/search/byFieldName", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/core/metadatafields/search/byFieldName", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["schema"] == schema_prefix
 
@@ -130,12 +130,12 @@ defmodule DSpace.API.MetadataTest do
       assert is_map(result)
     end
 
-    test "finds fields by element and qualifier", %{bypass: bypass, api: api} do
+    test "finds fields by element and qualifier", %{sham: sham, api: api} do
       element = "contributor"
       qualifier = "author"
       fields_fixture = load_fixture("fetch_metadata_fields.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/core/metadatafields/search/byFieldName", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/core/metadatafields/search/byFieldName", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["element"] == element
         assert params["qualifier"] == qualifier
@@ -151,11 +151,11 @@ defmodule DSpace.API.MetadataTest do
       assert is_map(result)
     end
 
-    test "finds fields by query term", %{bypass: bypass, api: api} do
+    test "finds fields by query term", %{sham: sham, api: api} do
       query_term = "dc.ti"
       fields_fixture = load_fixture("fetch_metadata_fields.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/core/metadatafields/search/byFieldName", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/core/metadatafields/search/byFieldName", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["query"] == query_term
 
@@ -170,8 +170,8 @@ defmodule DSpace.API.MetadataTest do
       assert is_map(result)
     end
 
-    test "supports pagination in field search", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, "GET", "/api/core/metadatafields/search/byFieldName", fn conn ->
+    test "supports pagination in field search", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "GET", "/api/core/metadatafields/search/byFieldName", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["query"] == "contributor"
         assert params["page"] == "0"
@@ -189,7 +189,7 @@ defmodule DSpace.API.MetadataTest do
 
   describe "creating metadata fields" do
     test "creates field with scope note and validates payload transformation", %{
-      bypass: bypass,
+      sham: sham,
       api: api
     } do
       schema_id = "schema-123"
@@ -203,7 +203,7 @@ defmodule DSpace.API.MetadataTest do
 
       field_fixture = load_fixture("fetch_metadata_field.json")
 
-      Bypass.expect_once(bypass, "POST", "/api/core/metadatafields", fn conn ->
+      Sham.expect_once(sham, "POST", "/api/core/metadatafields", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         request_data = JSON.decode!(body)
@@ -224,7 +224,7 @@ defmodule DSpace.API.MetadataTest do
       assert result["type"] == "metadatafield"
     end
 
-    test "creates field without scope note and handles nil values", %{bypass: bypass, api: api} do
+    test "creates field without scope note and handles nil values", %{sham: sham, api: api} do
       schema_id = "schema-456"
 
       field_data = %{
@@ -234,7 +234,7 @@ defmodule DSpace.API.MetadataTest do
 
       field_fixture = load_fixture("fetch_metadata_field.json")
 
-      Bypass.expect_once(bypass, "POST", "/api/core/metadatafields", fn conn ->
+      Sham.expect_once(sham, "POST", "/api/core/metadatafields", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         request_data = JSON.decode!(body)
@@ -275,12 +275,12 @@ defmodule DSpace.API.MetadataTest do
   end
 
   describe "modifying metadata fields" do
-    test "updates field scope note", %{bypass: bypass, api: api} do
+    test "updates field scope note", %{sham: sham, api: api} do
       field_id = "8"
       updates = %{scope_note: "Updated scope note"}
       field_fixture = load_fixture("fetch_metadata_field.json")
 
-      Bypass.expect_once(bypass, "PUT", "/api/core/metadatafields/#{field_id}", fn conn ->
+      Sham.expect_once(sham, "PUT", "/api/core/metadatafields/#{field_id}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         request_data = JSON.decode!(body)
 
@@ -319,10 +319,10 @@ defmodule DSpace.API.MetadataTest do
   end
 
   describe "removing metadata fields" do
-    test "deletes field successfully", %{bypass: bypass, api: api} do
+    test "deletes field successfully", %{sham: sham, api: api} do
       field_id = "8"
 
-      Bypass.expect_once(bypass, "DELETE", "/api/core/metadatafields/#{field_id}", fn conn ->
+      Sham.expect_once(sham, "DELETE", "/api/core/metadatafields/#{field_id}", fn conn ->
         respond_with_json(conn, 204, "")
       end)
 
@@ -336,11 +336,11 @@ defmodule DSpace.API.MetadataTest do
   end
 
   describe "retrieving metadata schemas" do
-    test "fetches a single schema by ID", %{bypass: bypass, api: api} do
+    test "fetches a single schema by ID", %{sham: sham, api: api} do
       schema_id = "1"
       schema_fixture = load_fixture("fetch_metadata_schema.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/core/metadataschemas/#{schema_id}", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/core/metadataschemas/#{schema_id}", fn conn ->
         respond_with_json(conn, 200, schema_fixture)
       end)
 
@@ -355,10 +355,10 @@ defmodule DSpace.API.MetadataTest do
       assert result["namespace"] == "http://dublincore.org/documents/dcmi-terms/"
     end
 
-    test "lists all metadata schemas with pagination", %{bypass: bypass, api: api} do
+    test "lists all metadata schemas with pagination", %{sham: sham, api: api} do
       schemas_fixture = load_fixture("fetch_metadata_schemas.json")
 
-      Bypass.expect_once(bypass, "GET", "/api/core/metadataschemas", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/core/metadataschemas", fn conn ->
         respond_with_json(conn, 200, schemas_fixture)
       end)
 
@@ -376,8 +376,8 @@ defmodule DSpace.API.MetadataTest do
       assert is_nil(next_url)
     end
 
-    test "supports custom pagination parameters for schema listing", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, "GET", "/api/core/metadataschemas", fn conn ->
+    test "supports custom pagination parameters for schema listing", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "GET", "/api/core/metadataschemas", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["page"] == "1"
         assert params["size"] == "5"
@@ -403,13 +403,13 @@ defmodule DSpace.API.MetadataTest do
   end
 
   describe "creating metadata schemas" do
-    test "creates schema successfully", %{bypass: bypass, api: api} do
+    test "creates schema successfully", %{sham: sham, api: api} do
       schema_data =
         test_schema_data(%{"prefix" => "example", "namespace" => "http://example.org/"})
 
       schema_fixture = load_fixture("fetch_metadata_schema.json")
 
-      Bypass.expect_once(bypass, "POST", "/api/core/metadataschemas", fn conn ->
+      Sham.expect_once(sham, "POST", "/api/core/metadataschemas", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         request_data = JSON.decode!(body)
 
@@ -436,12 +436,12 @@ defmodule DSpace.API.MetadataTest do
   end
 
   describe "modifying metadata schemas" do
-    test "updates schema successfully", %{bypass: bypass, api: api} do
+    test "updates schema successfully", %{sham: sham, api: api} do
       schema_id = "1"
       updates = %{"namespace" => "http://updated.example.org/"}
       schema_fixture = load_fixture("fetch_metadata_schema.json")
 
-      Bypass.expect_once(bypass, "PUT", "/api/core/metadataschemas/#{schema_id}", fn conn ->
+      Sham.expect_once(sham, "PUT", "/api/core/metadataschemas/#{schema_id}", fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         request_data = JSON.decode!(body)
 
@@ -460,10 +460,10 @@ defmodule DSpace.API.MetadataTest do
   end
 
   describe "removing metadata schemas" do
-    test "deletes schema successfully", %{bypass: bypass, api: api} do
+    test "deletes schema successfully", %{sham: sham, api: api} do
       schema_id = "1"
 
-      Bypass.expect_once(bypass, "DELETE", "/api/core/metadataschemas/#{schema_id}", fn conn ->
+      Sham.expect_once(sham, "DELETE", "/api/core/metadataschemas/#{schema_id}", fn conn ->
         respond_with_json(conn, 204, "")
       end)
 

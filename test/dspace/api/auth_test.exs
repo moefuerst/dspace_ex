@@ -10,12 +10,12 @@ defmodule DSpace.API.AuthTest do
     @pass "password123"
 
     test "operation returns token when executed successfully with existing CSRF", %{
-      bypass: bypass,
+      sham: sham,
       api: api
     } do
       form_body = URI.encode_query(user: @user, password: @pass)
 
-      Bypass.expect(bypass, fn conn ->
+      Sham.expect(sham, fn conn ->
         assert Plug.Conn.get_req_header(conn, "x-xsrf-token") == ["abc123"]
 
         assert Plug.Conn.get_req_header(conn, "content-type") == [
@@ -36,19 +36,19 @@ defmodule DSpace.API.AuthTest do
       assert token == "xyz123"
     end
 
-    test "operation fetches CSRF when missing", %{bypass: bypass, api: api} do
+    test "operation fetches CSRF when missing", %{sham: sham, api: api} do
       api = %{api | csrf_token: nil}
       form_body = URI.encode_query(user: @user, password: @pass)
 
       # Expect CSRF fetch
-      Bypass.expect_once(bypass, "GET", "/api/security/csrf", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/security/csrf", fn conn ->
         conn
         |> Plug.Conn.put_resp_header("dspace-xsrf-token", "auto-csrf-123")
         |> respond_with_json(204, "")
       end)
 
       # Expect login
-      Bypass.expect_once(bypass, "POST", "/api/authn/login", fn conn ->
+      Sham.expect_once(sham, "POST", "/api/authn/login", fn conn ->
         assert Plug.Conn.get_req_header(conn, "x-xsrf-token") == ["auto-csrf-123"]
 
         {:ok, req_body, conn} = Plug.Conn.read_body(conn)
@@ -65,8 +65,8 @@ defmodule DSpace.API.AuthTest do
       assert token == "auto-token-456"
     end
 
-    test "operation returns error when request fails", %{bypass: bypass, api: api} do
-      Bypass.expect(bypass, fn conn ->
+    test "operation returns error when request fails", %{sham: sham, api: api} do
+      Sham.expect(sham, fn conn ->
         respond_with_json(conn, 401, ~s({"message": "Bad credentials"}))
       end)
 
@@ -76,11 +76,11 @@ defmodule DSpace.API.AuthTest do
       assert %Error{type: :unauthorized} = error
     end
 
-    test "operation returns the CSRF fetch error instead of attempting login", %{bypass: bypass, api: api} do
+    test "operation returns the CSRF fetch error instead of attempting login", %{sham: sham, api: api} do
       api = %{api | csrf_token: nil}
 
       # Expect CSRF fetch to fail
-      Bypass.expect(bypass, "GET", "/api/security/csrf", fn conn ->
+      Sham.expect(sham, "GET", "/api/security/csrf", fn conn ->
         respond_with_json(conn, 500, ~s({"message": "CSRF Fetch Error"}))
       end)
 
@@ -90,18 +90,18 @@ defmodule DSpace.API.AuthTest do
       assert %Error{type: :server_error} = error
     end
 
-    test "operation fetches CSRF when missing with tranform override", %{bypass: bypass, api: api} do
+    test "operation fetches CSRF when missing with tranform override", %{sham: sham, api: api} do
       api = %{api | csrf_token: nil}
 
       # Expect CSRF fetch
-      Bypass.expect_once(bypass, "GET", "/api/security/csrf", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/security/csrf", fn conn ->
         conn
         |> Plug.Conn.put_resp_header("dspace-xsrf-token", "auto-csrf-123")
         |> respond_with_json(204, "")
       end)
 
       # Expect login
-      Bypass.expect_once(bypass, "POST", "/api/authn/login", fn conn ->
+      Sham.expect_once(sham, "POST", "/api/authn/login", fn conn ->
         assert Plug.Conn.get_req_header(conn, "x-xsrf-token") == ["auto-csrf-123"]
 
         conn
@@ -118,13 +118,13 @@ defmodule DSpace.API.AuthTest do
   end
 
   describe "fetch_api_key/0" do
-    setup %{bypass: bypass, api: api} do
+    setup %{sham: sham, api: api} do
       api_with_tokens = %{api | access_token: "xyz123", csrf_token: "abc123"}
-      %{bypass: bypass, api: api_with_tokens}
+      %{sham: sham, api: api_with_tokens}
     end
 
-    test "operation returns token when executed successfully", %{bypass: bypass, api: api} do
-      Bypass.expect(bypass, fn conn ->
+    test "operation returns token when executed successfully", %{sham: sham, api: api} do
+      Sham.expect(sham, fn conn ->
         assert Plug.Conn.get_req_header(conn, "authorization") == ["Bearer xyz123"]
         assert Plug.Conn.get_req_header(conn, "x-xsrf-token") == ["abc123"]
 
@@ -137,8 +137,8 @@ defmodule DSpace.API.AuthTest do
       assert result == "api_key_123"
     end
 
-    test "operation returns error when request fails", %{bypass: bypass, api: api} do
-      Bypass.expect(bypass, fn conn ->
+    test "operation returns error when request fails", %{sham: sham, api: api} do
+      Sham.expect(sham, fn conn ->
         respond_with_json(conn, 500, ~s({"message": "Server Error"}))
       end)
 
@@ -148,8 +148,8 @@ defmodule DSpace.API.AuthTest do
       assert %Error{type: :server_error} = error
     end
 
-    test "operation returns error when response body is invalid", %{bypass: bypass, api: api} do
-      Bypass.expect(bypass, fn conn ->
+    test "operation returns error when response body is invalid", %{sham: sham, api: api} do
+      Sham.expect(sham, fn conn ->
         respond_with_json(conn, 200, ~s({"invalid": "response"}))
       end)
 
@@ -161,10 +161,10 @@ defmodule DSpace.API.AuthTest do
   end
 
   describe "refresh_csrf_token/0" do
-    test "operation returns token when executed successfully", %{bypass: bypass, api: api} do
+    test "operation returns token when executed successfully", %{sham: sham, api: api} do
       api = %{api | api_version: "7.6.2"}
 
-      Bypass.expect_once(bypass, "GET", "/api/security/csrf", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/security/csrf", fn conn ->
         conn
         |> Plug.Conn.put_resp_header("dspace-xsrf-token", "fresh-csrf-token")
         |> respond_with_json(204, "")
@@ -176,8 +176,8 @@ defmodule DSpace.API.AuthTest do
       assert token == "fresh-csrf-token"
     end
 
-    test "operation returns error when request fails", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, fn conn ->
+    test "operation returns error when request fails", %{sham: sham, api: api} do
+      Sham.expect_once(sham, fn conn ->
         respond_with_json(conn, 500, ~s({"message": "Server Error"}))
       end)
 
@@ -187,10 +187,10 @@ defmodule DSpace.API.AuthTest do
       assert %Error{type: :server_error} = error
     end
 
-    test "uses fallback endpoint for older DSpace versions", %{bypass: bypass, api: api} do
+    test "uses fallback endpoint for older DSpace versions", %{sham: sham, api: api} do
       api_old = %{api | api_version: "7.6.1"}
 
-      Bypass.expect_once(bypass, "GET", "/api/authn/status", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/authn/status", fn conn ->
         conn
         |> Plug.Conn.put_resp_header("dspace-xsrf-token", "fresh-csrf-token")
         |> respond_with_json(200, ~s({"authenticated": false}))
@@ -204,13 +204,13 @@ defmodule DSpace.API.AuthTest do
   end
 
   describe "refresh_access_token/0" do
-    setup %{bypass: bypass, api: api} do
+    setup %{sham: sham, api: api} do
       api_with_tokens = %{api | access_token: "xyz123", csrf_token: "abc123"}
-      %{bypass: bypass, api: api_with_tokens}
+      %{sham: sham, api: api_with_tokens}
     end
 
-    test "operation returns token when executed successfully", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, fn conn ->
+    test "operation returns token when executed successfully", %{sham: sham, api: api} do
+      Sham.expect_once(sham, fn conn ->
         assert Plug.Conn.get_req_header(conn, "authorization") == ["Bearer xyz123"]
 
         conn
@@ -225,8 +225,8 @@ defmodule DSpace.API.AuthTest do
       assert token == "123xyz"
     end
 
-    test "operation returns error when request fails", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, fn conn ->
+    test "operation returns error when request fails", %{sham: sham, api: api} do
+      Sham.expect_once(sham, fn conn ->
         respond_with_json(conn, 401, ~s({"message": "Token expired"}))
       end)
 
@@ -238,13 +238,13 @@ defmodule DSpace.API.AuthTest do
   end
 
   describe "delete_api_key/0" do
-    setup %{bypass: bypass, api: api} do
+    setup %{sham: sham, api: api} do
       api_with_tokens = %{api | access_token: "xyz123", csrf_token: "abc123"}
-      %{bypass: bypass, api: api_with_tokens}
+      %{sham: sham, api: api_with_tokens}
     end
 
-    test "operation returns token when executed successfully", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, fn conn ->
+    test "operation returns token when executed successfully", %{sham: sham, api: api} do
+      Sham.expect_once(sham, fn conn ->
         assert Plug.Conn.get_req_header(conn, "authorization") == ["Bearer xyz123"]
         assert Plug.Conn.get_req_header(conn, "x-xsrf-token") == ["abc123"]
 
@@ -257,8 +257,8 @@ defmodule DSpace.API.AuthTest do
       assert is_map(result)
     end
 
-    test "operation returns error when request fails", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, fn conn ->
+    test "operation returns error when request fails", %{sham: sham, api: api} do
+      Sham.expect_once(sham, fn conn ->
         respond_with_json(conn, 404, ~s({"message": "Not Found"}))
       end)
 
@@ -270,13 +270,13 @@ defmodule DSpace.API.AuthTest do
   end
 
   describe "fetch_short_lived_token/0" do
-    setup %{bypass: bypass, api: api} do
+    setup %{sham: sham, api: api} do
       api_with_tokens = %{api | access_token: "xyz123", csrf_token: "abc123"}
-      %{bypass: bypass, api: api_with_tokens}
+      %{sham: sham, api: api_with_tokens}
     end
 
-    test "operation returns token when executed successfully", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, fn conn ->
+    test "operation returns token when executed successfully", %{sham: sham, api: api} do
+      Sham.expect_once(sham, fn conn ->
         assert Plug.Conn.get_req_header(conn, "authorization") == ["Bearer xyz123"]
         assert Plug.Conn.get_req_header(conn, "x-xsrf-token") == ["abc123"]
 
@@ -289,8 +289,8 @@ defmodule DSpace.API.AuthTest do
       assert token == "shorty123"
     end
 
-    test "operation returns error when request fails", %{bypass: bypass, api: api} do
-      Bypass.expect_once(bypass, fn conn ->
+    test "operation returns error when request fails", %{sham: sham, api: api} do
+      Sham.expect_once(sham, fn conn ->
         respond_with_json(conn, 401, ~s({"message": "Unauthorized"}))
       end)
 
@@ -300,10 +300,10 @@ defmodule DSpace.API.AuthTest do
       assert %Error{type: :unauthorized} = error
     end
 
-    test "uses GET method for older DSpace versions", %{bypass: bypass, api: api} do
+    test "uses GET method for older DSpace versions", %{sham: sham, api: api} do
       api_old = %{api | api_version: "7.4.9"}
 
-      Bypass.expect_once(bypass, fn conn ->
+      Sham.expect_once(sham, fn conn ->
         assert Plug.Conn.get_req_header(conn, "authorization") == ["Bearer xyz123"]
         assert Plug.Conn.get_req_header(conn, "x-xsrf-token") == ["abc123"]
 
@@ -318,10 +318,10 @@ defmodule DSpace.API.AuthTest do
   end
 
   describe "extract_csrf/1" do
-    test "extracts token from cookie header when xsrf-token header is absent", %{bypass: bypass, api: api} do
+    test "extracts token from cookie header when xsrf-token header is absent", %{sham: sham, api: api} do
       api = %{api | api_version: "7.6.2"}
 
-      Bypass.expect_once(bypass, "GET", "/api/security/csrf", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/security/csrf", fn conn ->
         conn
         |> Plug.Conn.put_resp_cookie("DSPACE-XSRF-COOKIE", "fresh-csrf-token",
           path: "/server",
@@ -338,10 +338,10 @@ defmodule DSpace.API.AuthTest do
       assert token == "fresh-csrf-token"
     end
 
-    test "extracts token from second cookie header when first is an expired cookie", %{bypass: bypass, api: api} do
+    test "extracts token from second cookie header when first is an expired cookie", %{sham: sham, api: api} do
       api = %{api | api_version: "7.6.2"}
 
-      Bypass.expect_once(bypass, "GET", "/api/security/csrf", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/security/csrf", fn conn ->
         conn
         |> Plug.Conn.put_resp_cookie("DSPACE-XSRF-COOKIE", "",
           path: "/server",
@@ -365,10 +365,10 @@ defmodule DSpace.API.AuthTest do
       assert token == "fresh-csrf-token"
     end
 
-    test "prefers xsrf-token header over cookie header when both are present", %{bypass: bypass, api: api} do
+    test "prefers xsrf-token header over cookie header when both are present", %{sham: sham, api: api} do
       api = %{api | api_version: "7.6.2"}
 
-      Bypass.expect_once(bypass, "GET", "/api/security/csrf", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/security/csrf", fn conn ->
         conn
         |> Plug.Conn.put_resp_header("dspace-xsrf-token", "header-csrf-token")
         |> Plug.Conn.put_resp_cookie("DSPACE-XSRF-COOKIE", "cookie-csrf-token",

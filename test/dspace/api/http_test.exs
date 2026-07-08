@@ -7,18 +7,18 @@ defmodule DSpace.API.HTTPTest do
   alias DSpace.API.HTTP
 
   setup do
-    bypass = Bypass.open()
+    sham = Sham.start()
 
-    {:ok, bypass: bypass}
+    {:ok, sham: sham}
   end
 
   describe "Request preparation" do
-    test "Adds requested endpoint to the response structure", %{bypass: bypass} do
-      Bypass.expect_once(bypass, "GET", "/my-path", fn conn ->
+    test "Adds requested endpoint to the response structure", %{sham: sham} do
+      Sham.expect_once(sham, "GET", "/my-path", fn conn ->
         Plug.Conn.resp(conn, 200, "ok")
       end)
 
-      result = HTTP.request(HTTP.Req, url: URI.parse(url(bypass) <> "/my-path"))
+      result = HTTP.request(HTTP.Req, url: URI.parse(url(sham) <> "/my-path"))
 
       assert {:ok, %HTTP.Response{request_url: requested}} = result
       assert requested.path == "/my-path"
@@ -26,18 +26,18 @@ defmodule DSpace.API.HTTPTest do
   end
 
   describe "Response normalization" do
-    test "returns DSpace.API.Error for common non-success status codes", %{bypass: bypass} do
+    test "returns DSpace.API.Error for common non-success status codes", %{sham: sham} do
       common_error_codes = [400, 401, 403, 404, 410, 412, 422, 429, 500, 502, 503]
 
       for status <- common_error_codes do
-        Bypass.expect_once(bypass, "GET", "/error", fn conn ->
+        Sham.expect_once(sham, "GET", "/error", fn conn ->
           respond_with_json(conn, status, ~s({"error": "error for status #{status}"}))
         end)
 
         # Disable retry to fail fast
         result =
           HTTP.request(HTTP.Req,
-            url: url(bypass) <> "/error",
+            url: url(sham) <> "/error",
             expected_status: [200],
             retry: false
           )
@@ -47,15 +47,15 @@ defmodule DSpace.API.HTTPTest do
       end
     end
 
-    test "returns DSpace.API.Error for unexpected response 304 Not Modified", %{bypass: bypass} do
-      Bypass.expect_once(bypass, "GET", "/not-modified", fn conn ->
+    test "returns DSpace.API.Error for unexpected response 304 Not Modified", %{sham: sham} do
+      Sham.expect_once(sham, "GET", "/not-modified", fn conn ->
         respond_with_json(conn, 304, "")
       end)
 
       # Disable retry to fail fast
       result =
         HTTP.request(HTTP.Req,
-          url: url(bypass) <> "/not-modified",
+          url: url(sham) <> "/not-modified",
           expected_status: [200],
           retry: false
         )
@@ -64,21 +64,21 @@ defmodule DSpace.API.HTTPTest do
     end
 
     test "propagates exceptional error returned by the HTTP adapter as DSpace.API.HTTP.Error", %{
-      bypass: bypass
+      sham: sham
     } do
-      Bypass.expect_once(bypass, fn conn ->
+      Sham.expect_once(sham, fn conn ->
         conn
         |> Plug.Conn.put_resp_header("content-length", "error")
         |> Plug.Conn.put_resp_header("transfer-encoding", "20")
         |> Plug.Conn.resp(200, "")
       end)
 
-      result = HTTP.request(HTTP.Req, url: url(bypass) <> "/error", retry: false)
+      result = HTTP.request(HTTP.Req, url: url(sham) <> "/error", retry: false)
 
       assert {:error, %DSpace.API.HTTP.Error{reason: %Req.HTTPError{}}} = result
     end
   end
 
   # Private helpers
-  defp url(bypass), do: "http://localhost:#{bypass.port}"
+  defp url(sham), do: "http://localhost:#{sham.port}"
 end
