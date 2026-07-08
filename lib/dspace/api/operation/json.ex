@@ -253,6 +253,22 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
     {:ok, token}
   end
 
+  defp extract_csrf(%{"set-cookie" => cookies}) do
+    token =
+      cookies
+      |> Enum.flat_map(&String.split(&1, ";"))
+      |> Enum.map(&String.trim/1)
+      |> Enum.find_value(fn
+        "DSPACE-XSRF-COOKIE=" <> token -> token
+        _ -> nil
+      end)
+
+    case token do
+      nil -> :error
+      token -> {:ok, token}
+    end
+  end
+
   defp extract_csrf(_headers), do: :error
 
   defp maybe_override_transformer(options, transform_fn) do
