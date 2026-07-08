@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.1.1] – 2026-07-08
+
+  * Migrated the test suite from Bypass to Sham
+  * Fixed a bug where the assetstore in the DSpace stack for external testing wasn't set up
+    correctly
+  * Fixed a bug where file uploads were not setting headers correctly
+  * Fixed a bug where a logout operation would return an error struct even on success
+  * Fixed a bug where response streaming would fail because of an incorrectly accepted request
+    override option
+  * Minor enhancements to the external tests
+  * Various improvements to documentation
+
 ## [v0.1.0] – 2026-07-05
 
   * Item.create_draft/1 now accepts a :from option to create a draft from an external 
@@ -14,11 +26,11 @@ All notable changes to this project will be documented in this file.
   * Various improvements to documentation
 
 Breaking changes:
+
   * Item.submit/3 now returns :published instead of :archived on success for more consistent 
     terminology throughout the codebase.
 
-
-  ## [v0.1.0-alpha2] – 2026-07-01
+## [v0.1.0-alpha2] – 2026-07-01
 
   * Initialize from proof of concept repo
   * Hex package setup
