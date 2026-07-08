@@ -116,6 +116,22 @@ defmodule DSpace.API.StreamBuilderTest do
 
       assert result == []
     end
+
+    test "ignores transform: false option", %{sham: sham, client: client} do
+      Sham.expect_once(sham, "GET", "/items", fn conn ->
+        respond_with_json(conn, 200, ~s({"items": ["item1"], "next": null}))
+      end)
+
+      operation = %Operation.JSON{
+        path: "/items",
+        transformer: fn response -> {response.body["items"], %{}, response.body["next"]} end
+      }
+
+      stream = StreamBuilder.new(client, operation, transform: false)
+      result = Enum.to_list(stream)
+
+      assert result == ["item1"]
+    end
   end
 
   defp url(sham), do: "http://localhost:#{sham.port}"
