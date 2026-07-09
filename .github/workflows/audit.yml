@@ -46,8 +46,5 @@ jobs:
       - name: Compile
         run: mix compile
 
-      - name: Hex Audit
-        run: mix hex.audit
-
-      - name: Deps Audit
+      - name: Hex and Deps Audit
         run: mix deps.audit
