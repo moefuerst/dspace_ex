@@ -106,6 +106,7 @@ defmodule DSpace.API.Auth do
     %Operation.JSON{
       path: @ep_api_key,
       http_method: :post,
+      supported_versions: %{cris: ">= 2023.1.1"},
       transformer: &token_from_response/1
     }
   end
@@ -120,7 +121,8 @@ defmodule DSpace.API.Auth do
   def delete_api_key do
     %Operation.JSON{
       path: @ep_api_key,
-      http_method: :delete
+      http_method: :delete,
+      supported_versions: %{cris: ">= 2023.1.1"}
     }
   end
 

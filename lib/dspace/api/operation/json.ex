@@ -14,12 +14,13 @@ defmodule DSpace.API.Operation.JSON do
   defstruct http_method: :get,
             path: "/",
             csrf: :auto,
-            transformer: &DSpace.API.Transform.from_response/1,
             expected_status: nil,
+            transformer: &DSpace.API.Transform.from_response/1,
             data: nil,
             content_type: :json,
             params: [],
             headers: %{},
+            supported_versions: %{any: ">= 7.0.0"},
             version_overrides: [],
             before_step: nil,
             stream_impl: nil
@@ -28,12 +29,13 @@ defmodule DSpace.API.Operation.JSON do
           http_method: :get | :head | :post | :put | :patch | :delete,
           path: binary(),
           csrf: :auto | :required | :optional | :skip,
-          transformer: function(),
           expected_status: [non_neg_integer()] | nil,
+          transformer: function(),
           data: map() | list() | binary() | nil,
           content_type: :json | :form | :multipart | :uri_list,
           params: keyword(),
           headers: %{optional(binary()) => [binary()]},
+          supported_versions: %{(:any | :dspace | :cris) => Version.requirement()},
           version_overrides: [{binary(), keyword()}],
           before_step: function() | nil,
           stream_impl: function() | nil
@@ -56,7 +58,9 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
   alias DSpace.API
   alias DSpace.API.HTTP
   alias DSpace.API.HTTP.Response
+  alias DSpace.API.Operation.Error
   alias DSpace.API.Operation.JSON, as: OpJSON
+  alias DSpace.API.Version
 
   # Options which don't need to be passed to the HTTP adapter
   @extra_options [:transform, :base_url]
@@ -65,46 +69,15 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
   def perform(operation, client, opts_override) do
     {operation, client, opts_override} = maybe_invoke_callback(operation, client, opts_override)
 
-    operation = maybe_apply_version_overrides(operation, client)
-    {content_header, body_option} = build_content_options(operation)
-    csrf_policy = resolve_csrf(operation.csrf, operation.http_method)
-    {http_impl, client_config} = client.http_impl
-
-    headers =
-      %{
-        :accept => ["application/json"],
-        :user_agent => [client.user_agent]
-      }
-      |> Map.merge(content_header)
-      |> Map.merge(operation.headers)
-      |> maybe_add_csrf_header(csrf_policy, client.csrf_token)
-      |> maybe_add_csrf_cookie(csrf_policy, client.csrf_token)
-      |> maybe_add_auth_header(client.access_token)
-
-    url =
-      operation.path
-      |> URI.parse()
-      |> maybe_add_base_url(client.endpoint)
-
-    request_options =
-      client_config
-      |> Keyword.merge(
-        method: operation.http_method,
-        headers: headers,
-        url: url,
-        params: operation.params,
-        expected_status: resolve_expected_status(operation)
-      )
-      |> Keyword.merge(body_option)
-      |> Keyword.merge(opts_override)
-      |> Keyword.drop(@extra_options)
-
-    with {:ok, response} <- HTTP.request(http_impl, request_options),
-         :ok <- maybe_invoke_on_response_hook(client, response) do
-      transformer = maybe_override_transformer(opts_override, operation.transformer)
+    with {:ok, operation} <- ensure_version_compatible(operation, client),
+         {:ok, context} <- ensure_client_sufficient(operation, client),
+         {:ok, {http_impl, request_options}} <- build_request(operation, client, opts_override, context),
+         {:ok, response} <- HTTP.request(http_impl, request_options),
+         :ok <- maybe_invoke_response_hook(client, response) do
+      transform_fn = maybe_override_transformer(opts_override, operation.transformer)
 
       response
-      |> apply_transform(transformer)
+      |> apply_transform(transform_fn)
       |> wrap()
     end
   end
@@ -128,13 +101,33 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
     callback.(operation, client, options)
   end
 
+  defp ensure_version_compatible(operation, client) do
+    version = Version.resolve(client)
+
+    case Version.check_compatibility(version, operation.supported_versions) do
+      :ok ->
+        operation
+        |> maybe_apply_version_overrides(version)
+        |> wrap()
+
+      {:error, {:unsupported_distribution, distribution}} ->
+        {:error, Error.exception(not_supported: to_string(distribution))}
+
+      {:error, {:unsupported_version, version}} ->
+        {:error, Error.exception(not_supported: version)}
+    end
+  end
+
   defp maybe_apply_version_overrides(%{version_overrides: []} = operation, _client), do: operation
 
-  defp maybe_apply_version_overrides(%{version_overrides: overrides} = operation, client) do
-    %API{api_version: version} = client
+  # If the client does not specify any version, apply overrides to use latest vanilla DSpace
+  defp maybe_apply_version_overrides(operation, %{api_version: nil, cris_version: nil} = client) do
+    maybe_apply_version_overrides(operation, %{client | api_version: Version.latest()})
+  end
 
+  defp maybe_apply_version_overrides(%{version_overrides: overrides} = operation, client) do
     Enum.reduce(overrides, operation, fn {version_spec, changes}, acc ->
-      if version_matches?(version, version_spec) do
+      if Version.version_matches?(client, version_spec) do
         struct(acc, changes)
       else
         acc
@@ -142,14 +135,51 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
     end)
   end
 
-  defp version_matches?(version, spec) when is_binary(version) and is_binary(spec) do
-    case Version.parse_requirement(spec) do
-      {:ok, requirement} -> Version.match?(version, requirement)
-      :error -> false
+  defp ensure_client_sufficient(operation, client) do
+    case {resolve_csrf(operation.csrf, operation.http_method), client.csrf_token} do
+      {:required, nil} ->
+        {:error, Error.exception(missing_property: "executing this operation requires a CSRF token")}
+
+      {csrf_policy, _} ->
+        {:ok, %{csrf_policy: csrf_policy}}
     end
   end
 
-  defp version_matches?(_version, _spec), do: false
+  defp build_request(operation, client, opts_override, context) do
+    {content_header, body_option} = build_content_options(operation)
+    {http_impl, client_config} = client.http_impl
+
+    headers =
+      %{
+        :accept => ["application/json"],
+        :user_agent => [client.user_agent]
+      }
+      |> Map.merge(content_header)
+      |> Map.merge(operation.headers)
+      |> maybe_put_auth_header(client.access_token)
+      |> maybe_put_csrf_header(context[:csrf_policy], client.csrf_token)
+      |> maybe_put_csrf_cookie(context[:csrf_policy], client.csrf_token)
+
+    url =
+      operation.path
+      |> URI.parse()
+      |> maybe_add_base_url(client.endpoint)
+
+    request_options =
+      client_config
+      |> Keyword.merge(
+        method: operation.http_method,
+        headers: headers,
+        url: url,
+        params: operation.params,
+        expected_status: resolve_expected_status(operation)
+      )
+      |> Keyword.merge(body_option)
+      |> Keyword.merge(opts_override)
+      |> Keyword.drop(@extra_options)
+
+    {:ok, {http_impl, request_options}}
+  end
 
   defp build_content_options(%{data: nil}), do: {%{}, []}
 
@@ -181,26 +211,24 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
   defp resolve_csrf(:auto, _method), do: :optional
   defp resolve_csrf(explicit, _method), do: explicit
 
-  defp maybe_add_csrf_header(headers, :skip, _csrf_token), do: headers
+  defp maybe_put_auth_header(headers, access_token) when is_nonempty_binary(access_token) do
+    Map.put(headers, :authorization, ["Bearer " <> access_token])
+  end
 
-  defp maybe_add_csrf_header(headers, :required, csrf_token) when is_nonempty_binary(csrf_token) do
+  defp maybe_put_auth_header(headers, nil), do: headers
+
+  defp maybe_put_csrf_header(headers, :skip, _csrf_token), do: headers
+
+  defp maybe_put_csrf_header(headers, policy, csrf_token)
+       when policy in [:required, :optional] and is_nonempty_binary(csrf_token) do
     Map.put(headers, :x_xsrf_token, [csrf_token])
   end
 
-  defp maybe_add_csrf_header(_headers, :required, _csrf_token) do
-    raise ArgumentError, "executing this operation requires a CSRF token"
-  end
+  defp maybe_put_csrf_header(headers, :optional, _csrf_token), do: headers
 
-  defp maybe_add_csrf_header(headers, :optional, csrf_token) when is_nonempty_binary(csrf_token) do
-    Map.put(headers, :x_xsrf_token, [csrf_token])
-  end
+  defp maybe_put_csrf_cookie(headers, :skip, _csrf_token), do: headers
 
-  defp maybe_add_csrf_header(headers, :optional, _csrf_token), do: headers
-
-  defp maybe_add_csrf_cookie(headers, :skip, _csrf_token), do: headers
-
-  # Policy is enforced by maybe_add_csrf_header/3 called before in the chain.
-  defp maybe_add_csrf_cookie(headers, _policy, csrf_token) when is_nonempty_binary(csrf_token) do
+  defp maybe_put_csrf_cookie(headers, _policy, csrf_token) when is_nonempty_binary(csrf_token) do
     csrf_cookie = "DSPACE-XSRF-COOKIE=" <> csrf_token
 
     if xsrf_cookie_header_set?(headers) do
@@ -210,7 +238,7 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
     end
   end
 
-  defp maybe_add_csrf_cookie(headers, _policy, _csrf_token), do: headers
+  defp maybe_put_csrf_cookie(headers, _policy, _csrf_token), do: headers
 
   defp xsrf_cookie_header_set?(headers) do
     headers
@@ -220,22 +248,16 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
     |> Enum.any?(&String.starts_with?(&1, "DSPACE-XSRF-COOKIE="))
   end
 
-  defp maybe_add_auth_header(headers, access_token) when is_nonempty_binary(access_token) do
-    Map.put(headers, :authorization, ["Bearer " <> access_token])
-  end
-
-  defp maybe_add_auth_header(headers, nil), do: headers
-
   defp resolve_expected_status(%{expected_status: status}) when is_list(status), do: status
   defp resolve_expected_status(%{http_method: :post}), do: [200, 201]
   defp resolve_expected_status(%{http_method: :delete}), do: [200, 204]
   defp resolve_expected_status(_operation), do: [200]
 
-  defp maybe_invoke_on_response_hook(%API{on_response_hook: nil}, _response) do
+  defp maybe_invoke_response_hook(%API{on_response_hook: nil}, _response) do
     :ok
   end
 
-  defp maybe_invoke_on_response_hook(%API{on_response_hook: hook}, response) when is_function(hook, 1) do
+  defp maybe_invoke_response_hook(%API{on_response_hook: hook}, response) when is_function(hook, 1) do
     %Response{headers: headers} = response
 
     case extract_csrf(headers) do
@@ -244,7 +266,7 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
 
         :ok
 
-      _no_token ->
+      {:error, :not_found} ->
         :ok
     end
   end
@@ -264,12 +286,12 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
       end)
 
     case token do
-      nil -> :error
+      nil -> {:error, :not_found}
       token -> {:ok, token}
     end
   end
 
-  defp extract_csrf(_headers), do: :error
+  defp extract_csrf(_headers), do: {:error, :not_found}
 
   defp maybe_override_transformer(options, transform_fn) do
     case Keyword.get(options, :transform, true) do

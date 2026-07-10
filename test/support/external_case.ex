@@ -33,11 +33,13 @@ defmodule DSpace.ExternalCase do
   def dspace_test_api(options \\ []) do
     endpoint = System.fetch_env!("DSPACE_ENDPOINT")
     version = System.get_env("DSPACE_VERSION", "9.2.0")
+    cris_version = System.get_env("DSPACE_CRIS_VERSION")
 
     client =
       DSpace.API.new(
         endpoint: endpoint,
         api_version: version,
+        cris_version: cris_version,
         # Disable retry to fail fast in all tests
         http_impl: {DSpace.API.HTTP.Req, [retry: false]}
       )

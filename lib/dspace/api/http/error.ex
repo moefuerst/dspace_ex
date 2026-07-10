@@ -20,14 +20,6 @@ defmodule DSpace.API.HTTP.Error do
       |> URI.to_string()
       |> String.split("?", parts: 2)
 
-    """
-    The DSpace API was unreachable.
-
-    Requested endpoint:
-    #{request_url}
-
-    Reason:
-    #{inspect(exception.reason, pretty: true)}
-    """
+    "DSpace API was unreachable (#{request_url}): #{inspect(exception.reason, pretty: true)}"
   end
 end

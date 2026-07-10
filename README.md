@@ -191,7 +191,7 @@ Include the DSpace version of the instance you are connecting to in the client s
 ```elixir
 client = %DSpace.API{
   endpoint: "https://example.com/server",
-  version: "7.6.2"
+  api_version: "7.6.2"
 }
 ```
 
