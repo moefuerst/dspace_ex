@@ -91,6 +91,7 @@ defmodule DSpace.API.Error do
   @impl true
   def exception(attributes) when is_list(attributes) do
     attributes = Keyword.put_new(attributes, :request_url, attributes[:response].request_url)
+
     struct(__MODULE__, attributes)
   end
 

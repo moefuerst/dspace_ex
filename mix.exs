@@ -115,6 +115,7 @@ defmodule DSpace.MixProject do
         DSpace.API,
         DSpace.API.Error,
         DSpace.API.HTTP.Error,
+        DSpace.API.Operation.Error,
         DSpace.API.Metadata.Value,
         DSpace.API.Resource
       ],
@@ -149,7 +150,8 @@ defmodule DSpace.MixProject do
         DSpace.API.Operation.Chain,
         DSpace.API.Operation.Chain.Context,
         DSpace.API.StreamBuilder,
-        DSpace.API.Transform
+        DSpace.API.Transform,
+        DSpace.API.Version
       ]
     ]
   end

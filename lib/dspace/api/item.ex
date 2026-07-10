@@ -487,6 +487,7 @@ defmodule DSpace.API.Item do
         %Operation.JSON{
           path: @ep_core_by_id,
           params: params ++ Enum.map(maybe_ids, &{:id, &1}),
+          supported_versions: %{cris: ">= 2023.1.1"},
           transformer: transformer
         }
       else

@@ -4,6 +4,7 @@ defmodule DSpace.APIExternalTest do
   alias DSpace.API
   alias DSpace.API.Item
   alias DSpace.API.Monitor
+  alias DSpace.API.Version
 
   describe "basic connection" do
     test "connects to DSpace API", %{endpoint: endpoint} do
@@ -17,8 +18,24 @@ defmodule DSpace.APIExternalTest do
           assert is_binary(status),
                  "Expected health status response from monitor endpoint, got #{inspect(response)}"
 
-        {:error, error} ->
-          flunk("Failed to connect to external DSpace API: #{inspect(error)}")
+        {:error, reason} ->
+          flunk("Failed to connect to external DSpace API: #{inspect(reason)}")
+      end
+    end
+
+    test "retrieves API version information" do
+      client = dspace_test_api()
+
+      case API.request(Version.fetch(), client) do
+        {:ok, %Version{api_version: api_version, cris_version: cris_version}} ->
+          on_exit(fn ->
+            IO.puts("\n[External Test] DSpace API: #{api_version}, CRIS: #{cris_version}")
+          end)
+
+          Elixir.Version.parse!(api_version)
+
+        {:error, reason} ->
+          flunk("Failed to retrieve Version from external DSpace API: #{inspect(reason)}")
       end
     end
   end

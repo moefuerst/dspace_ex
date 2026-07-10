@@ -43,6 +43,7 @@ test.external: ## Run the external tests against a bootstrapped DSpace instance
 	$(COMPOSE_DS) -p dspace-ex-e2e up --wait --wait-timeout 600
 	$(COMPOSE_TEST) -p dspace-ex-e2e run --rm \
 		--env DSPACE_ENDPOINT=http://dspace:8080/server \
+		--env DSPACE_CRIS_VERSION=2025.02.00 \
 		--env DSPACE_ADMIN_EMAIL=admin@admin.com \
 		--env DSPACE_ADMIN_PASSWORD=admin \
 		test mix test --only external

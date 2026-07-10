@@ -8,7 +8,7 @@ defmodule DSpace.APITest do
   alias DSpace.API.StreamBuilder
 
   setup do
-    api = %API{user_agent: "test", api_version: "1.0.0"}
+    api = %API{user_agent: "test"}
 
     %{api: api}
   end
@@ -24,17 +24,13 @@ defmodule DSpace.APITest do
       }
     end
 
-    test "injects a client implementation", %{api: api} do
+    test "injects a client implementation and its options", %{api: api} do
       operation = %Operation.JSON{path: "/test"}
       API.request(operation, api)
 
-      assert_received {:http_request, _options}
+      assert_received {:http_request, options}
 
-      assert {TestHelper.HTTP, client_opts} = api.http_impl,
-             "API should include the client implementation"
-
-      assert Keyword.get(client_opts, :client_config) == "default",
-             "API should include the client configuration"
+      assert Keyword.get(options, :client_config) == "default"
     end
 
     test "correctly merges adapter config", %{api: api} do
@@ -177,12 +173,43 @@ defmodule DSpace.APITest do
     end
 
     test "returns false on API request error", %{api: api} do
-      # Simulate a request error by setting an invalid endpoint
+      # simulate a request error by setting an invalid endpoint
       api = API.put_endpoint(api, "http://localhost:1")
 
       result = API.authenticated?(api)
 
       assert result == false
+    end
+  end
+
+  describe "load_version/1" do
+    setup do
+      sham = Sham.start()
+      api = %API{endpoint: url(sham), http_impl: {DSpace.API.HTTP.Req, [retry: false]}}
+
+      {:ok, sham: sham, api: api}
+    end
+
+    test "returns updated client when version info is available", %{sham: sham, api: api} do
+      Sham.expect(sham, fn conn ->
+        respond_with_json(conn, 200, ~s({"dspaceVersion": "7.0.0", "crisVersion": "cris-2021.01.01.00"}))
+      end)
+
+      updated_api = API.load_version(api)
+
+      assert is_struct(updated_api, API)
+      assert updated_api.api_version == %Version{major: 7, minor: 0, patch: 0}
+      assert updated_api.cris_version == %Version{major: 2021, minor: 1, patch: 1}
+    end
+
+    test "returns unchanged client when version info cannot be retrieved", %{sham: sham, api: api} do
+      Sham.expect(sham, fn conn ->
+        respond_with_json(conn, 500, ~s({"error": "internal server error"}))
+      end)
+
+      result = API.load_version(api)
+
+      assert result == api
     end
   end
 
@@ -338,6 +365,8 @@ defmodule DSpace.APITest do
       end
     end
   end
+
+  # Private helpers
 
   defp url(sham), do: "http://localhost:#{sham.port}"
 end
