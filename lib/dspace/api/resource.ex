@@ -18,9 +18,9 @@ defmodule DSpace.API.Resource do
   @typedoc """
   Represents a single metadata update to a resource.
 
-  Corresponds to a JSON Patch operation as per [RFC6902](https://tools.ietf.org/html/rfc6902)
-  ("copy" and "test" operations are not implemented by DSpace). Be aware  that DSpace defines
-  custom semantics on top of JSON Patch.
+  Roughly corresponds to a JSON Patch operation as per
+  [RFC6902](https://tools.ietf.org/html/rfc6902). Be aware that DSpace defines custom semantics on
+  top of JSON Patch. "copy" and "test" operations are not implemented by DSpace.
 
   ## Fields
 
@@ -37,12 +37,7 @@ defmodule DSpace.API.Resource do
 
       %{"op" => "replace", "path" => "/metadata/dc.title/0/value", "value" => "New Title"}
   """
-  @type resource_update :: %{
-          required(binary()) => binary(),
-          required(binary()) => binary(),
-          optional(binary()) => binary() | nil,
-          optional(binary()) => binary() | nil
-        }
+  @type resource_update :: %{required(binary()) => binary() | nil}
 
   @doc """
   Builds an operation to fetch a single resource by UUID.

@@ -63,8 +63,8 @@ defmodule DSpace.API.Item do
   @doc """
   Fetches the parent collection of an item.
   """
-  @spec parent(binary()) :: Operation.JSON.t()
-  def parent(uuid) when is_nonempty_binary(uuid) do
+  @spec fetch_parent(binary()) :: Operation.JSON.t()
+  def fetch_parent(uuid) when is_nonempty_binary(uuid) do
     %Operation.JSON{path: @ep_core <> "/" <> uuid <> "/owningCollection"}
   end
 
@@ -227,14 +227,14 @@ defmodule DSpace.API.Item do
   If no editorial workflow is configured for the collection, the item is published immediately and
   `:published` is returned instead of a "workflow item" map.
   """
-  @spec submit(pos_integer() | [pos_integer()], keyword()) :: Operation.JSON.t()
-  def submit(ws_id, options \\ [])
+  @spec submit_draft(pos_integer() | [pos_integer()], keyword()) :: Operation.JSON.t()
+  def submit_draft(ws_id, options \\ [])
 
-  def submit(ws_id, options) when is_integer(ws_id) and ws_id > 0 do
-    submit([ws_id], options)
+  def submit_draft(ws_id, options) when is_integer(ws_id) and ws_id > 0 do
+    submit_draft([ws_id], options)
   end
 
-  def submit(ws_id, _options) when is_list(ws_id) and ws_id != [] do
+  def submit_draft(ws_id, _options) when is_list(ws_id) and ws_id != [] do
     transformer = fn
       %Response{body: body} when is_map(body) and map_size(body) > 0 -> body
       _ -> :published

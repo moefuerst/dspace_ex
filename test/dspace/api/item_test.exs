@@ -501,7 +501,7 @@ defmodule DSpace.API.ItemTest do
 
   describe "submitting workspace items to workflow" do
     test "returns operation with correct path, method, and content_type" do
-      operation = Item.submit(1234)
+      operation = Item.submit_draft(1234)
 
       assert operation.path == "/api/workflow/workflowitems"
       assert operation.http_method == :post
@@ -509,20 +509,20 @@ defmodule DSpace.API.ItemTest do
     end
 
     test "before_step callback is set" do
-      operation = Item.submit(1234)
+      operation = Item.submit_draft(1234)
 
       assert operation.before_step
       assert is_function(operation.before_step, 3)
     end
 
     test "single integer is normalized to a list in data" do
-      operation = Item.submit(1234)
+      operation = Item.submit_draft(1234)
 
       assert operation.data == [1234]
     end
 
     test "list of integers is stored as-is in data" do
-      operation = Item.submit([1234, 5678])
+      operation = Item.submit_draft([1234, 5678])
 
       assert operation.data == [1234, 5678]
     end
@@ -542,7 +542,7 @@ defmodule DSpace.API.ItemTest do
 
       {:ok, result} =
         ws_id
-        |> Item.submit()
+        |> Item.submit_draft()
         |> API.request(api)
 
       assert result["id"] == 1911
@@ -570,7 +570,7 @@ defmodule DSpace.API.ItemTest do
 
       {:ok, result} =
         ws_ids
-        |> Item.submit()
+        |> Item.submit_draft()
         |> API.request(api)
 
       assert result["id"] == 1911
@@ -583,7 +583,7 @@ defmodule DSpace.API.ItemTest do
 
       {:ok, result} =
         1234
-        |> Item.submit()
+        |> Item.submit_draft()
         |> API.request(api)
 
       assert result == :published
