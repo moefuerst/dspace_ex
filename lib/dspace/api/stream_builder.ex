@@ -14,6 +14,7 @@ defmodule DSpace.API.StreamBuilder do
   import DSpace.Utils, only: [is_nonempty_binary: 1]
 
   alias DSpace.API
+  alias DSpace.API.Operation
 
   # Public API
 
@@ -28,16 +29,20 @@ defmodule DSpace.API.StreamBuilder do
       metadata, and `next` is the URL for the next page or `nil` if there are no more pages.
     * `options` - Keyword list of request options.
   """
-  @spec new(API.t(), struct(), keyword()) :: Enumerable.t()
+  @spec new(API.t(), Operation.t(), keyword()) :: Enumerable.t()
   def new(client, operation, options) do
     Stream.resource(fn -> {operation, client, options} end, &fetch_page/1, & &1)
   end
 
   # Private helpers
 
-  @spec fetch_page({nil, client, opts}) :: {:halt, nil} when client: API.t(), opts: keyword()
+  @spec fetch_page({nil, client, opts}) :: {:halt, nil}
+        when client: API.t(),
+             opts: keyword()
   @spec fetch_page({operation, client, opts}) :: {list(), {operation, client, opts}}
-        when operation: struct(), client: API.t(), opts: keyword()
+        when operation: Operation.t(),
+             client: API.t(),
+             opts: keyword()
   defp fetch_page({nil, _client, _options}), do: {:halt, nil}
 
   defp fetch_page({operation, client, options}) do

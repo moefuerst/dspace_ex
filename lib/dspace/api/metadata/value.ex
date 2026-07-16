@@ -35,33 +35,6 @@ defmodule DSpace.API.Metadata.Value do
   defstruct [:value, :language, :authority, :confidence, :place, :security_level]
 
   @typedoc """
-  DSpace authority matching confidence values.
-
-    * `:accepted` - Confirmed accurate by a user or policy
-    * `:uncertain` - Valid but unconfirmed, used for programmatic relation links
-    * `:ambiguous` - Multiple equally valid matches
-    * `:not_found` - No matching authority values
-    * `:failed` - Internal authority failure
-    * `:rejected` - Authority recommends rejection
-    * `:no_value` - No confidence value available
-    * `:unset` - Not yet evaluated (default)
-  """
-  @type confidence_score ::
-          :accepted | :uncertain | :ambiguous | :not_found | :failed | :rejected | :no_value | :unset
-
-  @typedoc """
-  DSpace-CRIS security levels for metadata values.
-
-  Note that these levels are a configurable property. An instance might define additional/
-  different security levels. The structure described here is the default.
-
-    * `:public` - Available to all users (including anonymous)
-    * `:trusted` - Available to authenticated users in the "Trusted" group
-    * `:admin_owner` - Available only to administrators and entity owner
-  """
-  @type security_level :: :public | :trusted | :admin_owner
-
-  @typedoc """
   A single DSpace metadata value.
 
     * `value` - The actual content (required)
@@ -80,6 +53,33 @@ defmodule DSpace.API.Metadata.Value do
           place: non_neg_integer() | nil,
           security_level: security_level() | nil
         }
+
+  @typedoc """
+  DSpace authority matching confidence values.
+
+    * `:accepted` - Confirmed accurate by a user or policy
+    * `:uncertain` - Valid but unconfirmed, used for programmatic relation links
+    * `:ambiguous` - Multiple equally valid matches
+    * `:not_found` - No matching authority values
+    * `:failed` - Internal authority failure
+    * `:rejected` - Authority recommends rejection
+    * `:no_value` - No confidence value available
+    * `:unset` - Not yet evaluated (default)
+  """
+  @type confidence_score ::
+          :accepted | :uncertain | :ambiguous | :not_found | :failed | :rejected | :no_value | :unset
+
+  @typedoc """
+  Security levels for metadata values.
+
+  Note that these levels are a configurable property. An instance might define additional/
+  different security levels. The structure described here is the default.
+
+    * `:public` - Available to all users (including anonymous)
+    * `:trusted` - Available to authenticated users in the "Trusted" group
+    * `:admin_owner` - Available only to administrators and entity owner
+  """
+  @type security_level :: :public | :trusted | :admin_owner
 
   # Public API
 
