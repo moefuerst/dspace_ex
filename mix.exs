@@ -116,8 +116,11 @@ defmodule DSpace.MixProject do
         DSpace.API.Error,
         DSpace.API.HTTP.Error,
         DSpace.API.Operation.Error,
-        DSpace.API.Metadata.Value,
         DSpace.API.Resource
+      ],
+      "Data Structures": [
+        DSpace.API.Metadata.Value,
+        DSpace.API.Resource.Update
       ],
       "Core Resources": [
         DSpace.API.Collection,
