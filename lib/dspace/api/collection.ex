@@ -11,6 +11,7 @@ defmodule DSpace.API.Collection do
 
   alias DSpace.API.Operation
   alias DSpace.API.Resource
+  alias DSpace.API.Resource.Update
   alias DSpace.API.Search
   alias DSpace.API.StreamBuilder
   alias DSpace.API.Transform
@@ -169,7 +170,7 @@ defmodule DSpace.API.Collection do
     %Operation.JSON{
       path: @ep_core <> "/" <> uuid,
       http_method: :patch,
-      data: updates
+      data: Enum.map(updates, &Update.to_map/1)
     }
   end
 
