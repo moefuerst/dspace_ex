@@ -21,6 +21,7 @@ defmodule DSpace.API.Item do
   alias DSpace.API.HTTP.Response
   alias DSpace.API.Operation
   alias DSpace.API.Resource
+  alias DSpace.API.Resource.Update
   alias DSpace.API.Search
   alias DSpace.API.Source
   alias DSpace.API.StreamBuilder
@@ -102,7 +103,7 @@ defmodule DSpace.API.Item do
   """
   @spec withdraw(binary()) :: Operation.JSON.t()
   def withdraw(uuid) when is_nonempty_binary(uuid) do
-    update(uuid, [%{"op" => "replace", "path" => "/withdrawn", "value" => true}])
+    update(uuid, [%Update{op: :replace, path: "/withdrawn", value: true}])
   end
 
   @doc """
@@ -112,7 +113,7 @@ defmodule DSpace.API.Item do
   """
   @spec hide(binary()) :: Operation.JSON.t()
   def hide(uuid) when is_nonempty_binary(uuid) do
-    update(uuid, [%{"op" => "replace", "path" => "/discoverable", "value" => false}])
+    update(uuid, [%Update{op: :replace, path: "/discoverable", value: false}])
   end
 
   @doc """
@@ -195,11 +196,11 @@ defmodule DSpace.API.Item do
   Note: The `ws_id` param is the workspace ID, not the Item's UUID.
   """
   @spec update_draft(pos_integer(), list()) :: Operation.JSON.t()
-  def update_draft(ws_id, patch_operations) when is_integer(ws_id) and is_list(patch_operations) do
+  def update_draft(ws_id, updates) when is_integer(ws_id) and is_list(updates) do
     %Operation.JSON{
       path: @ep_workspace <> "/" <> Integer.to_string(ws_id),
       http_method: :patch,
-      data: patch_operations
+      data: Enum.map(updates, &Update.to_map/1)
     }
   end
 
@@ -540,7 +541,7 @@ defmodule DSpace.API.Item do
     %Operation.JSON{
       path: @ep_core <> "/" <> uuid,
       http_method: :patch,
-      data: updates
+      data: Enum.map(updates, &Update.to_map/1)
     }
   end
 

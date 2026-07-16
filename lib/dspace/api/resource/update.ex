@@ -4,7 +4,7 @@ defmodule DSpace.API.Resource.Update do
 
   Roughly corresponds to a JSON Patch operation as per
   [RFC6902](https://tools.ietf.org/html/rfc6902). Be aware that DSpace defines custom semantics on
-  top of JSON Patch and "copy" and "test" operations are not implemented.
+  top of JSON Patch, and "copy" and "test" operations are not implemented.
 
   ## Examples
 
@@ -74,9 +74,11 @@ defmodule DSpace.API.Resource.Update do
 
   @doc """
   Converts an update structure to a map.
+
+  Also accepts a plain map as a passthrough for convenience.
   """
-  @spec to_map(t()) :: map()
-  def to_map(update) do
+  @spec to_map(t() | map()) :: map()
+  def to_map(%__MODULE__{} = update) do
     %{
       "op" => to_string(update.op),
       "path" => update.path
@@ -85,12 +87,7 @@ defmodule DSpace.API.Resource.Update do
     |> maybe_put("from", update.from)
   end
 
-  @doc """
-  Normalizes an update to a map.
-  """
-  @spec normalize(t() | map()) :: map()
-  def normalize(%__MODULE__{} = update), do: to_map(update)
-  def normalize(map) when is_map(map), do: map
+  def to_map(update) when is_map(update), do: update
 
   # Private helpers
 

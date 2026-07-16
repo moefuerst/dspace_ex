@@ -4,6 +4,7 @@ defmodule DSpace.API.Resource do
   """
 
   alias DSpace.API.Operation
+  alias DSpace.API.Resource.Update
 
   @typedoc """
   Represents a "DSpace Object" UUID.
@@ -18,26 +19,23 @@ defmodule DSpace.API.Resource do
   @typedoc """
   Represents a single metadata update to a resource.
 
-  Roughly corresponds to a JSON Patch operation as per
-  [RFC6902](https://tools.ietf.org/html/rfc6902). Be aware that DSpace defines custom semantics on
-  top of JSON Patch. "copy" and "test" operations are not implemented by DSpace.
-
-  ## Fields
-
-    * `op` - The operation to perform:
-      * `add` - Sets the value at the target path. Replaces the value if it already exists.
-      * `remove` - Removes the value at the target path. `value` is not required.
-      * `replace` - Replaces an existing value at the target path. Fails if no value exists.
-      * `move` - Moves the value from `from` to `path`. `value` is not required.
-    * `path` - JSON Pointer to the target location (e.g. `"/metadata/dc.title/0/value"`)
-    * `value` - The value to place at the target path. Required for `:add` and `:replace`.
-    * `from` - Source JSON Pointer, only used with `:move`.
+  See `DSpace.API.Resource.Update` for details. A plain string-keyed map is also accepted.
 
   ## Examples
 
-      %{"op" => "replace", "path" => "/metadata/dc.title/0/value", "value" => "New Title"}
+      %DSpace.API.Resource{
+        op: :replace,
+        path: "/metadata/dc.title/0/value",
+        value: "New Title"
+      }
+
+      %{
+        "op" => "replace",
+        "path" => "/metadata/dc.title/0/value",
+        "value" => "New Title"
+      }
   """
-  @type resource_update :: %{required(binary()) => binary() | nil}
+  @type resource_update :: Update.t() | %{required(binary()) => binary() | nil}
 
   @doc """
   Builds an operation to fetch a single resource by UUID.
@@ -62,7 +60,7 @@ defmodule DSpace.API.Resource do
   @doc """
   Builds an operation to update an existing resource on DSpace.
 
-  The payload is a list of `t:DSpace.API.Resource.resource_update.t/0`.
+  The payload is a list of `t:resource_update/0`.
   """
   @callback update(dso_uuid(), [resource_update()], options()) :: Operation.t()
 

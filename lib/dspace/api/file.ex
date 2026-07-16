@@ -19,6 +19,7 @@ defmodule DSpace.API.File do
   alias DSpace.API.Item
   alias DSpace.API.Operation
   alias DSpace.API.Resource
+  alias DSpace.API.Resource.Update
   alias DSpace.API.StreamBuilder
   alias DSpace.API.Transform
 
@@ -498,7 +499,7 @@ defmodule DSpace.API.File do
     %Operation.JSON{
       path: @ep_bitstreams <> "/" <> uuid,
       http_method: :patch,
-      data: updates
+      data: Enum.map(updates, &Update.to_map/1)
     }
   end
 
