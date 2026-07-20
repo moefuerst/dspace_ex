@@ -12,19 +12,6 @@ defmodule DSpace.API.HTTPTest do
     {:ok, sham: sham}
   end
 
-  describe "Request preparation" do
-    test "Adds requested endpoint to the response structure", %{sham: sham} do
-      Sham.expect_once(sham, "GET", "/my-path", fn conn ->
-        Plug.Conn.resp(conn, 200, "ok")
-      end)
-
-      result = HTTP.request(HTTP.Req, url: URI.parse(url(sham) <> "/my-path"))
-
-      assert {:ok, %HTTP.Response{request_url: requested}} = result
-      assert requested.path == "/my-path"
-    end
-  end
-
   describe "Response normalization" do
     test "returns DSpace.API.Error for common non-success status codes", %{sham: sham} do
       common_error_codes = [400, 401, 403, 404, 410, 412, 422, 429, 500, 502, 503]
@@ -34,11 +21,11 @@ defmodule DSpace.API.HTTPTest do
           respond_with_json(conn, status, ~s({"error": "error for status #{status}"}))
         end)
 
-        # Disable retry to fail fast
         result =
           HTTP.request(HTTP.Req,
             url: url(sham) <> "/error",
             expected_status: [200],
+            # Disable retry to fail fast
             retry: false
           )
 
@@ -52,11 +39,11 @@ defmodule DSpace.API.HTTPTest do
         respond_with_json(conn, 304, "")
       end)
 
-      # Disable retry to fail fast
       result =
         HTTP.request(HTTP.Req,
           url: url(sham) <> "/not-modified",
           expected_status: [200],
+          # Disable retry to fail fast
           retry: false
         )
 
@@ -73,9 +60,15 @@ defmodule DSpace.API.HTTPTest do
         |> Plug.Conn.resp(200, "")
       end)
 
-      result = HTTP.request(HTTP.Req, url: url(sham) <> "/error", retry: false)
+      result =
+        HTTP.request(HTTP.Req,
+          url: url(sham) <> "/error",
+          # Disable retry to fail fast
+          retry: false
+        )
 
-      assert {:error, %DSpace.API.HTTP.Error{reason: %Req.HTTPError{}}} = result
+      assert {:error, %DSpace.API.HTTP.Error{reason: %Req.HTTPError{}} = error} = result
+      assert error.request_url.path == "/error"
     end
   end
 

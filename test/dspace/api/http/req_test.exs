@@ -124,6 +124,33 @@ defmodule DSpace.API.HTTP.ReqTest do
       assert {:ok, %HTTP.Response{body: ~s({"key":"other_value"})}} = result
     end
 
+    test "sets request_url on the response", %{sham: sham} do
+      Sham.expect_once(sham, "GET", "/my-path", fn conn ->
+        Plug.Conn.resp(conn, 200, "ok")
+      end)
+
+      result = HTTP.Req.request(url: url(sham) <> "/my-path", retry: false)
+
+      assert {:ok, %HTTP.Response{request_url: requested}} = result
+      assert requested.path == "/my-path"
+    end
+
+    test "includes query params in request_url", %{sham: sham} do
+      Sham.expect_once(sham, "GET", "/my-path", fn conn ->
+        Plug.Conn.resp(conn, 200, "ok")
+      end)
+
+      result =
+        HTTP.Req.request(
+          url: url(sham) <> "/my-path",
+          params: [email: "user@example.com", scope: "all"],
+          retry: false
+        )
+
+      assert {:ok, %HTTP.Response{request_url: requested}} = result
+      assert requested.query == "email=user%40example.com&scope=all"
+    end
+
     test "propagates exceptions from failed requests using request/1" do
       # Simulate a request error by setting an invalid endpoint; disable retry to fail fast
       result = HTTP.Req.request(base_url: "http://localhost:1", url: "/some-path", retry: false)
