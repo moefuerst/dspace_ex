@@ -48,6 +48,7 @@ defmodule DSpace.API.HTTP do
     * `:status` - HTTP status code as integer
     * `:headers` - HTTP response headers as a map
     * `:body` - response body, already decoded into a map
+    * `:request_url` - the URL that was requested (for observability/debugging purposes)
   """
 
   alias DSpace.API.HTTP
@@ -82,16 +83,11 @@ defmodule DSpace.API.HTTP do
   @doc false
   @spec request(module(), keyword()) :: {:ok, HTTP.Response.t()} | {:error, Exception.t()}
   def request(module, options) do
-    requested_endpoint =
-      options
-      |> Keyword.fetch!(:url)
-      |> URI.parse()
-
     {expected_status, other_options} = Keyword.pop(options, :expected_status)
 
     other_options
     |> module.request()
-    |> handle_adapter_result(requested_endpoint, expected_status)
+    |> handle_adapter_result(expected_status, other_options)
   end
 
   @doc false
@@ -105,13 +101,11 @@ defmodule DSpace.API.HTTP do
 
   # Private helpers
 
-  defp handle_adapter_result({:ok, %HTTP.Response{} = response}, requested_endpoint, nil) do
-    {:ok, %{response | request_url: requested_endpoint}}
+  defp handle_adapter_result({:ok, %HTTP.Response{} = response}, nil, _options) do
+    {:ok, response}
   end
 
-  defp handle_adapter_result({:ok, %HTTP.Response{} = response}, requested_endpoint, expected_status) do
-    response = %{response | request_url: requested_endpoint}
-
+  defp handle_adapter_result({:ok, %HTTP.Response{} = response}, expected_status, _options) do
     if response.status in expected_status do
       {:ok, response}
     else
@@ -119,7 +113,12 @@ defmodule DSpace.API.HTTP do
     end
   end
 
-  defp handle_adapter_result({:error, %HTTP.Error{} = error}, requested_endpoint, _expected_status) do
-    {:error, %{error | request_url: requested_endpoint}}
+  defp handle_adapter_result({:error, %HTTP.Error{} = error}, _expected_status, options) do
+    request_url =
+      options
+      |> Keyword.fetch!(:url)
+      |> URI.parse()
+
+    {:error, %{error | request_url: request_url}}
   end
 end

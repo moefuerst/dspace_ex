@@ -29,16 +29,24 @@ if Code.ensure_loaded?(Req) do
       other_options
       |> Req.new()
       |> then(&Enum.reduce(plugins, &1, fn plugin, req -> plugin.(req) end))
-      |> Req.request()
-      |> transform_response()
+      |> Req.run()
+      |> transform_result()
     end
 
     # Private helpers
 
-    defp transform_response({:ok, response}) do
-      {:ok, %HTTP.Response{status: response.status, headers: response.headers, body: response.body}}
+    defp transform_result({req, %Req.Response{} = response}) do
+      {:ok,
+       %HTTP.Response{
+         request_url: req.url,
+         status: response.status,
+         headers: response.headers,
+         body: response.body
+       }}
     end
 
-    defp transform_response({:error, reason}), do: {:error, HTTP.Error.exception(reason: reason)}
+    defp transform_result({_req, exception}) do
+      {:error, HTTP.Error.exception(reason: exception)}
+    end
   end
 end

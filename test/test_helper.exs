@@ -7,18 +7,23 @@ defmodule TestHelper do
 
     @impl true
     def request(options) do
+      response = %DSpace.API.HTTP.Response{
+        request_url:
+          options
+          |> Keyword.get(:url, "")
+          |> URI.parse(),
+        status: Keyword.get(options, :test_return_status, 200),
+        headers:
+          Keyword.get(
+            options,
+            :test_return_headers,
+            %{"content-type" => ["application/hal+json"]}
+          ),
+        body: Keyword.get(options, :test_return_body, %{"response" => "ok"})
+      }
+
       send(self(), {:http_request, options})
-
-      status =
-        Keyword.get(options, :test_return_status, 200)
-
-      headers =
-        Keyword.get(options, :test_return_headers, %{"content-type" => ["application/json"]})
-
-      body =
-        Keyword.get(options, :test_return_body, %{"response" => "ok"})
-
-      {:ok, %DSpace.API.HTTP.Response{status: status, headers: headers, body: body}}
+      {:ok, response}
     end
   end
 
