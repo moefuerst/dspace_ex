@@ -13,7 +13,6 @@ defmodule DSpace.API.Operation.JSON do
 
   defstruct http_method: :get,
             path: "/",
-            csrf: :auto,
             expected_status: nil,
             transformer: &DSpace.API.Transform.from_response/1,
             data: nil,
@@ -28,7 +27,6 @@ defmodule DSpace.API.Operation.JSON do
   @type t :: %__MODULE__{
           http_method: :get | :head | :post | :put | :patch | :delete,
           path: binary(),
-          csrf: :auto | :required | :optional | :skip,
           expected_status: [non_neg_integer()] | nil,
           transformer: function(),
           data: map() | list() | binary() | nil,
@@ -70,8 +68,8 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
     {operation, client, opts_override} = maybe_invoke_callback(operation, client, opts_override)
 
     with {:ok, operation} <- ensure_version_compatible(operation, client),
-         {:ok, context} <- ensure_client_sufficient(operation, client),
-         {:ok, {http_impl, request_options}} <- build_request(operation, client, opts_override, context),
+         :ok <- ensure_client_sufficient(operation, client),
+         {:ok, {http_impl, request_options}} <- build_request(operation, client, opts_override),
          {:ok, response} <- HTTP.request(http_impl, request_options),
          :ok <- maybe_invoke_response_hook(client, response) do
       transform_fn = maybe_override_transformer(opts_override, operation.transformer)
@@ -136,16 +134,17 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
   end
 
   defp ensure_client_sufficient(operation, client) do
-    case {resolve_csrf(operation.csrf, operation.http_method), client.csrf_token} do
-      {:required, nil} ->
-        {:error, Error.exception(missing_property: "executing this operation requires a CSRF token")}
-
-      {csrf_policy, _} ->
-        {:ok, %{csrf_policy: csrf_policy}}
+    if csrf_required?(operation.http_method) and is_nil(client.csrf_token) do
+      {:error, Error.exception(missing_property: "executing this operation requires a CSRF token")}
+    else
+      :ok
     end
   end
 
-  defp build_request(operation, client, opts_override, context) do
+  defp csrf_required?(method) when method in [:post, :put, :patch, :delete], do: true
+  defp csrf_required?(_method), do: false
+
+  defp build_request(operation, client, opts_override) do
     {content_header, body_option} = build_content_options(operation)
     {http_impl, client_config} = client.http_impl
 
@@ -157,8 +156,8 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
       |> Map.merge(content_header)
       |> Map.merge(operation.headers)
       |> maybe_put_auth_header(client.access_token)
-      |> maybe_put_csrf_header(context[:csrf_policy], client.csrf_token)
-      |> maybe_put_csrf_cookie(context[:csrf_policy], client.csrf_token)
+      |> maybe_put_csrf_header(client.csrf_token)
+      |> maybe_put_csrf_cookie(client.csrf_token)
 
     url =
       operation.path
@@ -207,28 +206,19 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
     {%{}, [form_multipart: data]}
   end
 
-  defp resolve_csrf(:auto, method) when method in [:post, :put, :patch, :delete], do: :required
-  defp resolve_csrf(:auto, _method), do: :optional
-  defp resolve_csrf(explicit, _method), do: explicit
-
   defp maybe_put_auth_header(headers, access_token) when is_nonempty_binary(access_token) do
     Map.put(headers, :authorization, ["Bearer " <> access_token])
   end
 
   defp maybe_put_auth_header(headers, nil), do: headers
 
-  defp maybe_put_csrf_header(headers, :skip, _csrf_token), do: headers
-
-  defp maybe_put_csrf_header(headers, policy, csrf_token)
-       when policy in [:required, :optional] and is_nonempty_binary(csrf_token) do
+  defp maybe_put_csrf_header(headers, csrf_token) when is_nonempty_binary(csrf_token) do
     Map.put(headers, :x_xsrf_token, [csrf_token])
   end
 
-  defp maybe_put_csrf_header(headers, :optional, _csrf_token), do: headers
+  defp maybe_put_csrf_header(headers, _csrf_token), do: headers
 
-  defp maybe_put_csrf_cookie(headers, :skip, _csrf_token), do: headers
-
-  defp maybe_put_csrf_cookie(headers, _policy, csrf_token) when is_nonempty_binary(csrf_token) do
+  defp maybe_put_csrf_cookie(headers, csrf_token) when is_nonempty_binary(csrf_token) do
     csrf_cookie = "DSPACE-XSRF-COOKIE=" <> csrf_token
 
     if xsrf_cookie_header_set?(headers) do
@@ -238,7 +228,7 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
     end
   end
 
-  defp maybe_put_csrf_cookie(headers, _policy, _csrf_token), do: headers
+  defp maybe_put_csrf_cookie(headers, _csrf_token), do: headers
 
   defp xsrf_cookie_header_set?(headers) do
     headers

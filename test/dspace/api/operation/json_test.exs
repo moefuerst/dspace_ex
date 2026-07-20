@@ -22,7 +22,7 @@ defmodule DSpace.API.Operation.JSONTest do
   end
 
   describe "CSRF handling" do
-    test "does not require CSRF token for GET operations (auto mode)", %{client: client} do
+    test "does not require CSRF token for GET operations", %{client: client} do
       client = %{client | csrf_token: nil}
       operation = JSONOp.new(path: "/api/test")
 
@@ -33,7 +33,7 @@ defmodule DSpace.API.Operation.JSONTest do
       refute Map.has_key?(options[:headers], :x_xsrf_token)
     end
 
-    test "does not require CSRF token for HEAD operations (auto mode)", %{client: client} do
+    test "does not require CSRF token for HEAD operations", %{client: client} do
       client = %{client | csrf_token: nil}
       operation = JSONOp.new(path: "/api/test", http_method: :head)
 
@@ -44,7 +44,7 @@ defmodule DSpace.API.Operation.JSONTest do
       refute Map.has_key?(options[:headers], :x_xsrf_token)
     end
 
-    test "requires CSRF token for POST operations (auto mode)", %{client: client} do
+    test "requires CSRF token for POST operations", %{client: client} do
       client = %{client | csrf_token: nil}
       operation = JSONOp.new(path: "/api/test", http_method: :post, data: %{})
 
@@ -53,7 +53,7 @@ defmodule DSpace.API.Operation.JSONTest do
       assert {:error, %Error{}} = result
     end
 
-    test "requires CSRF token for PUT operations (auto mode)", %{client: client} do
+    test "requires CSRF token for PUT operations", %{client: client} do
       client = %{client | csrf_token: nil}
       operation = JSONOp.new(path: "/api/test", http_method: :put, data: %{})
 
@@ -62,7 +62,7 @@ defmodule DSpace.API.Operation.JSONTest do
       assert {:error, %Error{}} = result
     end
 
-    test "requires CSRF token for PATCH operations (auto mode)", %{client: client} do
+    test "requires CSRF token for PATCH operations", %{client: client} do
       client = %{client | csrf_token: nil}
       operation = JSONOp.new(path: "/api/test", http_method: :patch, data: %{})
 
@@ -71,7 +71,7 @@ defmodule DSpace.API.Operation.JSONTest do
       assert {:error, %Error{}} = result
     end
 
-    test "requires CSRF token for DELETE operations (auto mode)", %{client: client} do
+    test "requires CSRF token for DELETE operations", %{client: client} do
       client = %{client | csrf_token: nil}
       operation = JSONOp.new(path: "/api/test", http_method: :delete)
 
@@ -89,42 +89,13 @@ defmodule DSpace.API.Operation.JSONTest do
       assert options[:headers][:x_xsrf_token] == ["test-csrf-token"]
     end
 
-    test "includes CSRF token for GET when available (auto mode)", %{client: client} do
+    test "includes CSRF token for GET when available", %{client: client} do
       operation = JSONOp.new(path: "/api/test")
 
       assert {:ok, _} = Operation.perform(operation, client, [])
 
       assert_received {:http_request, options}
       assert options[:headers][:x_xsrf_token] == ["test-csrf-token"]
-    end
-
-    test "csrf: :required raises when token is nil", %{client: client} do
-      client = %{client | csrf_token: nil}
-      operation = JSONOp.new(path: "/api/test", csrf: :required)
-
-      result = Operation.perform(operation, client, [])
-
-      assert {:error, %Error{}} = result
-    end
-
-    test "csrf: :optional does not raise when token is nil", %{client: client} do
-      client = %{client | csrf_token: nil}
-      operation = JSONOp.new(path: "/api/test", http_method: :post, data: %{}, csrf: :optional)
-
-      assert {:ok, _} = Operation.perform(operation, client, [])
-
-      assert_received {:http_request, options}
-      refute Map.has_key?(options[:headers], :x_xsrf_token)
-    end
-
-    test "csrf: :skip never includes CSRF token", %{client: client} do
-      operation = JSONOp.new(path: "/api/test", http_method: :post, data: %{}, csrf: :skip)
-
-      assert {:ok, _} = Operation.perform(operation, client, [])
-
-      assert_received {:http_request, options}
-      refute Map.has_key?(options[:headers], :x_xsrf_token)
-      refute Enum.any?(Map.get(options[:headers], :cookie, []), &String.contains?(&1, "DSPACE-XSRF-COOKIE="))
     end
   end
 
