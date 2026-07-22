@@ -55,9 +55,9 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
 
   alias DSpace.API
   alias DSpace.API.HTTP
-  alias DSpace.API.HTTP.Response
   alias DSpace.API.Operation.Error
   alias DSpace.API.Operation.JSON, as: OpJSON
+  alias DSpace.API.Transform
   alias DSpace.API.Version
 
   # Options which don't need to be passed to the HTTP adapter
@@ -248,40 +248,16 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
   end
 
   defp maybe_invoke_response_hook(%API{on_response_hook: hook}, response) when is_function(hook, 1) do
-    %Response{headers: headers} = response
-
-    case extract_csrf(headers) do
+    case Transform.csrf_token_from_response(response) do
       {:ok, token} ->
         hook.(%{csrf_token: token})
 
         :ok
 
-      {:error, :not_found} ->
+      {:error, _no_token} ->
         :ok
     end
   end
-
-  defp extract_csrf(%{"dspace-xsrf-token" => [token | _]}) when is_nonempty_binary(token) do
-    {:ok, token}
-  end
-
-  defp extract_csrf(%{"set-cookie" => cookies}) do
-    token =
-      cookies
-      |> Enum.flat_map(&String.split(&1, ";"))
-      |> Enum.map(&String.trim/1)
-      |> Enum.find_value(fn
-        "DSPACE-XSRF-COOKIE=" <> token -> token
-        _ -> nil
-      end)
-
-    case token do
-      nil -> {:error, :not_found}
-      token -> {:ok, token}
-    end
-  end
-
-  defp extract_csrf(_headers), do: {:error, :not_found}
 
   defp maybe_override_transformer(options, transform_fn) do
     case Keyword.get(options, :transform, true) do

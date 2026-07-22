@@ -95,6 +95,7 @@ defmodule DSpace.API do
 
   alias DSpace.API.Auth
   alias DSpace.API.Operation
+  alias DSpace.API.Transform
   alias DSpace.API.Version
 
   @external_resource lib_version = DSpace.MixProject.project()[:version]
@@ -357,7 +358,7 @@ defmodule DSpace.API do
   def login(%__MODULE__{} = api, username, password) when is_nonempty_binary(username) and is_nonempty_binary(password) do
     login = Auth.login(username, password)
 
-    case request(login, api, transform: &Auth.tokens_from_response/1) do
+    case request(login, api, transform: &Transform.tokens_from_response/1) do
       {:ok, {auth_token, csrf_token}} -> {:ok, %{api | access_token: auth_token, csrf_token: csrf_token}}
       {:error, _reason} = error -> error
     end
