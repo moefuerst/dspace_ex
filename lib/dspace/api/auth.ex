@@ -9,9 +9,8 @@ defmodule DSpace.API.Auth do
   import DSpace.Utils, only: [is_nonempty_binary: 1]
 
   alias DSpace.API
-  alias DSpace.API.Error
-  alias DSpace.API.HTTP.Response
   alias DSpace.API.Operation
+  alias DSpace.API.Transform
 
   @ep_auth "/api/authn"
   @ep_auth_status @ep_auth <> "/status"
@@ -39,7 +38,7 @@ defmodule DSpace.API.Auth do
       http_method: :post,
       content_type: :form,
       data: %{user: username, password: password},
-      transformer: &access_token_from_response/1
+      transformer: &Transform.access_token_from_response/1
     }
 
     # Prefetches a CSRF token when the client doesn't carry one yet, since hitting the login
@@ -73,7 +72,7 @@ defmodule DSpace.API.Auth do
     %Operation.JSON{
       path: @ep_login,
       http_method: :post,
-      transformer: &access_token_from_response/1
+      transformer: &Transform.access_token_from_response/1
     }
   end
 
@@ -88,7 +87,7 @@ defmodule DSpace.API.Auth do
     %Operation.JSON{
       path: @ep_csrf,
       expected_status: [204],
-      transformer: &csrf_token_from_response/1,
+      transformer: &Transform.csrf_token_from_response/1,
       version_overrides: [
         {"< 7.6.2", [path: @ep_auth_status, expected_status: [200]]}
       ]
@@ -107,7 +106,7 @@ defmodule DSpace.API.Auth do
       path: @ep_api_key,
       http_method: :post,
       supported_versions: %{cris: ">= 2023.1.1"},
-      transformer: &token_from_response/1
+      transformer: &Transform.token_from_response/1
     }
   end
 
@@ -136,7 +135,7 @@ defmodule DSpace.API.Auth do
     %Operation.JSON{
       path: @ep_shortlived_token,
       http_method: :post,
-      transformer: &token_from_response/1,
+      transformer: &Transform.token_from_response/1,
       version_overrides: [
         {"< 7.5.0", [http_method: :get]}
       ]
@@ -152,23 +151,8 @@ defmodule DSpace.API.Auth do
   def(status) do
     %Operation.JSON{
       path: @ep_auth_status,
-      transformer: &API.Transform.get(&1, "authenticated", false)
+      transformer: &Transform.get(&1, "authenticated", false)
     }
-  end
-
-  @doc """
-  Extracts the access token and CSRF token from an API response.
-
-  Returns the tokens or an error.
-  """
-  @spec tokens_from_response(Response.t()) :: {:ok, {binary(), binary()}} | {:error, Error.t()}
-  def tokens_from_response(%Response{} = response) do
-    with {:ok, auth_token} <- extract_access_token(response),
-         {:ok, csrf_token} <- extract_csrf(response) do
-      {:ok, {auth_token, csrf_token}}
-    else
-      _error -> {:error, Error.response_validation_error(response)}
-    end
   end
 
   # Private helpers
@@ -190,62 +174,4 @@ defmodule DSpace.API.Auth do
   end
 
   defp put_csrf_token(context, nil), do: context
-
-  defp token_from_response(%Response{} = response) do
-    case extract_token_from_body(response) do
-      {:ok, token} -> token
-      {:error, :token_missing} -> {:error, Error.response_validation_error(response)}
-    end
-  end
-
-  defp access_token_from_response(%Response{} = response) do
-    case extract_access_token(response) do
-      {:ok, token} -> token
-      {:error, :access_token_missing} -> {:error, Error.response_validation_error(response)}
-    end
-  end
-
-  defp csrf_token_from_response(%Response{} = response) do
-    case extract_csrf(response) do
-      {:ok, token} -> token
-      {:error, :csrf_token_missing} -> {:error, Error.response_validation_error(response)}
-    end
-  end
-
-  defp extract_token_from_body(%{body: %{"token" => token}} = _response) when is_nonempty_binary(token) do
-    {:ok, token}
-  end
-
-  defp extract_token_from_body(_response), do: {:error, :token_missing}
-
-  defp extract_csrf(%{headers: %{"dspace-xsrf-token" => [token | _]}}) when is_nonempty_binary(token) do
-    {:ok, token}
-  end
-
-  defp extract_csrf(%{headers: %{"set-cookie" => cookies}}) do
-    token =
-      cookies
-      |> Enum.flat_map(&String.split(&1, ";"))
-      |> Enum.map(&String.trim/1)
-      |> Enum.find_value(fn
-        "DSPACE-XSRF-COOKIE=" <> token -> token
-        _ -> nil
-      end)
-
-    case token do
-      nil -> {:error, :csrf_token_missing}
-      token -> {:ok, token}
-    end
-  end
-
-  defp extract_csrf(_response), do: {:error, :csrf_token_missing}
-
-  # DSpace returns the access token in an `authorization` response header. This differs from the
-  # standard OAuth token response (RFC 6749-style flow), which typically places tokens in the
-  # response body.
-  defp extract_access_token(%{headers: %{"authorization" => ["Bearer " <> token | _]}}) when is_nonempty_binary(token) do
-    {:ok, token}
-  end
-
-  defp extract_access_token(_response), do: {:error, :access_token_missing}
 end
