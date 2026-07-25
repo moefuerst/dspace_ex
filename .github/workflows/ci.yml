@@ -14,12 +14,10 @@ concurrency:
 
 jobs:
   test:
-    name: mix test (OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}})
-
-    env:
-      MIX_ENV: test
+    name: Build & Test (OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}})
 
     strategy:
+      fail-fast: false
       matrix:
         include:
           - elixir: "1.18.4"
@@ -27,11 +25,73 @@ jobs:
 
           - elixir: "1.19.5"
             otp: "28.5.0.2"
-            lint: true
 
           - elixir: "1.20.1"
             otp: "28.5.0.2"
 
+          - elixir: "1.20.1"
+            otp: "29.0.2"
+            lint: true
+
+          # Test on latest Elixir to catch problems early
+          - elixir: "main-otp-29"
+            otp: "maint-29"
+            lint: true
+
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Elixir
+        uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+
+      - name: Restore deps and _build cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            deps
+            _build
+          key: deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}
+
+      - name: Install deps
+        run: mix deps.get --check-locked
+
+      - name: Remove compiled application files
+        run: mix clean
+
+      - name: Compile
+        run: mix compile
+        if: ${{ !matrix.lint }}
+        env:
+          MIX_ENV: test
+
+      - name: Compile & lint
+        run: mix compile --warnings-as-errors
+        if: ${{ matrix.lint }}
+        env:
+          MIX_ENV: test
+
+      - name: Compile without optional deps
+        run: mix compile --no-optional-deps --warnings-as-errors
+        env:
+          MIX_ENV: dev
+
+      - name: Run test suite
+        run: mix test --warnings-as-errors
+
+  check:
+    name: Code Quality (OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}})
+
+    strategy:
+      matrix:
+        include:
           - elixir: "1.20.1"
             otp: "29.0.2"
 
@@ -58,70 +118,28 @@ jobs:
             deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}
 
       - name: Install deps
-        run: mix deps.get
+        run: mix deps.get --check-locked
 
-      - name: Remove compiled application files
-        run: mix clean
-
-      - name: Compile & lint
-        run: mix compile --warnings-as-errors
-        if: ${{ matrix.lint }}
-
-      - name: Run test suite
-        run: mix test
+      - name: Run code quality checks
+        run: mix check
 
       - name: Build Docs
-        run: MIX_ENV=dev mix docs
-        if: ${{ matrix.lint }}
-
-  quality:
-    name: checks (OTP 29.0.2 / Elixir 1.20.1)
-
-    env:
-      MIX_ENV: test
-
-    runs-on: ubuntu-24.04
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-
-      - name: Setup Elixir
-        uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
-        with:
-          otp-version: "29.0.2"
-          elixir-version: "1.20.1"
-
-      - name: Restore deps and _build cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: |
-            deps
-            _build
-          key: deps-${{ runner.os }}-29.0.2-1.20.1-${{ hashFiles('**/mix.lock') }}
-          restore-keys: |
-            deps-${{ runner.os }}-29.0.2-1.20.1
-
-      - name: Install deps
-        run: mix deps.get
-
-      - name: Compile
-        run: mix compile --warnings-as-errors
-
-      - name: Check formatting
-        run: mix format --check-formatted
-
-      - name: Check unused dependencies
-        run: mix deps.unlock --check-unused
-
-      - name: Credo
-        run: mix credo --strict
+        run: mix docs --warnings-as-errors
+        env:
+          MIX_ENV: dev
 
   dialyzer:
-    name: dialyzer (OTP 28.5.0.2 / Elixir 1.20.1)
+    name: dialyzer (OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}})
 
     env:
       MIX_ENV: test
+
+    # Run Dialyzer on the pinned toolchain (mise.toml)
+    strategy:
+      matrix:
+        include:
+          - elixir: "1.20.1"
+            otp: "28.5.0.2"
 
     runs-on: ubuntu-24.04
 
@@ -129,12 +147,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      # Run Dialyzer on the pinned toolchain (mise.toml)
       - name: Setup Elixir
         uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
         with:
-          otp-version: "28.5.0.2"
-          elixir-version: "1.20.1"
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
 
       - name: Restore deps and _build cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -142,20 +159,20 @@ jobs:
           path: |
             deps
             _build
-          key: deps-${{ runner.os }}-28.5.0.2-1.20.1-${{ hashFiles('**/mix.lock') }}
+          key: deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            deps-${{ runner.os }}-28.5.0.2-1.20.1
+            deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}
 
       - name: Restore plt cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: priv/plts
-          key: deps-${{ runner.os }}-28.5.0.2-1.20.1-${{ hashFiles('**/mix.lock') }}
+          key: plts-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            deps-${{ runner.os }}-28.5.0.2-1.20.1
+            plts-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}
 
       - name: Install deps
-        run: mix deps.get
+        run: mix deps.get --check-locked
 
       - name: Build PLTs
         run: mix dialyzer --plt
