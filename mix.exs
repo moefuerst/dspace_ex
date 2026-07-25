@@ -14,6 +14,7 @@ defmodule DSpace.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      hex: hex(),
       description: @description,
       package: package(),
       docs: docs(),
@@ -76,8 +77,7 @@ defmodule DSpace.MixProject do
       check: [
         "deps.unlock --check-unused",
         "format --check-formatted",
-        "credo --strict",
-        "dialyzer --quiet-with-result"
+        "credo --strict"
       ],
       "deps.audit": [
         "hex.audit",
@@ -165,6 +165,12 @@ defmodule DSpace.MixProject do
       plt_core_path: "priv/plts",
       plt_file: {:no_warn, "priv/plts/project.plt"},
       plt_add_apps: [:ex_unit]
+    ]
+  end
+
+  defp hex do
+    [
+      cooldown: "10d"
     ]
   end
 

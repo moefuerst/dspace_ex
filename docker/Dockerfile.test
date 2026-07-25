@@ -29,7 +29,7 @@ ENV MIX_ENV="test"
 COPY mix.exs mix.lock ./
 
 # Fetch dependencies
-RUN mix deps.get
+RUN mix deps.get --check-locked
 
 # Compile dependencies
 RUN mix deps.compile
