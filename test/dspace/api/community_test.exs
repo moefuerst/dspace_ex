@@ -352,12 +352,12 @@ defmodule DSpace.API.CommunityTest do
         end
       )
 
-      {:ok, result} =
+      {:error, result} =
         uuid
         |> Community.fetch_parent()
         |> API.request(api)
 
-      assert result == %{}
+      assert %DSpace.API.Error{type: :not_found} = result
     end
   end
 

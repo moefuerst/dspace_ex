@@ -129,7 +129,7 @@ defmodule DSpace.API.Item do
       path: @ep_workspace <> "/search/item",
       params: [uuid: uuid],
       expected_status: [200, 204],
-      transformer: &not_found_on_no_content(&1, "No draft found for this item")
+      transformer: &Transform.not_found_on_no_content(&1, "No draft found for this item")
     }
   end
 
@@ -263,7 +263,7 @@ defmodule DSpace.API.Item do
       path: @ep_workflow <> "/search/item",
       params: [uuid: item_uuid],
       expected_status: [200, 204],
-      transformer: &not_found_on_no_content(&1, "No workflow data found for this item")
+      transformer: &Transform.not_found_on_no_content(&1, "No workflow data found for this item")
     }
   end
 
@@ -583,13 +583,6 @@ defmodule DSpace.API.Item do
   end
 
   # Private helpers
-
-  # Sic, DSpace returns 204 if these requested resources are not found
-  defp not_found_on_no_content(%Response{status: 204} = response, message) do
-    Error.exception(type: :not_found, status: 404, message: message, response: response)
-  end
-
-  defp not_found_on_no_content(response, _message), do: Transform.from_response(response)
 
   defp add_parent(params, parent_uuid) when is_nonempty_binary(parent_uuid) do
     Keyword.put(params, :owningCollection, parent_uuid)

@@ -25,7 +25,11 @@ defmodule DSpace.API.Collection do
   """
   @spec fetch_parent_community(binary()) :: Operation.t()
   def fetch_parent_community(uuid) when is_nonempty_binary(uuid) do
-    %Operation.JSON{path: @ep_core <> "/" <> uuid <> "/parentCommunity"}
+    %Operation.JSON{
+      path: @ep_core <> "/" <> uuid <> "/parentCommunity",
+      expected_status: [200, 204],
+      transformer: &Transform.not_found_on_no_content(&1, "No parent found for collection: " <> uuid)
+    }
   end
 
   @doc """

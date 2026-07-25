@@ -33,7 +33,8 @@ defmodule DSpace.API.User do
     %Operation.JSON{
       path: @ep_by_email,
       expected_status: [200, 204],
-      params: [email: email]
+      params: [email: email],
+      transformer: &Transform.not_found_on_no_content(&1, "No user with email: " <> email)
     }
   end
 
