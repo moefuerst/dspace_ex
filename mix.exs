@@ -97,6 +97,7 @@ defmodule DSpace.MixProject do
       source_url: @source_url,
       extras: extras(),
       groups_for_modules: groups_for_modules(),
+      nest_modules_by_prefix: nest_modules_by_prefix(),
       skip_undefined_reference_warnings_on: ["CHANGELOG.md"]
     ]
   end
@@ -119,8 +120,7 @@ defmodule DSpace.MixProject do
         DSpace.API.Resource
       ],
       "Data Structures": [
-        DSpace.API.Metadata.Value,
-        DSpace.API.Resource.Update
+        ~r{DSpace\.API\.Model\.}
       ],
       "Core Resources": [
         DSpace.API.Collection,
@@ -151,6 +151,12 @@ defmodule DSpace.MixProject do
         DSpace.API.Transform,
         DSpace.API.Version
       ]
+    ]
+  end
+
+  defp nest_modules_by_prefix do
+    [
+      DSpace.API.Model
     ]
   end
 

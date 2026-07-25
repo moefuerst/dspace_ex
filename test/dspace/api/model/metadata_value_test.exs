@@ -1,10 +1,10 @@
-defmodule DSpace.API.Metadata.ValueTest do
+defmodule DSpace.API.Model.MetadataValueTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
 
-  alias DSpace.API.Metadata.Value
+  alias DSpace.API.Model.MetadataValue
 
-  doctest Value
+  doctest MetadataValue
 
   describe "new/2" do
     property "new/2 applies valid options" do
@@ -37,7 +37,7 @@ defmodule DSpace.API.Metadata.ValueTest do
             fn {_k, v} -> is_nil(v) end
           )
 
-        result = Value.new(v, opts)
+        result = MetadataValue.new(v, opts)
 
         assert result.value == v
         assert result.confidence == confidence
@@ -49,41 +49,41 @@ defmodule DSpace.API.Metadata.ValueTest do
 
     test "raises ArgumentError on unrecognized option key" do
       assert_raise ArgumentError, fn ->
-        Value.new("test", invalid_key: "value")
+        MetadataValue.new("test", invalid_key: "value")
       end
     end
 
     test "invalid confidence_score atom is accepted at construction, fails at serialization" do
-      value = Value.new("test", confidence: :bogus)
+      value = MetadataValue.new("test", confidence: :bogus)
 
       assert value.confidence == :bogus
-      assert_raise FunctionClauseError, fn -> Value.to_map(value) end
+      assert_raise FunctionClauseError, fn -> MetadataValue.to_map(value) end
     end
 
     test "integer confidence instead of atom is accepted at construction, fails at serialization" do
-      value = Value.new("test", confidence: 600)
+      value = MetadataValue.new("test", confidence: 600)
 
       assert value.confidence == 600
-      assert_raise FunctionClauseError, fn -> Value.to_map(value) end
+      assert_raise FunctionClauseError, fn -> MetadataValue.to_map(value) end
     end
 
     test "integer security_level instead of atom is accepted at construction, fails at serialization" do
-      value = Value.new("test", security_level: 0)
+      value = MetadataValue.new("test", security_level: 0)
 
       assert value.security_level == 0
-      assert_raise FunctionClauseError, fn -> Value.to_map(value) end
+      assert_raise FunctionClauseError, fn -> MetadataValue.to_map(value) end
     end
 
     test "invalid security_level atom is accepted at construction, fails at serialization" do
-      value = Value.new("test", security_level: :secret)
+      value = MetadataValue.new("test", security_level: :secret)
 
       assert value.security_level == :secret
-      assert_raise FunctionClauseError, fn -> Value.to_map(value) end
+      assert_raise FunctionClauseError, fn -> MetadataValue.to_map(value) end
     end
 
     test "confidence: nil is equivalent to omitting the option" do
       # nil confidence is a deserialization artifact (from_map with "confidence": null)
-      assert Value.new("x", confidence: nil).confidence == :unset
+      assert MetadataValue.new("x", confidence: nil).confidence == :unset
     end
   end
 
@@ -93,7 +93,7 @@ defmodule DSpace.API.Metadata.ValueTest do
               display <- binary(min_length: 1),
               authority <- binary(min_length: 1)
             ) do
-        result = Value.relation(display, authority)
+        result = MetadataValue.relation(display, authority)
 
         assert result.value == display
         assert result.authority == authority
@@ -106,13 +106,13 @@ defmodule DSpace.API.Metadata.ValueTest do
 
     test "raises FunctionClauseError on empty string authority" do
       assert_raise FunctionClauseError, fn ->
-        Value.relation("display", "")
+        MetadataValue.relation("display", "")
       end
     end
 
     test "raises FunctionClauseError on empty string display value" do
       assert_raise FunctionClauseError, fn ->
-        Value.relation("", "uuid")
+        MetadataValue.relation("", "uuid")
       end
     end
   end
@@ -148,7 +148,7 @@ defmodule DSpace.API.Metadata.ValueTest do
             fn {_k, v} -> is_nil(v) end
           )
 
-        result = Value.relation(display, authority, opts)
+        result = MetadataValue.relation(display, authority, opts)
 
         assert result.value == display
         assert result.authority == authority
@@ -160,45 +160,52 @@ defmodule DSpace.API.Metadata.ValueTest do
 
     test "raises ArgumentError when :authority in opts (unknown key)" do
       assert_raise ArgumentError, fn ->
-        Value.relation("display", "uuid", authority: "other")
+        MetadataValue.relation("display", "uuid", authority: "other")
       end
     end
 
     test "invalid confidence in opts is accepted at construction, fails at serialization" do
-      value = Value.relation("display", "uuid", confidence: :bogus)
+      value = MetadataValue.relation("display", "uuid", confidence: :bogus)
 
       assert value.confidence == :bogus
-      assert_raise FunctionClauseError, fn -> Value.to_map(value) end
+      assert_raise FunctionClauseError, fn -> MetadataValue.to_map(value) end
     end
 
     test "raises FunctionClauseError on nil display value" do
-      assert_raise FunctionClauseError, fn -> Value.relation(Process.get(:unused, nil), "uuid", []) end
+      assert_raise FunctionClauseError, fn ->
+        MetadataValue.relation(Process.get(:unused, nil), "uuid", [])
+      end
     end
 
     test "raises FunctionClauseError on empty string display value" do
-      assert_raise FunctionClauseError, fn -> Value.relation("", "uuid", []) end
+      assert_raise FunctionClauseError, fn -> MetadataValue.relation("", "uuid", []) end
     end
 
     test "raises FunctionClauseError on nil or empty authority" do
-      assert_raise FunctionClauseError, fn -> Value.relation("display", Process.get(:unused, nil), []) end
-      assert_raise FunctionClauseError, fn -> Value.relation("display", Process.get(:unused, ""), []) end
+      assert_raise FunctionClauseError, fn ->
+        MetadataValue.relation("display", Process.get(:unused, nil), [])
+      end
+
+      assert_raise FunctionClauseError, fn ->
+        MetadataValue.relation("display", Process.get(:unused, ""), [])
+      end
     end
 
     test "raises FunctionClauseError on non-list opts" do
       assert_raise FunctionClauseError, fn ->
-        Value.relation("display", "uuid", Process.get(:unused, :not_a_list))
+        MetadataValue.relation("display", "uuid", Process.get(:unused, :not_a_list))
       end
     end
 
     test "confidence: nil is equivalent to omitting the option" do
       # nil confidence is a deserialization artifact (from_map with "confidence": null)
-      assert Value.relation("display", "uuid", confidence: nil).confidence == :uncertain
+      assert MetadataValue.relation("display", "uuid", confidence: nil).confidence == :uncertain
     end
   end
 
   describe "wire format conversion" do
     test "to_map/1 with all fields set includes all fields" do
-      value = %Value{
+      value = %MetadataValue{
         value: "test",
         language: "en",
         authority: "uuid",
@@ -207,7 +214,7 @@ defmodule DSpace.API.Metadata.ValueTest do
         security_level: :public
       }
 
-      result = Value.to_map(value)
+      result = MetadataValue.to_map(value)
 
       assert result == %{
                "value" => "test",
@@ -220,7 +227,7 @@ defmodule DSpace.API.Metadata.ValueTest do
     end
 
     test "to_map/1 with nil optional fields emits them, except securityLevel" do
-      value = %Value{
+      value = %MetadataValue{
         value: "test",
         language: nil,
         authority: nil,
@@ -229,7 +236,7 @@ defmodule DSpace.API.Metadata.ValueTest do
         security_level: nil
       }
 
-      result = Value.to_map(value)
+      result = MetadataValue.to_map(value)
 
       assert result == %{
                "value" => "test",
@@ -245,15 +252,15 @@ defmodule DSpace.API.Metadata.ValueTest do
     test "from_map/1 with securityLevel 1 maps to :trusted" do
       map = %{"value" => "test", "securityLevel" => 1}
 
-      result = Value.from_map(map)
+      result = MetadataValue.from_map(map)
 
       assert result.security_level == :trusted
     end
 
     test "to_map/1 with security_level :admin_owner emits securityLevel 2" do
-      value = %Value{value: "test", security_level: :admin_owner}
+      value = %MetadataValue{value: "test", security_level: :admin_owner}
 
-      result = Value.to_map(value)
+      result = MetadataValue.to_map(value)
 
       assert result["securityLevel"] == 2
     end
@@ -262,22 +269,22 @@ defmodule DSpace.API.Metadata.ValueTest do
       map = %{"value" => "test", "securityLevel" => 5}
 
       assert_raise FunctionClauseError, fn ->
-        Value.from_map(map)
+        MetadataValue.from_map(map)
       end
     end
 
     test "from_map/1 with known confidence integer maps to atom" do
       map = %{"value" => "test", "confidence" => 500}
 
-      result = Value.from_map(map)
+      result = MetadataValue.from_map(map)
 
       assert result.confidence == :uncertain
     end
 
     test "to_map/1 with confidence :accepted emits confidence 600" do
-      value = %Value{value: "test", confidence: :accepted}
+      value = %MetadataValue{value: "test", confidence: :accepted}
 
-      result = Value.to_map(value)
+      result = MetadataValue.to_map(value)
 
       assert result["confidence"] == 600
     end
@@ -286,7 +293,7 @@ defmodule DSpace.API.Metadata.ValueTest do
       map = %{"value" => "test", "confidence" => 42}
 
       assert_raise FunctionClauseError, fn ->
-        Value.from_map(map)
+        MetadataValue.from_map(map)
       end
     end
 
@@ -294,28 +301,28 @@ defmodule DSpace.API.Metadata.ValueTest do
       map = %{"language" => "en"}
 
       assert_raise FunctionClauseError, fn ->
-        Value.from_map(map)
+        MetadataValue.from_map(map)
       end
     end
 
     test "from_map/1 with non-binary value raises FunctionClauseError" do
       assert_raise FunctionClauseError, fn ->
-        Value.from_map(%{"value" => 42})
+        MetadataValue.from_map(%{"value" => 42})
       end
 
       assert_raise FunctionClauseError, fn ->
-        Value.from_map(%{"value" => nil})
+        MetadataValue.from_map(%{"value" => nil})
       end
 
       assert_raise FunctionClauseError, fn ->
-        Value.from_map(%{"value" => ["a", "b"]})
+        MetadataValue.from_map(%{"value" => ["a", "b"]})
       end
     end
 
     test "from_map/1 with extra unknown keys ignores them" do
       map = %{"value" => "test", "unknownKey" => "ignored"}
 
-      result = Value.from_map(map)
+      result = MetadataValue.from_map(map)
 
       assert result.value == "test"
     end
@@ -324,15 +331,15 @@ defmodule DSpace.API.Metadata.ValueTest do
       map = %{value: "test"}
 
       assert_raise FunctionClauseError, fn ->
-        Value.from_map(map)
+        MetadataValue.from_map(map)
       end
     end
   end
 
   property "to_map/1 and from_map/1 round-trip" do
     check all(value <- value_generator()) do
-      map = Value.to_map(value)
-      reconstructed = Value.from_map(map)
+      map = MetadataValue.to_map(value)
+      reconstructed = MetadataValue.from_map(map)
 
       assert reconstructed == value
     end
@@ -373,8 +380,8 @@ defmodule DSpace.API.Metadata.ValueTest do
 
       round_tripped =
         input_map
-        |> Value.from_map()
-        |> Value.to_map()
+        |> MetadataValue.from_map()
+        |> MetadataValue.to_map()
 
       assert round_tripped["value"] == value_str
       assert round_tripped["language"] == language
@@ -420,7 +427,7 @@ defmodule DSpace.API.Metadata.ValueTest do
               ]),
             place <- one_of([constant(nil), non_negative_integer()])
           ) do
-        %Value{
+        %MetadataValue{
           value: v,
           language: lang,
           authority: auth,
@@ -430,6 +437,6 @@ defmodule DSpace.API.Metadata.ValueTest do
         }
       end
 
-    one_of([base_generator, constant(Value.placeholder())])
+    one_of([base_generator, constant(MetadataValue.placeholder())])
   end
 end
