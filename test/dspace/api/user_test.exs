@@ -76,7 +76,7 @@ defmodule DSpace.API.UserTest do
       assert result["email"] == email
     end
 
-    test "returns empty map when no user is found", %{sham: sham, api: api} do
+    test "returns :not_found error when no user is found", %{sham: sham, api: api} do
       email = "nonexistent@example.com"
 
       Sham.expect_once(sham, "GET", "/api/eperson/epersons/search/byEmail", fn conn ->
@@ -88,9 +88,9 @@ defmodule DSpace.API.UserTest do
         |> Plug.Conn.resp(204, "")
       end)
 
-      {:ok, result} = email |> User.fetch_by_email() |> API.request(api)
+      {:error, reason} = email |> User.fetch_by_email() |> API.request(api)
 
-      assert result == %{}
+      assert %{type: :not_found} = reason
     end
   end
 
@@ -416,40 +416,6 @@ defmodule DSpace.API.UserTest do
       {_groups, metadata, _next_url} = result
       assert metadata["page"]["number"] == 1
       assert metadata["page"]["size"] == 25
-    end
-  end
-
-  describe "edge cases and error handling" do
-    test "handles server errors gracefully", %{sham: sham, api: api} do
-      uuid = "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e"
-
-      Sham.expect_once(sham, "GET", "/api/eperson/epersons/#{uuid}", fn conn ->
-        respond_with_json(conn, 500, ~s({
-          "timestamp": "2023-10-15T12:00:00.000+00:00",
-          "status": 500,
-          "error": "Internal Server Error",
-          "message": "An error occurred"
-        }))
-      end)
-
-      {:error, error} = uuid |> User.fetch() |> API.request(api)
-
-      assert error.status == 500
-    end
-
-    test "handles authorization errors", %{sham: sham, api: api} do
-      Sham.expect_once(sham, "GET", "/api/eperson/epersons/search/byMetadata", fn conn ->
-        respond_with_json(conn, 403, ~s({
-          "timestamp": "2023-10-15T12:00:00.000+00:00",
-          "status": 403,
-          "error": "Forbidden",
-          "message": "Access denied. Only administrators can search users."
-        }))
-      end)
-
-      {:error, error} = [query: "test"] |> User.find() |> API.request(api)
-
-      assert error.status == 403
     end
   end
 

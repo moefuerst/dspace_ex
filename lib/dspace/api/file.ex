@@ -151,7 +151,19 @@ defmodule DSpace.API.File do
       path: @ep_bitstreams <> "/search/byItemHandle",
       params: params,
       expected_status: [200, 204],
-      transformer: &not_found_on_no_content(&1, "No file found matching the given parameters")
+      transformer: &Transform.not_found_on_no_content(&1, "No file found matching the given parameters")
+    }
+  end
+
+  @doc """
+  Fetches the access status of a file.
+  """
+  @spec access_status(binary()) :: Operation.JSON.t()
+  def access_status(uuid) when is_nonempty_binary(uuid) do
+    %Operation.JSON{
+      path: @ep_bitstreams <> "/" <> uuid <> "/accessStatus",
+      transformer: &Transform.get(&1, "status"),
+      supported_versions: %{any: ">= 9.0.0"}
     }
   end
 
@@ -276,7 +288,7 @@ defmodule DSpace.API.File do
     %Operation.JSON{
       path: @ep_bitstreams <> "/" <> uuid <> "/thumbnail",
       expected_status: [200, 204],
-      transformer: &not_found_on_no_content(&1, "No thumbnail found for this file")
+      transformer: &Transform.not_found_on_no_content(&1, "No thumbnail found for this file")
     }
   end
 
@@ -408,7 +420,7 @@ defmodule DSpace.API.File do
     %Operation.JSON{
       path: @ep_bundles <> "/" <> bundle_uuid <> "/primaryBitstream",
       expected_status: [200, 204],
-      transformer: &not_found_on_no_content(&1, "Primary file not found for this bundle")
+      transformer: &Transform.not_found_on_no_content(&1, "Primary file not found for this bundle")
     }
   end
 
@@ -537,13 +549,6 @@ defmodule DSpace.API.File do
   end
 
   # Private helpers
-
-  # Sic, DSpace returns 204 if these requested resources are not found
-  defp not_found_on_no_content(%Response{status: 204} = response, message) do
-    Error.exception(type: :not_found, status: 404, message: message, response: response)
-  end
-
-  defp not_found_on_no_content(response, _message), do: Transform.from_response(response)
 
   defp disable_body_decoding(operation, client, options) do
     {operation, client, Keyword.put(options, :decode_body, false)}

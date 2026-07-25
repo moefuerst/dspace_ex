@@ -22,6 +22,18 @@ defmodule DSpace.API.Community do
   # Public API
 
   @doc """
+  Fetches the parent community of a community.
+  """
+  @spec fetch_parent(binary()) :: Operation.t()
+  def fetch_parent(uuid) when is_nonempty_binary(uuid) do
+    %Operation.JSON{
+      path: @ep_core <> "/" <> uuid <> "/parentCommunity",
+      expected_status: [200, 204],
+      transformer: &Transform.not_found_on_no_content(&1, "No parent found for community: " <> uuid)
+    }
+  end
+
+  @doc """
   Lists collections within a community.
 
   This operation can be streamed.
@@ -71,17 +83,6 @@ defmodule DSpace.API.Community do
     }
 
     %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
-  end
-
-  @doc """
-  Fetches the parent community of a community.
-  """
-  @spec fetch_parent(binary()) :: Operation.t()
-  def fetch_parent(uuid) when is_nonempty_binary(uuid) do
-    %Operation.JSON{
-      path: @ep_core <> "/" <> uuid <> "/parentCommunity",
-      expected_status: [200, 204]
-    }
   end
 
   @doc """
