@@ -75,6 +75,10 @@ defmodule DSpace.API.Search do
     * `:size` - Number of items per page (usually defaults to 20)
   """
   @spec query(query_string :: binary() | search_options()) :: Operation.JSON.t()
+  def query(query) when is_nonempty_binary(query) do
+    query(query: query)
+  end
+
   def query(options) when is_list(options) do
     params = build_query_params(options)
 
@@ -85,10 +89,6 @@ defmodule DSpace.API.Search do
     }
 
     %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
-  end
-
-  def query(query) when is_nonempty_binary(query) do
-    query(query: query)
   end
 
   @doc """

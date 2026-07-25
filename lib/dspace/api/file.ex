@@ -91,11 +91,10 @@ defmodule DSpace.API.File do
   @doc """
   Downloads a file binary.
 
-  This operation will pass a `:decode_body` option with `false` to the HTTP adapter, so the bytes
-  are returned verbatim regardless of the file's content type.
-
   Restricted files require a short-lived authentication token passed as an option (see
   `DSpace.API.Auth.fetch_short_lived_token/0`).
+
+  Executing this operation will return the bytes verbatim regardless of the file's content type.
 
   ## Streaming to disk
 

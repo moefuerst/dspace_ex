@@ -99,9 +99,7 @@ defmodule DSpace.API do
   alias DSpace.API.Version
 
   @external_resource lib_version = DSpace.MixProject.project()[:version]
-
   @user_agent "dspace-ex/#{lib_version}"
-  @default_http_impl {DSpace.API.HTTP.Req, []}
 
   @derive {Inspect, except: [:access_token, :csrf_token]}
   defstruct endpoint: %URI{},
@@ -110,7 +108,7 @@ defmodule DSpace.API do
             api_version: nil,
             cris_version: nil,
             user_agent: @user_agent,
-            http_impl: @default_http_impl,
+            http_impl: {DSpace.API.HTTP.Req, []},
             on_response_hook: nil
 
   @typedoc """
@@ -150,9 +148,9 @@ defmodule DSpace.API do
       * a 0-arity function that returns a `t:URI.t/0` structure or a string
     * `:access_token` - Optional login token or API key used for authentication
     * `:csrf_token` - Optional CSRF token. Needed for all modifying requests
-    * `:api_version` - Optional base DSpace API version as a string, e.g. `#{Version.latest()}`
-    * `:cris_version` - Optional CRIS fork release version, e.g. `#{Version.latest_cris()}` or
-      `cris-#{Version.latest_cris()}`
+    * `:api_version` - Optional base DSpace API version as a string, e.g. `10.0.0`
+    * `:cris_version` - Optional CRIS fork release version, e.g. `2025.02.00` or
+      `cris-2025.02.00`
     * `:user_agent` - Optional User agent string, defaults to `#{@user_agent}`
     * `:http_impl` - Optional HTTP adapter implementation and options as `{module, options}`
     * `:on_response_hook` - Optional callback function invoked when CSRF tokens are updated
@@ -268,7 +266,7 @@ defmodule DSpace.API do
   ## Parameters
 
     * `api` - A `t:DSpace.API.t/0` structure
-    * `version` - Base DSpace API version as a string, e.g. `#{Version.latest()}`
+    * `version` - Base DSpace API version as a string, e.g. `10.0.0`
   """
   @doc group: "Struct API"
   @spec put_api_version(t(), version :: binary()) :: t()
@@ -283,7 +281,7 @@ defmodule DSpace.API do
 
     * `api` - A `t:DSpace.API.t/0` structure
     * `version` - DSpace-CRIS release version as a string, with or without the `cris-` prefix,
-      e.g. `#{Version.latest_cris()}`
+      e.g. `2025.02.00`
   """
   @doc group: "Struct API"
   @spec put_cris_version(t(), version :: binary()) :: t()
