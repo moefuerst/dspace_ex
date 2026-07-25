@@ -21,6 +21,82 @@ defmodule DSpace.API.Operation.JSONTest do
     {:ok, client: client}
   end
 
+  describe "put_lang/2" do
+    test "sets allLanguages projection when lang: :all" do
+      operation =
+        [path: "/api/test"]
+        |> JSONOp.new()
+        |> JSONOp.put_lang(lang: :all)
+
+      assert Keyword.get(operation.params, :projection) == "allLanguages"
+      refute Map.has_key?(operation.headers, :accept_language)
+    end
+
+    test "sets Accept-Language header with quality values for multiple languages" do
+      operation =
+        [path: "/api/test"]
+        |> JSONOp.new()
+        |> JSONOp.put_lang(lang: [:en, :de, :fr])
+
+      %{:accept_language => value} = operation.headers
+
+      assert value == ["en,de;q=0.9,fr;q=0.8"]
+      refute Keyword.has_key?(operation.params, :projection)
+    end
+
+    test "clamps q to 0.1 for long language lists" do
+      operation =
+        [path: "/api/test"]
+        |> JSONOp.new()
+        |> JSONOp.put_lang(lang: [:l1, :l2, :l3, :l4, :l5, :l6, :l7, :l8, :l9, :l10, :l11, :l12])
+
+      %{:accept_language => value} = operation.headers
+
+      expected =
+        "l1,l2;q=0.9,l3;q=0.8,l4;q=0.7,l5;q=0.6,l6;q=0.5,l7;q=0.4,l8;q=0.3,l9;q=0.2,l10;" <>
+          "q=0.1,l11;q=0.1,l12;q=0.1"
+
+      assert value == [expected]
+      refute Keyword.has_key?(operation.params, :projection)
+    end
+
+    test "sets Accept-Language header for a single language" do
+      operation =
+        [path: "/api/test"]
+        |> JSONOp.new()
+        |> JSONOp.put_lang(lang: :en)
+
+      %{:accept_language => value} = operation.headers
+
+      assert value == ["en"]
+      refute Keyword.has_key?(operation.params, :projection)
+    end
+
+    test "sets Accept-Language header with binary input" do
+      operation =
+        [path: "/api/test"]
+        |> JSONOp.new()
+        |> JSONOp.put_lang(lang: "fr-CH,fr;q=0.9,en;q=0.8,de;q=0.7")
+
+      %{:accept_language => value} = operation.headers
+
+      assert value == ["fr-CH,fr;q=0.9,en;q=0.8,de;q=0.7"]
+      refute Keyword.has_key?(operation.params, :projection)
+    end
+
+    test "passes Accept-Language header" do
+      operation =
+        [path: "/api/test"]
+        |> JSONOp.new()
+        |> JSONOp.put_lang(lang: %{accept_language: ["fr-CH"]})
+
+      %{:accept_language => value} = operation.headers
+
+      assert value == ["fr-CH"]
+      refute Keyword.has_key?(operation.params, :projection)
+    end
+  end
+
   describe "CSRF handling" do
     test "does not require CSRF token for GET operations", %{client: client} do
       client = %{client | csrf_token: nil}

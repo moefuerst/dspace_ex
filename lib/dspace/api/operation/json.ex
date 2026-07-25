@@ -32,7 +32,7 @@ defmodule DSpace.API.Operation.JSON do
           data: map() | list() | binary() | nil,
           content_type: :json | :form | :multipart | :uri_list,
           params: keyword(),
-          headers: %{optional(binary()) => [binary()]},
+          headers: %{optional(atom()) => [binary()]},
           supported_versions: %{(:any | :dspace | :cris) => Version.requirement()},
           version_overrides: [{binary(), keyword()}],
           before_step: function() | nil,
@@ -48,6 +48,60 @@ defmodule DSpace.API.Operation.JSON do
   def new(options) do
     struct(__MODULE__, options)
   end
+
+  @doc """
+  Updates the operation with the given header.
+  """
+  @spec put_header(t(), atom(), binary() | list()) :: t()
+  def put_header(%__MODULE__{} = op, header, value) when is_binary(value) do
+    %{op | headers: Map.update(op.headers, header, [value], &[value | &1])}
+  end
+
+  def put_header(%__MODULE__{} = op, header, value) when is_list(value) do
+    %{op | headers: Map.put(op.headers, header, value)}
+  end
+
+  @doc """
+  Updates the operation with the given param.
+  """
+  @spec put_param(t(), atom(), term()) :: t()
+  def put_param(%__MODULE__{} = op, key, value) do
+    %{op | params: Keyword.put(op.params, key, value)}
+  end
+
+  @doc """
+  Updates the operation with the given language option.
+
+  ## Options
+
+    * `:lang` - Preferred language for metadata values as a
+      `t:DSpace.API.Resource.preferred_language/0`.
+  """
+  @spec put_lang(t(), keyword()) :: t()
+  def put_lang(%__MODULE__{} = op, options) do
+    case Keyword.get(options, :lang, :all) do
+      nil -> op
+      :all -> put_param(op, :projection, "allLanguages")
+      %{:accept_language => value} -> put_header(op, :accept_language, value)
+      langs when is_list(langs) -> put_header(op, :accept_language, build_accept_language(langs))
+      lang when is_atom(lang) -> put_header(op, :accept_language, build_accept_language([lang]))
+      header_val when is_binary(header_val) -> put_header(op, :accept_language, header_val)
+    end
+  end
+
+  # Private helpers
+
+  defp build_accept_language(languages) do
+    languages
+    |> Enum.with_index()
+    |> Enum.map_join(",", fn
+      {lang, 0} -> to_string(lang)
+      {lang, i} -> to_string(lang) <> ";q=" <> quality_value(i)
+    end)
+  end
+
+  defp quality_value(index) when index >= 9, do: "0.1"
+  defp quality_value(index), do: "0.#{10 - index}"
 end
 
 defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
