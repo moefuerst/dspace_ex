@@ -14,6 +14,8 @@ defmodule DSpace.ItemExternalTest do
       {:ok, client: client, collection: hierarchy.collection}
     end
 
+    @tag :requires_third_party_api
+    # This test depends on the PubMed API being available to the DSpace server.
     test "creates a draft from an external source", %{client: client, collection: collection} do
       parent = collection["uuid"]
 
@@ -39,9 +41,9 @@ defmodule DSpace.ItemExternalTest do
       uuid = item["uuid"]
 
       update_operations = [
-        %{"op" => "replace", "path" => "/metadata/dc.title/0/value", "value" => "Updated External Title"},
-        %{"op" => "replace", "path" => "/metadata/dc.date.issued/0/value", "value" => "2024-01-15"},
-        %{"op" => "replace", "path" => "/metadata/dc.type/0/value", "value" => "Article"}
+        full_path_replace_operation("dc.title", "Updated External Title"),
+        full_path_replace_operation("dc.date.issued", "2024-01-15"),
+        full_path_replace_operation("dc.type", "Article")
       ]
 
       updated_item =
@@ -57,8 +59,32 @@ defmodule DSpace.ItemExternalTest do
       assert [%{"value" => "Article"} | _] = metadata["dc.type"]
     end
 
-    # https://github.com/DSpace/DSpace/issues/12419
+    test "replaces metadata values given their field path", %{client: client, item: item} do
+      uuid = item["uuid"]
+
+      update_operations = [
+        field_path_replace_operation("dc.title", "Updated External Title", {"en", nil, -1}),
+        field_path_replace_operation("dc.date.issued", "2024-01-15"),
+        field_path_replace_operation("dc.type", "Article", {nil, nil, 600})
+      ]
+
+      updated_item =
+        uuid
+        |> Item.update(update_operations)
+        |> API.request!(client)
+
+      metadata = updated_item["metadata"]
+
+      assert updated_item["uuid"] == uuid
+      assert [%{"value" => "Updated External Title"} | _] = metadata["dc.title"]
+      assert [%{"language" => "en"} | _] = metadata["dc.title"]
+      assert [%{"value" => "2024-01-15"} | _] = metadata["dc.date.issued"]
+      assert [%{"value" => "Article"} | _] = metadata["dc.type"]
+      assert [%{"confidence" => 600} | _] = metadata["dc.type"]
+    end
+
     @tag :bug
+    # https://github.com/DSpace/DSpace/issues/12419
     test "adds new metadata array", %{client: client, item: item} do
       uuid = item["uuid"]
 
@@ -119,6 +145,39 @@ defmodule DSpace.ItemExternalTest do
           "confidence" => -1
         }
       ]
+    }
+  end
+
+  defp multilingual_metadata do
+    Map.put(item_metadata(), "dc.title", [
+      %{"value" => "Test Title", "language" => "en", "authority" => nil, "confidence" => -1},
+      %{"value" => "American Title", "language" => "en_US", "authority" => nil, "confidence" => -1},
+      %{"value" => "Testtitel", "language" => "de", "authority" => nil, "confidence" => -1},
+      %{"value" => "Österreichischer Titel", "language" => "de_AT", "authority" => nil, "confidence" => -1},
+      %{"value" => "Untitled", "language" => nil, "authority" => nil, "confidence" => -1}
+    ])
+  end
+
+  def field_path_replace_operation(field, value, {language, authority, confidence} \\ {nil, nil, -1}) do
+    %{
+      "op" => "replace",
+      "path" => "/metadata/#{field}",
+      "value" => [
+        %{
+          "value" => value,
+          "language" => language,
+          "authority" => authority,
+          "confidence" => confidence
+        }
+      ]
+    }
+  end
+
+  def full_path_replace_operation(field, value, place \\ 0) do
+    %{
+      "op" => "replace",
+      "path" => "/metadata/#{field}/#{place}/value",
+      "value" => %{"value" => value}
     }
   end
 end

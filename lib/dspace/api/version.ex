@@ -21,7 +21,7 @@ defmodule DSpace.API.Version do
       `cris_version` of the `t:DSpace.API.t/0` when you perform it
     * selectively disable the compatibility check for an operation by modifying its
       `before_step` so that `api_version` and `cris_version` is set to `nil` in the passed
-      `t:DSpace.API.t/0`
+      `t:DSpace.API.t/0` or
     * do not enable compatibility checks at all
 
   If you confirmed a false positive, please open an

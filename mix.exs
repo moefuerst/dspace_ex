@@ -145,13 +145,8 @@ defmodule DSpace.MixProject do
         DSpace.API.Monitor
       ],
       "Advanced Customization": [
-        DSpace.API.HTTP,
-        DSpace.API.HTTP.Req,
-        DSpace.API.HTTP.Response,
-        DSpace.API.Operation,
-        DSpace.API.Operation.JSON,
-        DSpace.API.Operation.Chain,
-        DSpace.API.Operation.Chain.Context,
+        ~r{DSpace\.API\.HTTP},
+        ~r{DSpace\.API\.Operation},
         DSpace.API.StreamBuilder,
         DSpace.API.Transform,
         DSpace.API.Version
@@ -183,7 +178,7 @@ defmodule DSpace.MixProject do
       source_url: @source_url,
       links: %{
         "Changelog" => "#{@source_url}/blob/main/CHANGELOG.md",
-        "GitHub" => @source_url
+        "Source Code" => @source_url
       }
     ]
   end

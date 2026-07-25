@@ -339,6 +339,10 @@ mix test --only external --exclude requires_auth
 export DSPACE_ADMIN_EMAIL=admin@example.com
 export DSPACE_ADMIN_PASSWORD=secret
 mix test --only external
+
+# Exclude external tests that require the DSpace server to be able to 
+# connect to third-party APIs
+mix test --only external --exclude requires_third_party_api
 ```
 
 A disposable DSpace stack based on a recent version of the DSpace-CRIS fork is available for 
