@@ -12,6 +12,7 @@ defmodule DSpace.MixProject do
       elixir: "~> 1.18",
       elixirc_options: elixirc_options(),
       elixirc_paths: elixirc_paths(Mix.env()),
+      consolidate_protocols: Mix.env() != :test,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       hex: hex(),
@@ -42,13 +43,12 @@ defmodule DSpace.MixProject do
     ]
   end
 
-  # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
   defp deps do
     [
-      {:req, "~> 0.5 or ~> 1.0", optional: true},
+      {:req, "~> 0.5 or ~> 0.6 or ~> 1.0", optional: true},
 
       # Development and Testing
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
@@ -72,7 +72,7 @@ defmodule DSpace.MixProject do
         "format",
         "credo --strict",
         "dialyzer --quiet-with-result",
-        "test"
+        "test --warnings-as-errors"
       ],
       check: [
         "deps.unlock --check-unused",
@@ -84,7 +84,7 @@ defmodule DSpace.MixProject do
         "deps.audit"
       ],
       "test.ci": [
-        "test --raise",
+        "test --warnings-as-errors",
         "muex --optimize --optimize-level conservative --fail-at 80"
       ]
     ]
