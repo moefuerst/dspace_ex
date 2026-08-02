@@ -308,23 +308,23 @@ defmodule DSpace.API.Item do
     params = pagination ++ options
 
     transformer = &Transform.transform_collection(&1, extract: ["_embedded", "workflowitems"])
+    stream_impl = &StreamBuilder.new/3
 
-    op =
-      if is_nonempty_binary(maybe_submitter) do
-        %Operation.JSON{
-          path: @ep_workflow <> "/search/findBySubmitter",
-          params: [uuid: maybe_submitter] ++ params,
-          transformer: transformer
-        }
-      else
-        %Operation.JSON{
-          path: @ep_workflow,
-          params: params,
-          transformer: transformer
-        }
-      end
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
+    if is_nonempty_binary(maybe_submitter) do
+      %Operation.JSON{
+        path: @ep_workflow <> "/search/findBySubmitter",
+        params: [uuid: maybe_submitter] ++ params,
+        transformer: transformer,
+        stream_impl: stream_impl
+      }
+    else
+      %Operation.JSON{
+        path: @ep_workflow,
+        params: params,
+        transformer: transformer,
+        stream_impl: stream_impl
+      }
+    end
   end
 
   @doc """
@@ -381,12 +381,11 @@ defmodule DSpace.API.Item do
   """
   @spec list_file_bundles(binary(), keyword()) :: Operation.JSON.t()
   def list_file_bundles(uuid, _options \\ []) when is_nonempty_binary(uuid) do
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_core <> "/" <> uuid <> "/bundles",
-      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "bundles"])
+      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "bundles"]),
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   @doc """
@@ -500,24 +499,24 @@ defmodule DSpace.API.Item do
     params = pagination ++ options
 
     transformer = &Transform.transform_collection(&1, extract: ["_embedded", "items"])
+    stream_impl = &StreamBuilder.new/3
 
-    op =
-      if maybe_ids do
-        %Operation.JSON{
-          path: @ep_core_by_id,
-          params: params ++ Enum.map(maybe_ids, &{:id, &1}),
-          supported_versions: %{cris: ">= 2023.1.1"},
-          transformer: transformer
-        }
-      else
-        %Operation.JSON{
-          path: @ep_core,
-          params: params,
-          transformer: transformer
-        }
-      end
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
+    if maybe_ids do
+      %Operation.JSON{
+        path: @ep_core_by_id,
+        params: params ++ Enum.map(maybe_ids, &{:id, &1}),
+        supported_versions: %{cris: ">= 2023.1.1"},
+        transformer: transformer,
+        stream_impl: stream_impl
+      }
+    else
+      %Operation.JSON{
+        path: @ep_core,
+        params: params,
+        transformer: transformer,
+        stream_impl: stream_impl
+      }
+    end
   end
 
   @doc """

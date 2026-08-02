@@ -245,13 +245,12 @@ defmodule DSpace.API.File do
       |> Keyword.merge(build_metadata_filters(filters))
       |> Keyword.merge(pagination)
 
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_bitstreams <> endpoint,
       params: params,
-      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "bitstreams"])
+      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "bitstreams"]),
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   @doc """
@@ -268,13 +267,12 @@ defmodule DSpace.API.File do
   def list_in_bundle(bundle_uuid, options \\ []) when is_nonempty_binary(bundle_uuid) do
     {pagination, other_options} = pop_pagination(options)
 
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_bundles <> "/" <> bundle_uuid <> "/bitstreams",
       params: pagination ++ other_options,
-      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "bitstreams"])
+      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "bitstreams"]),
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   @doc """

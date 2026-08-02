@@ -35,13 +35,12 @@ defmodule DSpace.API.Source do
   def list(options \\ []) do
     {pagination, _other_options} = pop_pagination(options)
 
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_externalsource,
       params: pagination,
-      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "externalsources"])
+      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "externalsources"]),
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   @doc """
@@ -67,16 +66,15 @@ defmodule DSpace.API.Source do
 
     params = [query: query] ++ pagination
 
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_externalsource <> "/" <> source <> "/entries",
       params: params,
       transformer:
         &Transform.transform_collection(&1,
           extract: ["_embedded", "externalSourceEntries"]
-        )
+        ),
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   @doc """

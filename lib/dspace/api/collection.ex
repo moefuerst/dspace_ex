@@ -46,16 +46,15 @@ defmodule DSpace.API.Collection do
   def list_items(uuid, options \\ []) when is_nonempty_binary(uuid) do
     {pagination, other_options} = pop_pagination(options)
 
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_core <> "/" <> uuid <> "/mappedItems",
       params: pagination ++ other_options,
       transformer:
         &Transform.transform_collection(&1,
           extract: ["_embedded", "items"]
-        )
+        ),
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   @doc """
@@ -131,16 +130,15 @@ defmodule DSpace.API.Collection do
   def list(options \\ []) do
     {pagination, other_options} = pop_pagination(options)
 
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_core,
       params: pagination ++ other_options,
       transformer:
         &Transform.transform_collection(&1,
           extract: ["_embedded", "collections"]
-        )
+        ),
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   @doc """

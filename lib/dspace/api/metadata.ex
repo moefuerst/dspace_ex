@@ -46,23 +46,23 @@ defmodule DSpace.API.Metadata do
     params = pagination ++ options
 
     transformer = &Transform.transform_collection(&1, extract: ["_embedded", "metadatafields"])
+    stream_impl = &StreamBuilder.new/3
 
-    op =
-      if is_nonempty_binary(maybe_schema) do
-        %Operation.JSON{
-          path: @ep_fields_by_schema,
-          params: Keyword.merge([schema: maybe_schema], params),
-          transformer: transformer
-        }
-      else
-        %Operation.JSON{
-          path: @ep_fields,
-          params: params,
-          transformer: transformer
-        }
-      end
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
+    if is_nonempty_binary(maybe_schema) do
+      %Operation.JSON{
+        path: @ep_fields_by_schema,
+        params: Keyword.merge([schema: maybe_schema], params),
+        transformer: transformer,
+        stream_impl: stream_impl
+      }
+    else
+      %Operation.JSON{
+        path: @ep_fields,
+        params: params,
+        transformer: transformer,
+        stream_impl: stream_impl
+      }
+    end
   end
 
   @doc """
@@ -158,13 +158,12 @@ defmodule DSpace.API.Metadata do
   def list_schemas(options \\ []) when is_list(options) do
     {pagination, other_options} = pop_pagination(options)
 
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_schemas,
       params: pagination ++ other_options,
-      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "metadataschemas"])
+      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "metadataschemas"]),
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   @doc """

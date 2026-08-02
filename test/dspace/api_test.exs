@@ -364,12 +364,9 @@ defmodule DSpace.APITest do
     end
 
     test "returns a stream when the operation supports streaming", %{api: api} do
-      operation = %Operation.JSON{path: "/test"}
+      operation = %Operation.JSON{path: "/test", stream_impl: &StreamBuilder.new/3}
 
-      operation_with_stream_support =
-        %{operation | stream_impl: &StreamBuilder.new(&1, operation, &2)}
-
-      stream = API.stream!(operation_with_stream_support, api)
+      stream = API.stream!(operation, api)
 
       assert is_function(stream, 2)
     end

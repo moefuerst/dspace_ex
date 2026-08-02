@@ -82,13 +82,12 @@ defmodule DSpace.API.Search do
   def query(options) when is_list(options) do
     params = build_query_params(options)
 
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_objects_search,
       params: params,
-      transformer: &transform_search_result/1
+      transformer: &transform_search_result/1,
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   @doc """
@@ -139,13 +138,12 @@ defmodule DSpace.API.Search do
   def fetch_facets(options \\ []) do
     params = build_query_params(options)
 
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_search_facets,
       params: params,
-      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "facets"])
+      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "facets"]),
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   @doc """
@@ -165,13 +163,12 @@ defmodule DSpace.API.Search do
   def fetch_facet_values(facet_name, options \\ []) when is_nonempty_binary(facet_name) do
     params = build_query_params(options)
 
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_search_facets <> "/" <> facet_name,
       params: params,
-      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "values"])
+      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "values"]),
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   # Private helpers
