@@ -413,11 +413,18 @@ defmodule DSpace.API.Item do
 
   @doc """
   Fetches a single item by UUID.
+
+  ## Options
+
+    * `:lang` - Preferred language for metadata values as a
+      `t:DSpace.API.Resource.preferred_language/0`.
   """
   @impl Resource
   @spec fetch(binary(), keyword()) :: Operation.JSON.t()
-  def fetch(uuid, _options \\ []) when is_nonempty_binary(uuid) do
-    %Operation.JSON{path: @ep_core <> "/" <> uuid}
+  def fetch(uuid, options \\ []) when is_nonempty_binary(uuid) do
+    [path: @ep_core <> "/" <> uuid]
+    |> Operation.JSON.new()
+    |> Operation.JSON.put_lang(options)
   end
 
   @doc """

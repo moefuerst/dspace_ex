@@ -6,6 +6,91 @@ defmodule DSpace.ItemExternalTest do
 
   @moduletag :requires_auth
 
+  describe "fetch/2" do
+    setup do
+      client = dspace_test_api(authenticate: true)
+
+      hierarchy =
+        Fixtures.create_item_hierarchy(client, item: [metadata: multilingual_metadata()])
+
+      {:ok, client: client, item: hierarchy.item}
+    end
+
+    test "returns metadata in all language variants with lang: :all option",
+         %{client: client, item: item} do
+      uuid = item["uuid"]
+
+      result =
+        uuid
+        |> Item.fetch(lang: :all)
+        |> API.request!(client)
+
+      titles = result["metadata"]["dc.title"]
+      languages = Enum.map(titles, & &1["language"])
+
+      assert length(titles) == 5
+      assert "en" in languages
+      assert "en_US" in languages
+      assert "de" in languages
+      assert "de_AT" in languages
+      assert nil in languages
+    end
+
+    @tag :bug
+    test "exact locale option returns metadata in that locale", %{client: client, item: item} do
+      uuid = item["uuid"]
+
+      result =
+        uuid
+        |> Item.fetch(lang: [:en_US])
+        |> API.request!(client)
+
+      titles = result["metadata"]["dc.title"]
+
+      # Actually expected: the American title
+      # assert Enum.any?(titles, &(&1["value"] == "American Title"))
+
+      # A en_US-tagged value is effectively shadowed by the en-tagged value when both exist
+      # and en is a supported locale: the algorithm stops at the first non-empty match, and the
+      # language-prefix wins before the exact-match-on-original-input is ever tried.
+      #
+      # See dspace-api/src/main/java/org/dspace/content/DSpaceObjectServiceImpl.java,
+      # filterMetadataValuesByLanguage/3
+
+      assert Enum.any?(titles, &(&1["value"] == "Test Title"))
+
+      refute Enum.any?(titles, &(&1["value"] == "American Title")),
+             "Ignoring exact locale when different language tags resolve to the same target " <>
+               "appears to be fixed"
+    end
+
+    @tag :bug
+    test "language code option matches metadata in its locale variants",
+         %{client: client, item: item} do
+      uuid = item["uuid"]
+
+      result =
+        uuid
+        |> Item.fetch(lang: [:de])
+        |> API.request!(client)
+
+      titles = result["metadata"]["dc.title"]
+      languages = Enum.map(titles, & &1["language"])
+
+      refute "en" in languages
+      refute "en_US" in languages
+      assert "de" in languages
+
+      # Actually expected: Austrian title is returned because it resolves to the same language
+      # target as "de". See also test "exact locale option returns metadata in that locale"
+      # assert "de_AT" in languages
+
+      refute "de_AT" in languages,
+             "Silently dropping metadata when different language tags resolve to the same " <>
+               "target appears to be fixed"
+    end
+  end
+
   describe "create_draft/1" do
     setup do
       client = dspace_test_api(authenticate: true)
@@ -16,6 +101,7 @@ defmodule DSpace.ItemExternalTest do
 
     @tag :requires_third_party_api
     # This test depends on the PubMed API being available to the DSpace server.
+    # This test depends on the JISC Open policy finder API being available to the DSpace server.
     test "creates a draft from an external source", %{client: client, collection: collection} do
       parent = collection["uuid"]
 
@@ -177,7 +263,7 @@ defmodule DSpace.ItemExternalTest do
     %{
       "op" => "replace",
       "path" => "/metadata/#{field}/#{place}/value",
-      "value" => %{"value" => value}
+      "value" => value
     }
   end
 end

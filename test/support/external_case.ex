@@ -216,7 +216,9 @@ defmodule DSpace.ExternalCase do
     # Private helpers
 
     defp cleanup_resource(resource, module, client) do
-      case resource["uuid"] |> module.delete() |> API.request(client) do
+      case resource["uuid"]
+           |> module.delete()
+           |> API.request(client) do
         {:ok, _} ->
           :ok
 

@@ -44,7 +44,7 @@ defmodule DSpace.API.Operation.JSON do
   @doc """
   Creates a new JSON operation from the given options.
   """
-  @spec new(keyword()) :: t()
+  @spec new(Enumerable.t()) :: t()
   def new(options) do
     struct(__MODULE__, options)
   end

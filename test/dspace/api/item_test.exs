@@ -5,21 +5,53 @@ defmodule DSpace.API.ItemTest do
   alias DSpace.API.Item
 
   describe "retrieving an item by UUID" do
+    @uuid "8f62713a-c495-467b-a918-2e392f781d2e"
+
     test "returns item when it exists", %{sham: sham, api: api} do
-      uuid = "8f62713a-c495-467b-a918-2e392f781d2e"
       item_fixture = load_fixture("fetch_item.json")
 
-      Sham.expect_once(sham, "GET", "/api/core/items/#{uuid}", fn conn ->
+      Sham.expect_once(sham, "GET", "/api/core/items/#{@uuid}", fn conn ->
         respond_with_json(conn, 200, item_fixture)
       end)
 
       {:ok, result} =
-        uuid
+        @uuid
         |> Item.fetch()
         |> API.request(api)
 
       assert_valid_dspace_resource(result, "item", ["name", "handle", "metadata"])
-      assert result["uuid"] == uuid
+      assert result["uuid"] == @uuid
+    end
+
+    test "defaults to allLanguages projection param when no :lang given", %{sham: sham, api: api} do
+      item_fixture = load_fixture("fetch_item.json")
+
+      Sham.expect_once(sham, "GET", "/api/core/items/#{@uuid}", fn conn ->
+        params = Plug.Conn.fetch_query_params(conn).query_params
+        assert params["projection"] == "allLanguages"
+        respond_with_json(conn, 200, item_fixture)
+      end)
+
+      {:ok, _result} =
+        @uuid
+        |> Item.fetch()
+        |> API.request(api)
+    end
+
+    test "sets Accept-Language header with quality values for multiple languages",
+         %{sham: sham, api: api} do
+      item_fixture = load_fixture("fetch_item.json")
+
+      Sham.expect_once(sham, "GET", "/api/core/items/#{@uuid}", fn conn ->
+        accept_lang = Plug.Conn.get_req_header(conn, "accept-language")
+        assert accept_lang == ["en,de;q=0.9,fr;q=0.8"]
+        respond_with_json(conn, 200, item_fixture)
+      end)
+
+      {:ok, _result} =
+        @uuid
+        |> Item.fetch(lang: [:en, :de, :fr])
+        |> API.request(api)
     end
   end
 
