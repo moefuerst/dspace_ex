@@ -2,7 +2,7 @@ services:
   dev:
     build:
       context: ..
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
     volumes:
       - ..:/app
       - mix_deps:/app/deps
