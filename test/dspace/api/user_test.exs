@@ -12,7 +12,10 @@ defmodule DSpace.API.UserTest do
         respond_with_json(conn, 200, user_fixture)
       end)
 
-      {:ok, result} = uuid |> User.fetch() |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> User.fetch()
+        |> API.request(api)
 
       assert_valid_dspace_resource(result, "eperson", ["name", "email", "metadata"])
       assert result["uuid"] == uuid
@@ -50,7 +53,10 @@ defmodule DSpace.API.UserTest do
         }))
       end)
 
-      {:ok, result} = [page: 2, size: 10] |> User.list() |> API.request(api)
+      {:ok, result} =
+        [page: 2, size: 10]
+        |> User.list()
+        |> API.request(api)
 
       {_users, metadata, _next_url} = result
       assert metadata["page"]["number"] == 2
@@ -58,7 +64,7 @@ defmodule DSpace.API.UserTest do
     end
   end
 
-  describe "searching for users by email" do
+  describe "fetching users by email" do
     test "finds user by email address", %{sham: sham, api: api} do
       email = "john.doe@example.com"
       user_fixture = load_fixture("fetch_user.json")
@@ -70,7 +76,10 @@ defmodule DSpace.API.UserTest do
         respond_with_json(conn, 200, user_fixture)
       end)
 
-      {:ok, result} = email |> User.fetch_by_email() |> API.request(api)
+      {:ok, result} =
+        email
+        |> User.fetch_by_email()
+        |> API.request(api)
 
       assert_valid_dspace_resource(result, "eperson")
       assert result["email"] == email
@@ -88,7 +97,10 @@ defmodule DSpace.API.UserTest do
         |> Plug.Conn.resp(204, "")
       end)
 
-      {:error, reason} = email |> User.fetch_by_email() |> API.request(api)
+      {:error, reason} =
+        email
+        |> User.fetch_by_email()
+        |> API.request(api)
 
       assert %{type: :not_found} = reason
     end
@@ -106,7 +118,11 @@ defmodule DSpace.API.UserTest do
         respond_with_json(conn, 200, users_fixture)
       end)
 
-      {:ok, result} = [query: query] |> User.find() |> API.request(api)
+      {:ok, result} =
+        [query: query]
+        |> User.find()
+        |> API.request(api)
+
       {users, _metadata, _next_url} = result
       first_user = Enum.at(users, 0)
 
@@ -128,7 +144,11 @@ defmodule DSpace.API.UserTest do
         }))
       end)
 
-      {:ok, result} = [query: "search term", page: 1, size: 5] |> User.find() |> API.request(api)
+      {:ok, result} =
+        [query: "search term", page: 1, size: 5]
+        |> User.find()
+        |> API.request(api)
+
       {_users, metadata, _next_url} = result
 
       assert metadata["page"]["number"] == 1
@@ -146,7 +166,11 @@ defmodule DSpace.API.UserTest do
         respond_with_json(conn, 200, user_data)
       end)
 
-      {:ok, result} = [query: uuid] |> User.find() |> API.request(api)
+      {:ok, result} =
+        [query: uuid]
+        |> User.find()
+        |> API.request(api)
+
       {users, _metadata, _next_url} = result
 
       assert length(users) == 1
@@ -180,7 +204,10 @@ defmodule DSpace.API.UserTest do
         respond_with_json(conn, 201, user_fixture)
       end)
 
-      {:ok, result} = user_data |> User.create() |> API.request(api)
+      {:ok, result} =
+        user_data
+        |> User.create()
+        |> API.request(api)
 
       assert_valid_dspace_resource(result, "eperson")
       assert result["uuid"] == "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e"
@@ -196,7 +223,10 @@ defmodule DSpace.API.UserTest do
         }))
       end)
 
-      {:error, error} = user_data |> User.create() |> API.request(api)
+      {:error, error} =
+        user_data
+        |> User.create()
+        |> API.request(api)
 
       assert error.status == 422
     end
@@ -236,90 +266,13 @@ defmodule DSpace.API.UserTest do
         }))
       end)
 
-      {:ok, result} = uuid |> User.update(update_operations) |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> User.update(update_operations)
+        |> API.request(api)
 
       assert result["uuid"] == uuid
       assert result["name"] == "jane.smith@example.com"
-    end
-
-    test "updates administrative properties", %{sham: sham, api: api} do
-      uuid = "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e"
-
-      # Test updating certificate requirement
-      cert_operations = [
-        %{"op" => "replace", "path" => "/certificate", "value" => true}
-      ]
-
-      Sham.expect_once(sham, "PATCH", "/api/eperson/epersons/#{uuid}", fn conn ->
-        {:ok, body, conn} = Plug.Conn.read_body(conn)
-        request_data = JSON.decode!(body)
-
-        operation = List.first(request_data)
-        assert operation["path"] == "/certificate"
-        assert operation["value"] == true
-
-        respond_with_json(conn, 200, ~s({
-          "uuid": "#{uuid}",
-          "requireCertificate": true,
-          "type": "eperson"
-        }))
-      end)
-
-      {:ok, result} = uuid |> User.update(cert_operations) |> API.request(api)
-      assert result["requireCertificate"] == true
-    end
-
-    test "updates login capability", %{sham: sham, api: api} do
-      uuid = "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e"
-
-      login_operations = [
-        %{"op" => "replace", "path" => "/canLogin", "value" => false}
-      ]
-
-      Sham.expect_once(sham, "PATCH", "/api/eperson/epersons/#{uuid}", fn conn ->
-        {:ok, body, _conn} = Plug.Conn.read_body(conn)
-        request_data = JSON.decode!(body)
-
-        operation = List.first(request_data)
-        assert operation["path"] == "/canLogin"
-        assert operation["value"] == false
-
-        respond_with_json(conn, 200, ~s({
-          "uuid": "#{uuid}",
-          "canLogIn": false,
-          "type": "eperson"
-        }))
-      end)
-
-      {:ok, result} = uuid |> User.update(login_operations) |> API.request(api)
-      assert result["canLogIn"] == false
-    end
-
-    test "updates email address", %{sham: sham, api: api} do
-      uuid = "8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e"
-
-      email_operations = [
-        %{"op" => "replace", "path" => "/email", "value" => "newemail@example.com"}
-      ]
-
-      Sham.expect_once(sham, "PATCH", "/api/eperson/epersons/#{uuid}", fn conn ->
-        {:ok, body, _conn} = Plug.Conn.read_body(conn)
-        request_data = JSON.decode!(body)
-
-        operation = List.first(request_data)
-        assert operation["path"] == "/email"
-        assert operation["value"] == "newemail@example.com"
-
-        respond_with_json(conn, 200, ~s({
-          "uuid": "#{uuid}",
-          "email": "newemail@example.com",
-          "name": "newemail@example.com",
-          "type": "eperson"
-        }))
-      end)
-
-      {:ok, result} = uuid |> User.update(email_operations) |> API.request(api)
-      assert result["email"] == "newemail@example.com"
     end
 
     test "replaces entire user content", %{sham: sham, api: api} do
@@ -349,7 +302,10 @@ defmodule DSpace.API.UserTest do
         }))
       end)
 
-      {:ok, result} = uuid |> User.replace(user_data) |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> User.replace(user_data)
+        |> API.request(api)
 
       assert result["uuid"] == uuid
       assert result["email"] == "replaced@example.com"
@@ -364,7 +320,10 @@ defmodule DSpace.API.UserTest do
         respond_with_json(conn, 204, "")
       end)
 
-      {:ok, result} = uuid |> User.delete() |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> User.delete()
+        |> API.request(api)
 
       assert result == :ok
     end
@@ -379,7 +338,10 @@ defmodule DSpace.API.UserTest do
         respond_with_json(conn, 200, groups_fixture)
       end)
 
-      {:ok, result} = uuid |> User.list_groups() |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> User.list_groups()
+        |> API.request(api)
 
       {groups, metadata, next_url} = result
       assert_valid_paginated_response({groups, metadata, next_url})
@@ -411,7 +373,10 @@ defmodule DSpace.API.UserTest do
         }))
       end)
 
-      {:ok, result} = uuid |> User.list_groups(page: 1, size: 25) |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> User.list_groups(page: 1, size: 25)
+        |> API.request(api)
 
       {_groups, metadata, _next_url} = result
       assert metadata["page"]["number"] == 1

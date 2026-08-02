@@ -9,9 +9,9 @@ defmodule DSpace.API.Collection do
 
   import DSpace.Utils, only: [is_nonempty_binary: 1, pop_pagination: 1]
 
+  alias DSpace.API.Model.ResourceUpdate
   alias DSpace.API.Operation
   alias DSpace.API.Resource
-  alias DSpace.API.Resource.Update
   alias DSpace.API.Search
   alias DSpace.API.StreamBuilder
   alias DSpace.API.Transform
@@ -174,7 +174,7 @@ defmodule DSpace.API.Collection do
     %Operation.JSON{
       path: @ep_core <> "/" <> uuid,
       http_method: :patch,
-      data: Enum.map(updates, &Update.to_map/1)
+      data: Enum.map(updates, &ResourceUpdate.to_map/1)
     }
   end
 

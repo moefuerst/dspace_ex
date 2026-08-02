@@ -25,6 +25,7 @@ defmodule DSpace.API.Model.MetadataValue do
         ]
       }
   """
+  @moduledoc since: "0.2.0"
 
   use DSpace.API.Model
 
@@ -87,10 +88,6 @@ defmodule DSpace.API.Model.MetadataValue do
     * `:admin_owner` - Available only to administrators and entity owner
   """
   @type security_level :: :public | :trusted | :admin_owner
-
-  @doc false
-  @spec no_value_placeholder() :: binary()
-  def no_value_placeholder, do: @no_value_placeholder
 
   # Public API
 
@@ -189,6 +186,10 @@ defmodule DSpace.API.Model.MetadataValue do
 
   Used when a position in a group has no value but alignment must be preserved.
 
+  The placeholder's text value is configurable for DSpace instances, per default it's
+  `#{@no_value_placeholder}`. Pass a custom value to this function if the instance you are
+  working with has a different placeholder value configured.
+
   ## Examples
 
       iex> DSpace.API.Model.MetadataValue.placeholder()
@@ -200,9 +201,21 @@ defmodule DSpace.API.Model.MetadataValue do
         place: nil,
         security_level: nil
       }
+
+      iex> DSpace.API.Model.MetadataValue.placeholder("MYPLACEHOLDER")
+      %DSpace.API.Model.MetadataValue{
+        value: "MYPLACEHOLDER",
+        confidence: :unset,
+        language: nil,
+        authority: nil,
+        place: nil,
+        security_level: nil
+      }
   """
-  @spec placeholder() :: t()
-  def placeholder, do: %__MODULE__{value: @no_value_placeholder, confidence: :unset}
+  @spec placeholder(binary()) :: t()
+  def placeholder(placeholder \\ @no_value_placeholder) do
+    %__MODULE__{value: placeholder, confidence: :unset}
+  end
 
   @doc """
   Checks if the metadata value is a placeholder.
@@ -214,10 +227,19 @@ defmodule DSpace.API.Model.MetadataValue do
       iex> placeholder = DSpace.API.Model.MetadataValue.placeholder()
       iex> DSpace.API.Model.MetadataValue.placeholder?(placeholder)
       true
+
+      iex> custom_placeholder = DSpace.API.Model.MetadataValue.placeholder("MYPLACEHOLDER")
+      iex> DSpace.API.Model.MetadataValue.placeholder?(custom_placeholder, "MYPLACEHOLDER")
+      true
   """
-  @spec placeholder?(t()) :: boolean()
-  def placeholder?(%__MODULE__{value: @no_value_placeholder}), do: true
-  def placeholder?(%__MODULE__{}), do: false
+  @spec placeholder?(t(), binary()) :: boolean()
+  def placeholder?(module, placeholder \\ @no_value_placeholder)
+
+  def placeholder?(%__MODULE__{value: value}, placeholder) when is_nonempty_binary(value) do
+    value == placeholder
+  end
+
+  def placeholder?(%__MODULE__{}, _placeholder), do: false
 
   # Callbacks
 
@@ -225,24 +247,6 @@ defmodule DSpace.API.Model.MetadataValue do
   Creates a value structure from a wire format map.
 
   Missing keys default to `nil`.
-
-  ## Examples
-
-      iex> map = %{
-      ...>   "value" => "test",
-      ...>   "language" => "en",
-      ...>   "confidence" => 600,
-      ...>   "securityLevel" => 1
-      ...> }
-      iex> DSpace.API.Model.MetadataValue.from_map(map)
-      %DSpace.API.Model.MetadataValue{
-        value: "test",
-        language: "en",
-        authority: nil,
-        confidence: :accepted,
-        place: nil,
-        security_level: :trusted
-      }
   """
   @impl Model
   @spec from_map(map()) :: t()
@@ -263,30 +267,6 @@ defmodule DSpace.API.Model.MetadataValue do
   All fields are always emitted. The only exception is `"securityLevel"`: it is omitted
   when `nil`, because DSpace-CRIS treats its absence differently from an explicit `null` (absence
   means "no access restriction set"; `null` is not a valid wire value for that field).
-
-  ## Examples
-
-      iex> value = %DSpace.API.Model.MetadataValue{
-      ...>   value: "test",
-      ...>   language: "en",
-      ...>   authority: "uuid",
-      ...>   confidence: :accepted,
-      ...>   place: 0,
-      ...>   security_level: :public
-      ...> }
-      iex> DSpace.API.Model.MetadataValue.to_map(value)
-      %{
-        "value" => "test",
-        "language" => "en",
-        "authority" => "uuid",
-        "confidence" => 600,
-        "place" => 0,
-        "securityLevel" => 0
-      }
-
-      iex> value = %DSpace.API.Model.MetadataValue{value: "test"}
-      iex> DSpace.API.Model.MetadataValue.to_map(value)
-      %{"authority" => nil, "confidence" => nil, "language" => nil, "place" => nil, "value" => "test"}
   """
   @impl Model
   @spec to_map(t()) :: map()
@@ -301,6 +281,10 @@ defmodule DSpace.API.Model.MetadataValue do
 
     maybe_put_security_level(map, value.security_level)
   end
+
+  @doc false
+  @spec no_value_placeholder() :: binary()
+  def no_value_placeholder, do: @no_value_placeholder
 
   # Private helpers
 

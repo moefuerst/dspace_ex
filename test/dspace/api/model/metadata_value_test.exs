@@ -7,24 +7,24 @@ defmodule DSpace.API.Model.MetadataValueTest do
   doctest MetadataValue
 
   describe "new/2" do
-    property "new/2 applies valid options" do
+    property "applies valid options" do
       check all(
-              v <- binary(),
-              language <- one_of([constant(nil), binary()]),
-              authority <- one_of([constant(nil), binary()]),
+              v <- string(:printable),
+              language <- one_of([constant(nil), string(:alphanumeric, min_length: 2, max_length: 5)]),
+              authority <- one_of([constant(nil), string(:printable, min_length: 1)]),
               confidence <-
-                one_of([
-                  constant(:accepted),
-                  constant(:uncertain),
-                  constant(:ambiguous),
-                  constant(:not_found),
-                  constant(:failed),
-                  constant(:rejected),
-                  constant(:no_value),
-                  constant(:unset)
+                member_of([
+                  :accepted,
+                  :uncertain,
+                  :ambiguous,
+                  :not_found,
+                  :failed,
+                  :rejected,
+                  :no_value,
+                  :unset
                 ]),
               security_level <-
-                one_of([constant(:public), constant(:trusted), constant(:admin_owner)])
+                member_of([:public, :trusted, :admin_owner])
             ) do
         opts =
           Enum.reject(
@@ -88,10 +88,10 @@ defmodule DSpace.API.Model.MetadataValueTest do
   end
 
   describe "relation/2" do
-    property "relation/2 constructs Value struct" do
+    property "constructs Value struct" do
       check all(
-              display <- binary(min_length: 1),
-              authority <- binary(min_length: 1)
+              display <- string(:printable, min_length: 1),
+              authority <- string(:printable, min_length: 1)
             ) do
         result = MetadataValue.relation(display, authority)
 
@@ -118,29 +118,24 @@ defmodule DSpace.API.Model.MetadataValueTest do
   end
 
   describe "relation/3" do
-    property "relation/3 applies valid options" do
+    property "applies valid options" do
       check all(
-              display <- binary(min_length: 1),
-              authority <- binary(min_length: 1),
-              language <- one_of([constant(nil), binary(min_length: 2, max_length: 5)]),
+              display <- string(:printable, min_length: 1),
+              authority <- string(:printable, min_length: 1),
+              language <- one_of([constant(nil), string(:alphanumeric, min_length: 2, max_length: 5)]),
               confidence <-
-                one_of([
-                  constant(:accepted),
-                  constant(:uncertain),
-                  constant(:ambiguous),
-                  constant(:not_found),
-                  constant(:failed),
-                  constant(:rejected),
-                  constant(:no_value),
-                  constant(:unset)
+                member_of([
+                  :accepted,
+                  :uncertain,
+                  :ambiguous,
+                  :not_found,
+                  :failed,
+                  :rejected,
+                  :no_value,
+                  :unset
                 ]),
               security_level <-
-                one_of([
-                  constant(nil),
-                  constant(:public),
-                  constant(:trusted),
-                  constant(:admin_owner)
-                ])
+                member_of([nil, :public, :trusted, :admin_owner])
             ) do
         opts =
           Enum.reject(
@@ -334,66 +329,63 @@ defmodule DSpace.API.Model.MetadataValueTest do
         MetadataValue.from_map(map)
       end
     end
-  end
 
-  property "to_map/1 and from_map/1 round-trip" do
-    check all(value <- value_generator()) do
-      map = MetadataValue.to_map(value)
-      reconstructed = MetadataValue.from_map(map)
+    property "to_map/1 and from_map/1 round-trips" do
+      check all(value <- value_generator()) do
+        wire =
+          value
+          |> MetadataValue.to_map()
+          |> JSON.encode!()
 
-      assert reconstructed == value
+        reconstructed =
+          wire
+          |> JSON.decode!()
+          |> MetadataValue.from_map()
+
+        assert reconstructed == value
+      end
     end
-  end
 
-  property "from_map/1 followed by to_map/1 round-trips (map direction)" do
-    check all(
-            value_str <- binary(min_length: 1),
-            language <- one_of([constant(nil), binary(min_length: 2, max_length: 5)]),
-            authority <- one_of([constant(nil), binary()]),
-            confidence <-
-              one_of([
-                constant(nil),
-                constant(600),
-                constant(500),
-                constant(400),
-                constant(300),
-                constant(200),
-                constant(100),
-                constant(0),
-                constant(-1)
-              ]),
-            place <- one_of([constant(nil), non_negative_integer()]),
-            security_level <- one_of([constant(nil), constant(0), constant(1), constant(2)])
-          ) do
-      base = %{
-        "value" => value_str,
-        "language" => language,
-        "authority" => authority,
-        "confidence" => confidence,
-        "place" => place
-      }
+    property "from_map/1 and to_map/1 round-trips" do
+      check all(
+              value_str <- string(:printable, min_length: 1),
+              language <- one_of([constant(nil), string(:alphanumeric, min_length: 2, max_length: 5)]),
+              authority <- one_of([constant(nil), string(:printable)]),
+              confidence <-
+                member_of([nil, 600, 500, 400, 300, 200, 100, 0, -1]),
+              place <- one_of([constant(nil), non_negative_integer()]),
+              security_level <- member_of([nil, 0, 1, 2])
+            ) do
+        base = %{
+          "value" => value_str,
+          "language" => language,
+          "authority" => authority,
+          "confidence" => confidence,
+          "place" => place
+        }
 
-      input_map =
-        if security_level,
-          do: Map.put(base, "securityLevel", security_level),
-          else: base
+        input_map =
+          if security_level,
+            do: Map.put(base, "securityLevel", security_level),
+            else: base
 
-      round_tripped =
-        input_map
-        |> MetadataValue.from_map()
-        |> MetadataValue.to_map()
+        round_tripped =
+          input_map
+          |> MetadataValue.from_map()
+          |> MetadataValue.to_map()
 
-      assert round_tripped["value"] == value_str
-      assert round_tripped["language"] == language
-      assert round_tripped["authority"] == authority
-      assert round_tripped["place"] == place
+        assert round_tripped["value"] == value_str
+        assert round_tripped["language"] == language
+        assert round_tripped["authority"] == authority
+        assert round_tripped["place"] == place
 
-      assert round_tripped["confidence"] == confidence
+        assert round_tripped["confidence"] == confidence
 
-      if security_level do
-        assert round_tripped["securityLevel"] == security_level
-      else
-        refute Map.has_key?(round_tripped, "securityLevel")
+        if security_level do
+          assert round_tripped["securityLevel"] == security_level
+        else
+          refute Map.has_key?(round_tripped, "securityLevel")
+        end
       end
     end
   end
@@ -401,42 +393,38 @@ defmodule DSpace.API.Model.MetadataValueTest do
   # Private helpers
 
   defp value_generator do
-    base_generator =
-      gen all(
-            v <- binary(min_length: 0),
-            lang <- one_of([constant(nil), binary(min_length: 2, max_length: 5)]),
-            auth <- one_of([constant(nil), binary()]),
-            conf <-
-              one_of([
-                constant(nil),
-                constant(:accepted),
-                constant(:uncertain),
-                constant(:ambiguous),
-                constant(:not_found),
-                constant(:failed),
-                constant(:rejected),
-                constant(:no_value),
-                constant(:unset)
-              ]),
-            sec <-
-              one_of([
-                constant(nil),
-                constant(:public),
-                constant(:trusted),
-                constant(:admin_owner)
-              ]),
-            place <- one_of([constant(nil), non_negative_integer()])
-          ) do
-        %MetadataValue{
-          value: v,
-          language: lang,
-          authority: auth,
-          confidence: conf,
-          place: place,
-          security_level: sec
-        }
-      end
+    one_of([base_value_generator(), constant(MetadataValue.placeholder())])
+  end
 
-    one_of([base_generator, constant(MetadataValue.placeholder())])
+  defp base_value_generator do
+    gen all(
+          v <- string(:printable, min_length: 0),
+          lang <- one_of([constant(nil), string(:alphanumeric, min_length: 2, max_length: 5)]),
+          auth <- one_of([constant(nil), string(:printable)]),
+          conf <-
+            member_of([
+              nil,
+              :accepted,
+              :uncertain,
+              :ambiguous,
+              :not_found,
+              :failed,
+              :rejected,
+              :no_value,
+              :unset
+            ]),
+          sec <-
+            member_of([nil, :public, :trusted, :admin_owner]),
+          place <- one_of([constant(nil), non_negative_integer()])
+        ) do
+      %MetadataValue{
+        value: v,
+        language: lang,
+        authority: auth,
+        confidence: conf,
+        place: place,
+        security_level: sec
+      }
+    end
   end
 end

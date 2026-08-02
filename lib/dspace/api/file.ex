@@ -14,12 +14,11 @@ defmodule DSpace.API.File do
   import DSpace.Utils, only: [is_nonempty_binary: 1, maybe_add_base_url: 2, pop_pagination: 1]
 
   alias DSpace.API
-  alias DSpace.API.Error
   alias DSpace.API.HTTP.Response
   alias DSpace.API.Item
+  alias DSpace.API.Model.ResourceUpdate
   alias DSpace.API.Operation
   alias DSpace.API.Resource
-  alias DSpace.API.Resource.Update
   alias DSpace.API.StreamBuilder
   alias DSpace.API.Transform
 
@@ -510,7 +509,7 @@ defmodule DSpace.API.File do
     %Operation.JSON{
       path: @ep_bitstreams <> "/" <> uuid,
       http_method: :patch,
-      data: Enum.map(updates, &Update.to_map/1)
+      data: Enum.map(updates, &ResourceUpdate.to_map/1)
     }
   end
 

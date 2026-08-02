@@ -149,7 +149,10 @@ defmodule DSpace.API.CollectionTest do
         }))
       end)
 
-      {:ok, result} = uuid |> Collection.replace(collection_data) |> API.request(api)
+      {:ok, result} =
+        uuid
+        |> Collection.replace(collection_data)
+        |> API.request(api)
 
       assert result["uuid"] == uuid
       assert result["name"] == "Replaced Collection"

@@ -153,7 +153,10 @@ defmodule DSpace.API.CommunityTest do
         respond_with_json(conn, 200, search_fixture)
       end)
 
-      {:ok, _result} = options |> Community.find() |> API.request(api)
+      {:ok, _result} =
+        options
+        |> Community.find()
+        |> API.request(api)
     end
   end
 

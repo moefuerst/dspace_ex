@@ -17,11 +17,10 @@ defmodule DSpace.API.Item do
 
   import DSpace.Utils, only: [is_nonempty_binary: 1, maybe_add_base_url: 2, pop_pagination: 1]
 
-  alias DSpace.API.Error
   alias DSpace.API.HTTP.Response
+  alias DSpace.API.Model.ResourceUpdate
   alias DSpace.API.Operation
   alias DSpace.API.Resource
-  alias DSpace.API.Resource.Update
   alias DSpace.API.Search
   alias DSpace.API.Source
   alias DSpace.API.StreamBuilder
@@ -103,7 +102,7 @@ defmodule DSpace.API.Item do
   """
   @spec withdraw(binary()) :: Operation.JSON.t()
   def withdraw(uuid) when is_nonempty_binary(uuid) do
-    update(uuid, [%Update{op: :replace, path: "/withdrawn", value: true}])
+    update(uuid, [%ResourceUpdate{op: :replace, path: "/withdrawn", value: true}])
   end
 
   @doc """
@@ -113,7 +112,7 @@ defmodule DSpace.API.Item do
   """
   @spec hide(binary()) :: Operation.JSON.t()
   def hide(uuid) when is_nonempty_binary(uuid) do
-    update(uuid, [%Update{op: :replace, path: "/discoverable", value: false}])
+    update(uuid, [%ResourceUpdate{op: :replace, path: "/discoverable", value: false}])
   end
 
   @doc """
@@ -200,7 +199,7 @@ defmodule DSpace.API.Item do
     %Operation.JSON{
       path: @ep_workspace <> "/" <> Integer.to_string(ws_id),
       http_method: :patch,
-      data: Enum.map(updates, &Update.to_map/1)
+      data: Enum.map(updates, &ResourceUpdate.to_map/1)
     }
   end
 
@@ -541,7 +540,7 @@ defmodule DSpace.API.Item do
     %Operation.JSON{
       path: @ep_core <> "/" <> uuid,
       http_method: :patch,
-      data: Enum.map(updates, &Update.to_map/1)
+      data: Enum.map(updates, &ResourceUpdate.to_map/1)
     }
   end
 
