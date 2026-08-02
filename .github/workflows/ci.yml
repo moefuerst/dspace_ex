@@ -80,6 +80,7 @@ jobs:
 
       - name: Compile without optional deps
         run: mix compile --no-optional-deps --warnings-as-errors
+        if: ${{ matrix.lint }}
         env:
           MIX_ENV: dev
 
