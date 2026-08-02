@@ -35,16 +35,15 @@ defmodule DSpace.API.File.FormatRegistry do
   def list(options \\ []) do
     {pagination, other_options} = pop_pagination(options)
 
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_core,
       params: pagination ++ other_options,
       transformer:
         &Transform.transform_collection(&1,
           extract: ["_embedded", "bitstreamformats"]
-        )
+        ),
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   @doc """

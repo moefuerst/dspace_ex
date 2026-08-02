@@ -48,6 +48,9 @@ All notable changes to this project will be documented in this file.
     the server if the operation is not supported and return an `Operation.Error` instead
   * The `API` struct now includes a `cris_version` field
   * The `Operation.JSON` struct now includes a `supported_versions` field
+  * `StreamBuilder.new/3` signature changed to `(operation, client, options)`
+  * Streamable operations no longer capture themselves in `stream_impl`, the field now holds a 
+    plain function reference
   * Type `t:Resource.resource_update/0` has been renamed to `t:Resource.update/0`
   * Module `Metadata.Value` has been renamed to `Model.MetadataValue`
   * `MetadataValue.placeholder/0` and `MetadataValue.placeholder?/0` have been replaced with

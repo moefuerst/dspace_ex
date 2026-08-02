@@ -47,16 +47,15 @@ defmodule DSpace.API.Community do
   def list_collections(uuid, options \\ []) when is_nonempty_binary(uuid) do
     {pagination, other_options} = pop_pagination(options)
 
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_core <> "/" <> uuid <> "/collections",
       params: pagination ++ other_options,
       transformer:
         &Transform.transform_collection(&1,
           extract: ["_embedded", "collections"]
-        )
+        ),
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   @doc """
@@ -73,16 +72,15 @@ defmodule DSpace.API.Community do
   def list_subcommunities(uuid, options \\ []) when is_nonempty_binary(uuid) do
     {pagination, other_options} = pop_pagination(options)
 
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_core <> "/" <> uuid <> "/subcommunities",
       params: pagination ++ other_options,
       transformer:
         &Transform.transform_collection(&1,
           extract: ["_embedded", "subcommunities"]
-        )
+        ),
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   @doc """
@@ -99,16 +97,15 @@ defmodule DSpace.API.Community do
   def list_toplevel(options \\ []) do
     {pagination, other_options} = pop_pagination(options)
 
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_core_toplevel,
       params: pagination ++ other_options,
       transformer:
         &Transform.transform_collection(&1,
           extract: ["_embedded", "communities"]
-        )
+        ),
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   # Callbacks
@@ -175,16 +172,15 @@ defmodule DSpace.API.Community do
   def list(options \\ []) do
     {pagination, other_options} = pop_pagination(options)
 
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_core,
       params: pagination ++ other_options,
       transformer:
         &Transform.transform_collection(&1,
           extract: ["_embedded", "communities"]
-        )
+        ),
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   @doc """

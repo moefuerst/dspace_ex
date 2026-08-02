@@ -139,8 +139,8 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
     raise ArgumentError, "this operation cannot be streamed"
   end
 
-  def stream!(%OpJSON{stream_impl: stream_impl}, client, options) do
-    stream_impl.(client, options)
+  def stream!(%OpJSON{stream_impl: stream_impl} = operation, client, options) do
+    stream_impl.(operation, client, options)
   end
 
   # Private helpers

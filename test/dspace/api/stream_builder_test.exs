@@ -48,7 +48,7 @@ defmodule DSpace.API.StreamBuilderTest do
         transformer: fn response -> {response.body["items"], %{}, response.body["next"]} end
       }
 
-      stream = StreamBuilder.new(client, operation, [])
+      stream = StreamBuilder.new(operation, client, [])
       result = Enum.to_list(stream)
 
       assert result == ["item1", "item2", "item3", "item4", "item5", "item6"]
@@ -64,7 +64,7 @@ defmodule DSpace.API.StreamBuilderTest do
         transformer: fn response -> {response.body["items"], %{}, response.body["next"]} end
       }
 
-      stream = StreamBuilder.new(client, operation, [])
+      stream = StreamBuilder.new(operation, client, [])
       result = Enum.to_list(stream)
 
       assert result == ["item1", "item2"]
@@ -80,7 +80,7 @@ defmodule DSpace.API.StreamBuilderTest do
         transformer: fn response -> {response.body["items"], %{}, response.body["next"]} end
       }
 
-      stream = StreamBuilder.new(client, operation, [])
+      stream = StreamBuilder.new(operation, client, [])
       result = Enum.to_list(stream)
 
       assert result == ["item1"]
@@ -96,7 +96,7 @@ defmodule DSpace.API.StreamBuilderTest do
         transformer: fn _response -> {[], %{}, nil} end
       }
 
-      stream = StreamBuilder.new(client, operation, [])
+      stream = StreamBuilder.new(operation, client, [])
 
       assert_raise DSpace.API.Error, fn -> Enum.to_list(stream) end
     end
@@ -111,7 +111,7 @@ defmodule DSpace.API.StreamBuilderTest do
         transformer: fn response -> {response.body["items"], %{}, response.body["next"]} end
       }
 
-      stream = StreamBuilder.new(client, operation, [])
+      stream = StreamBuilder.new(operation, client, [])
       result = Enum.to_list(stream)
 
       assert result == []
@@ -127,7 +127,7 @@ defmodule DSpace.API.StreamBuilderTest do
         transformer: fn response -> {response.body["items"], %{}, response.body["next"]} end
       }
 
-      stream = StreamBuilder.new(client, operation, transform: false)
+      stream = StreamBuilder.new(operation, client, transform: false)
       result = Enum.to_list(stream)
 
       assert result == ["item1"]

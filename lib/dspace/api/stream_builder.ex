@@ -23,14 +23,14 @@ defmodule DSpace.API.StreamBuilder do
 
   ## Parameters
 
-    * `client` - The `t:DSpace.API.t/0` client structure to use for the request.
     * `operation` - The operation to perform, configured with a transformer that returns the
       response as a tuple `{items, meta, next}` where `items` is a list of resources, `meta` is
       metadata, and `next` is the URL for the next page or `nil` if there are no more pages.
+    * `client` - The `t:DSpace.API.t/0` client structure to use for the request.
     * `options` - Keyword list of request options.
   """
   @spec new(API.t(), Operation.t(), keyword()) :: Enumerable.t()
-  def new(client, operation, options) do
+  def new(operation, client, options) do
     Stream.resource(fn -> {operation, client, options} end, &fetch_page/1, & &1)
   end
 

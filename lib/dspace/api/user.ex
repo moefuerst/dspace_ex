@@ -57,13 +57,12 @@ defmodule DSpace.API.User do
   def list_groups(uuid, options \\ []) when is_nonempty_binary(uuid) do
     {pagination, other_options} = pop_pagination(options)
 
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_users <> "/" <> uuid <> "/groups",
       params: pagination ++ other_options,
-      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "groups"])
+      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "groups"]),
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   # Callbacks
@@ -93,13 +92,12 @@ defmodule DSpace.API.User do
   def find(options \\ []) when is_list(options) do
     {pagination, other_options} = pop_pagination(options)
 
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_by_metadata,
       params: pagination ++ other_options,
-      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "epersons"])
+      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "epersons"]),
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   @doc """
@@ -117,13 +115,12 @@ defmodule DSpace.API.User do
   def list(options \\ []) do
     {pagination, other_options} = pop_pagination(options)
 
-    op = %Operation.JSON{
+    %Operation.JSON{
       path: @ep_users,
       params: pagination ++ other_options,
-      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "epersons"])
+      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "epersons"]),
+      stream_impl: &StreamBuilder.new/3
     }
-
-    %{op | stream_impl: &StreamBuilder.new(&1, op, &2)}
   end
 
   @doc """
