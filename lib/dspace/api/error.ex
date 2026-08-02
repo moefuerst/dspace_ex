@@ -18,6 +18,7 @@ defmodule DSpace.API.Error do
     429 => :too_many_requests
   }
 
+  @derive {Inspect, only: [:type, :status, :message, :request_url]}
   defexception [:type, :status, :message, :request_url, :response]
 
   @type t :: %__MODULE__{

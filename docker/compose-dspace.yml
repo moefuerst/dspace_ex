@@ -22,6 +22,7 @@ services:
       db__P__url: "jdbc:postgresql://dspacedb:5432/dspace"
       solr__P__server: http://dspacesolr:8983/solr
       solr__D__statistics__P__autoCommit: "false"
+      webui__P__supported__P__locales: "en, en_US, de, de_AT"
       LOGGING_CONFIG: /dspace/config/log4j2-container.xml
       LOADASSETS: https://github.com/4Science/DSpace-CRIS-Files/releases/download/cris-2025.02.00/assetstore.tar.gz
     image: "${DOCKER_REGISTRY:-docker.io}/${DOCKER_OWNER:-4science}/dspace-cris:${DSPACE_VER:-dspace-cris-2025_02_x}-test"

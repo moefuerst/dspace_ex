@@ -32,7 +32,7 @@ defmodule DSpace.APIExternalTest do
             IO.puts("\n[External Test] DSpace API: #{api_version}, CRIS: #{cris_version}")
           end)
 
-          Elixir.Version.parse!(api_version)
+          assert Elixir.Version.to_string(api_version)
 
         {:error, reason} ->
           flunk("Failed to retrieve Version from external DSpace API: #{inspect(reason)}")

@@ -334,6 +334,25 @@ defmodule DSpace.APITest do
 
       assert {:ok, _response} = result
     end
+
+    test "accepts override options", %{sham: sham, api: api} do
+      api = API.put_csrf_token(api, "abc123")
+      operation = %Operation.JSON{http_method: :put, path: "/test/resource"}
+
+      Sham.expect_once(sham, "PUT", "/test/resource", fn conn ->
+        assert Plug.Conn.get_req_header(conn, "x-test") == ["123abc"]
+
+        # the CSRF token header set by default should have been overridden
+        refute Plug.Conn.get_req_header(conn, "x-xsrf-token") == ["abc123"]
+
+        respond_with_json(conn, 200, ~s({"response":"ok"}))
+      end)
+
+      # Pass an option that overrides *all* headers
+      result = API.request(operation, api, headers: %{:x_test => ["123abc"]})
+
+      assert {:ok, _response} = result
+    end
   end
 
   describe "stream!/3" do
