@@ -26,12 +26,6 @@ The long-term goal is complete coverage of the DSpace API, enabling everything f
 automation scripts to full-featured applications.
 
 
-## Maintenance status
-
-Work in progress, breaking changes are likely between releases. Help with expanding the 
-functionality is always welcome!
-
-
 ## Installation
 
 Add `:dspace_ex` to your dependencies in `mix.exs`. You also need to add `Req`, which is the 
@@ -372,6 +366,12 @@ mix check
 ```
 
 
+## Maintenance status
+
+Work in progress, breaking changes are likely between releases. Help with expanding the 
+functionality is always welcome!
+
+
 ## Contributing
 
 Feedback and pull requests to contribute new features or fixes are most welcome. Please run 
@@ -386,6 +386,7 @@ scope.
 - Substantially improve e2e test coverage
 - Provide better tools for constructing payloads
 - Telemetry integration
+
 
 ## Acknowledgments
 
