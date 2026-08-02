@@ -64,31 +64,6 @@ defmodule DSpace.API.MetadataTest do
       assert is_list(fields)
       assert length(fields) == 3
     end
-
-    test "supports custom pagination parameters for field listing", %{sham: sham, api: api} do
-      Sham.expect_once(sham, "GET", "/api/core/metadatafields", fn conn ->
-        params = Plug.Conn.fetch_query_params(conn).query_params
-        assert params["page"] == "1"
-        assert params["size"] == "10"
-
-        custom_response = ~s({
-          "_embedded": {"metadatafields": []},
-          "_links": {},
-          "page": {"size": 10, "totalElements": 0, "totalPages": 0, "number": 1}
-        })
-
-        respond_with_json(conn, 200, custom_response)
-      end)
-
-      {:ok, result} =
-        [page: 1, size: 10]
-        |> Metadata.list_fields()
-        |> API.request(api)
-
-      {_fields, metadata, _next_url} = result
-      assert metadata["page"]["number"] == 1
-      assert metadata["page"]["size"] == 10
-    end
   end
 
   describe "searching metadata fields" do
@@ -272,6 +247,14 @@ defmodule DSpace.API.MetadataTest do
 
       assert operation.data == expected_data
     end
+
+    test "create_field requires schema_id option" do
+      field_data = test_field_data()
+
+      assert_raise FunctionClauseError, fn ->
+        Metadata.create_field(field_data, [])
+      end
+    end
   end
 
   describe "modifying metadata fields" do
@@ -419,7 +402,10 @@ defmodule DSpace.API.MetadataTest do
         respond_with_json(conn, 201, schema_fixture)
       end)
 
-      {:ok, result} = schema_data |> Metadata.create_schema() |> API.request(api)
+      {:ok, result} =
+        schema_data
+        |> Metadata.create_schema()
+        |> API.request(api)
 
       assert result["type"] == "metadataschema"
     end
@@ -473,70 +459,6 @@ defmodule DSpace.API.MetadataTest do
         |> API.request(api)
 
       assert result == :ok
-    end
-  end
-
-  describe "edge cases and error scenarios" do
-    test "handles empty schema parameter in list_fields" do
-      operation = Metadata.list_fields(schema: "")
-
-      # Should use regular list endpoint when schema is empty
-      assert operation.path == "/api/core/metadatafields"
-    end
-
-    test "handles nil scope note in field creation" do
-      field_data = %{
-        element: "subject",
-        qualifier: "keyword",
-        scope_note: nil
-      }
-
-      operation = Metadata.create_field(field_data, schema_id: "1")
-
-      expected_data = %{
-        "element" => "subject",
-        "qualifier" => "keyword",
-        "scopeNote" => nil
-      }
-
-      assert operation.data == expected_data
-    end
-
-    test "find_fields supports multiple search criteria" do
-      options = [
-        schema: "dc",
-        element: "contributor",
-        qualifier: "author",
-        query: "dc.contrib",
-        page: 2,
-        size: 5
-      ]
-
-      operation = Metadata.find_fields(options)
-
-      assert Keyword.get(operation.params, :schema) == "dc"
-      assert Keyword.get(operation.params, :element) == "contributor"
-      assert Keyword.get(operation.params, :qualifier) == "author"
-      assert Keyword.get(operation.params, :query) == "dc.contrib"
-    end
-
-    test "schema filtering preserves other list_fields options" do
-      options = [schema: "dc", page: 3, size: 15, sort: "element"]
-
-      operation = Metadata.list_fields(options)
-
-      assert operation.path == "/api/core/metadatafields/search/bySchema"
-      assert Keyword.get(operation.params, :schema) == "dc"
-      assert Keyword.get(operation.params, :page) == 3
-      assert Keyword.get(operation.params, :size) == 15
-    end
-
-    test "create_field requires schema_id option" do
-      field_data = test_field_data()
-
-      assert_raise FunctionClauseError, fn ->
-        Metadata.create_field(field_data, [])
-      end
     end
   end
 

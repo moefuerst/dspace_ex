@@ -1,25 +1,26 @@
 defmodule DSpace.API.Resource do
   @moduledoc """
-  Specifies the behaviour of an API resource.
+  Specifies the behaviour of an API resource module.
   """
 
+  alias DSpace.API.Model.ResourceUpdate
   alias DSpace.API.Operation
-  alias DSpace.API.Resource.Update
 
   @typedoc """
   Represents a "DSpace Object" UUID.
 
-  Any repository entity (community, collection, item, user, user group, file, etc.) will have
-  a UUID.
+  Most repository entities (community, collection, item, user, user group, file, etc.) called
+  "objects" in DSpace-speak will have such a UUID.
   """
   @type dso_uuid :: binary()
-
-  @type options :: keyword()
 
   @typedoc """
   Represents a single metadata update to a resource.
 
-  See `DSpace.API.Resource.Update` for details. A plain string-keyed map is also accepted.
+  Can be either
+
+    * a `t:DSpace.API.Model.ResourceUpdate.t/0`
+    * a plain string-keyed map
 
   ## Examples
 
@@ -35,7 +36,28 @@ defmodule DSpace.API.Resource do
         "value" => "New Title"
       }
   """
-  @type resource_update :: Update.t() | %{required(binary()) => binary() | nil}
+  @type update :: ResourceUpdate.t() | %{required(binary()) => binary() | nil}
+
+  @typedoc """
+  Represents the preferred language for metadata when retrieving a resource.
+
+  Note that if the preferred language is not available for a given metadata value, all language
+  variants of that value will be returned by the server.
+
+  Can be either
+
+    * `:all` - Returns all language variants (default)
+    * a language tag as an atom or string (e.g. `:en`).
+    * a list of language tags as atoms or strings (e.g. `[:en, :de_AT]`). This will send an
+      `Accept-Language` header with quality values derived from list order
+    * an `Accept-Language` header value as a string (e.g.`en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7`).
+    * an `Accept-Language` header (e.g. `%{:accept_language => ["fr-CH,fr;q=0.9,en;q=0.8,de;q=0.7"]}}`)
+    * `nil` - Returns the server default
+  """
+  @type preferred_language ::
+          :all | atom() | binary() | [atom() | binary()] | %{required(atom()) => [binary()]} | nil
+
+  @type options :: keyword()
 
   @doc """
   Builds an operation to fetch a single resource by UUID.
@@ -60,9 +82,9 @@ defmodule DSpace.API.Resource do
   @doc """
   Builds an operation to update an existing resource on DSpace.
 
-  The payload is a list of `t:resource_update/0`.
+  The payload is a list of `t:update/0`.
   """
-  @callback update(dso_uuid(), [resource_update()], options()) :: Operation.t()
+  @callback update(dso_uuid(), [update()], options()) :: Operation.t()
 
   @doc """
   Builds an operation to replace a resource on DSpace.

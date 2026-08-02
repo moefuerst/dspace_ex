@@ -38,6 +38,15 @@ defmodule DSpace.Utils do
   end
 
   @doc """
+  Puts the given key/value pair into the into the map or keyword list if the value is not nil.
+  """
+  @spec maybe_put(map(), term(), term()) :: map()
+  @spec maybe_put(keyword(), atom(), term()) :: keyword()
+  def maybe_put(enum, _key, nil), do: enum
+  def maybe_put(enum, key, value) when is_map(enum), do: Map.put(enum, key, value)
+  def maybe_put(enum, key, value) when is_list(enum), do: Keyword.put(enum, key, value)
+
+  @doc """
   Pops API pagination options out of a keyword list.
 
   Pulls pagination options from the given list and returns a tuple

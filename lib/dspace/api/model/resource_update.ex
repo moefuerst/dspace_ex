@@ -1,4 +1,4 @@
-defmodule DSpace.API.Resource.Update do
+defmodule DSpace.API.Model.ResourceUpdate do
   @moduledoc """
   Represents a single update to a resource.
 
@@ -16,8 +16,14 @@ defmodule DSpace.API.Resource.Update do
   """
   @moduledoc since: "0.2.0"
 
+  use DSpace.API.Model
+
+  alias DSpace.API.Model
+
   @ops [:add, :remove, :replace, :move]
   @ops_strings Enum.map(@ops, &to_string/1)
+
+  @wire %{}
 
   @enforce_keys [:op, :path]
   defstruct [:op, :path, :value, :from]
@@ -25,7 +31,7 @@ defmodule DSpace.API.Resource.Update do
   @typedoc """
   A single update to a resource.
 
-    * `op` - The operation to perform:
+    * `op` - The update operation to perform:
       * `:add` - Sets the value at the target path. Replaces the value if it already exists.
       * `:remove` - Removes the value at the target path. `value` is not required.
       * `:replace` - Replaces an existing value at the target path. Fails if no value exists.
@@ -50,7 +56,7 @@ defmodule DSpace.API.Resource.Update do
   """
   @spec new(map() | keyword()) :: t()
   def new(%{op: op} = attributes) when op in @ops do
-    struct(__MODULE__, attributes)
+    struct!(__MODULE__, attributes)
   end
 
   def new(attributes) when is_list(attributes) do
@@ -60,8 +66,43 @@ defmodule DSpace.API.Resource.Update do
   end
 
   @doc """
-  Creates a new update structure from a map.
+  Creates an update structure to add a value.
   """
+  @spec add(binary(), term()) :: t()
+  def add(path, value) do
+    struct(__MODULE__, op: :add, path: path, value: value)
+  end
+
+  @doc """
+  Creates an update structure to remove a value.
+  """
+  @spec remove(binary()) :: t()
+  def remove(path) do
+    struct(__MODULE__, op: :remove, path: path)
+  end
+
+  @doc """
+  Creates an update structure to replace a value.
+  """
+  @spec replace(binary(), term()) :: t()
+  def replace(path, value) do
+    struct(__MODULE__, op: :replace, path: path, value: value)
+  end
+
+  @doc """
+  Creates an update structure to move a value.
+  """
+  @spec move(binary(), binary()) :: t()
+  def move(from, path) do
+    struct(__MODULE__, op: :move, from: from, path: path)
+  end
+
+  # Callbacks
+
+  @doc """
+  Creates a new update structure from a wire format map.
+  """
+  @impl Model
   @spec from_map(map()) :: t()
   def from_map(map) do
     new(%{
@@ -73,26 +114,15 @@ defmodule DSpace.API.Resource.Update do
   end
 
   @doc """
-  Converts an update structure to a map.
-
-  Also accepts a plain map as a passthrough for convenience.
+  Converts an update structure to a wire format map.
   """
+  # Also accept a plain map to maintain backwards compatibility.
+  @impl Model
   @spec to_map(t() | map()) :: map()
-  def to_map(%__MODULE__{} = update) do
-    %{
-      "op" => to_string(update.op),
-      "path" => update.path
-    }
-    |> maybe_put("value", update.value)
-    |> maybe_put("from", update.from)
-  end
-
+  def to_map(%__MODULE__{} = update), do: Model.to_map(update)
   def to_map(update) when is_map(update), do: update
 
   # Private helpers
 
   defp parse_op(op) when op in @ops_strings, do: String.to_existing_atom(op)
-
-  defp maybe_put(map, _key, nil), do: map
-  defp maybe_put(map, key, value), do: Map.put(map, key, value)
 end
