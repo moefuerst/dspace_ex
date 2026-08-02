@@ -96,6 +96,18 @@ defmodule DSpace.API.Item do
   end
 
   @doc """
+  Fetches the user that submitted the item.
+  """
+  @spec submitter(binary()) :: Operation.JSON.t()
+  def submitter(uuid) when is_nonempty_binary(uuid) do
+    %Operation.JSON{
+      path: @ep_core <> "/" <> uuid <> "/submitter",
+      transformer: &Transform.get(&1, "submitter"),
+      supported_versions: %{any: ">= 9.0.0"}
+    }
+  end
+
+  @doc """
   Withdraws an item from the archive, making it no longer publicly accessible.
 
   This is a convenience wrapper around `update/3` that sets the `withdrawn` flag to `true`.
