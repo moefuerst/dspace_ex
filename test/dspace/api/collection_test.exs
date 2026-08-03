@@ -222,7 +222,8 @@ defmodule DSpace.API.CollectionTest do
       {:ok, result} = API.request(Collection.find(), api)
 
       {objects, _metadata, _next_url} = result
-      assert is_list(objects)
+
+      assert objects != []
     end
 
     test "searches collections with query term", %{sham: sham, api: api} do

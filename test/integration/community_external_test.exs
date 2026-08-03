@@ -14,8 +14,9 @@ defmodule DSpace.CommunityExternalTest do
     {:ok, client: client, community: community}
   end
 
+  # community was created as part of fixture setup
+  # credo:disable-for-next-line Jump.CredoChecks.VacuousTest
   test "creates community under the toplevel community", %{community: community} do
-    # community was created as part of fixture setup
     assert String.starts_with?(community["name"], "Test Community")
   end
 

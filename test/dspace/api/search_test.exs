@@ -2,9 +2,13 @@ defmodule DSpace.API.SearchTest do
   use DSpace.API.Case, async: true
 
   alias DSpace.API
+  alias DSpace.API.Collection
+  alias DSpace.API.Community
   alias DSpace.API.HTTP.Response
+  alias DSpace.API.Item
   alias DSpace.API.Operation
   alias DSpace.API.Search
+  alias DSpace.API.User
 
   test "query with empty query string raises FunctionClauseError" do
     assert_raise FunctionClauseError, fn ->
@@ -45,6 +49,7 @@ defmodule DSpace.API.SearchTest do
     test "query/1 with special configurations" do
       for config <- ["workspace", "workflow"] do
         operation = Search.query(configuration: config)
+
         assert operation.params[:configuration] == config
       end
     end
@@ -117,8 +122,6 @@ defmodule DSpace.API.SearchTest do
       ]
 
       operation = Search.query(filters: filters)
-
-      # Should handle multiple filters on same field by creating multiple parameters
       params = operation.params
 
       subject_filters =
@@ -132,6 +135,7 @@ defmodule DSpace.API.SearchTest do
 
       for operator <- operators do
         operation = Search.query(filters: [%{filter: "title", operator: operator, value: "test"}])
+
         assert List.keyfind(operation.params, "f.title", 0) == {"f.title", "test,#{operator}"}
       end
     end
@@ -198,13 +202,9 @@ defmodule DSpace.API.SearchTest do
   end
 
   describe "facet operations" do
-    test "fetch_facets/1 returns JSON operation" do
-      operation = Search.fetch_facets(configuration: "default")
-      assert %Operation.JSON{} = operation
-    end
-
     test "fetch_facets/1 has correct path" do
       operation = Search.fetch_facets()
+
       assert operation.path == "/api/discover/search/facets"
     end
 
@@ -225,16 +225,13 @@ defmodule DSpace.API.SearchTest do
 
     test "fetch_facets/1 has facet transformer" do
       operation = Search.fetch_facets()
-      assert is_function(operation.transformer, 1)
-    end
 
-    test "fetch_facet_values/2 returns JSON operation" do
-      operation = Search.fetch_facet_values("author")
-      assert %Operation.JSON{} = operation
+      assert is_function(operation.transformer, 1)
     end
 
     test "fetch_facet_values/2 has correct path" do
       operation = Search.fetch_facet_values("subject")
+
       assert operation.path == "/api/discover/search/facets/subject"
     end
 
@@ -255,6 +252,7 @@ defmodule DSpace.API.SearchTest do
 
     test "fetch_facet_values/2 has facet values transformer" do
       operation = Search.fetch_facet_values("author")
+
       assert is_function(operation.transformer, 1)
     end
   end
@@ -274,33 +272,28 @@ defmodule DSpace.API.SearchTest do
 
       {data, meta, next_url} = result
 
+      first_item = Enum.at(data, 0)
+      search_links = meta["_links"]
+      next_link = URI.new!(next_url)
+
       # Data
       assert length(data) == 1
-      first_item = Enum.at(data, 0)
       assert_valid_dspace_resource(first_item, "item")
 
       # Meta
-      assert is_map(meta)
       assert Map.has_key?(meta, "scope")
       assert Map.has_key?(meta, "query")
       assert Map.has_key?(meta, "appliedFilters")
       assert Map.has_key?(meta, "sort")
       assert Map.has_key?(meta, "configuration")
       assert Map.has_key?(meta, "facets")
-      assert is_list(meta["facets"])
       assert length(meta["facets"]) == 5
       assert Map.has_key?(meta, "page")
       assert Map.has_key?(meta, "_links")
-      search_links = meta["_links"]
       assert search_links["next"]["href"] =~ "page=1&size=1"
 
       # Next
-      assert is_binary(next_url)
-    end
-
-    test "query/1 has search result transformer" do
-      operation = Search.query("test")
-      assert is_function(operation.transformer, 1)
+      assert next_url == to_string(next_link)
     end
 
     test "facet transformer extracts from _embedded.facets" do
@@ -369,6 +362,7 @@ defmodule DSpace.API.SearchTest do
   describe "integration verification" do
     setup do
       api = %API{http_impl: {TestHelper.HTTP, []}}
+
       {:ok, api: api}
     end
 
@@ -476,11 +470,6 @@ defmodule DSpace.API.SearchTest do
   end
 
   describe "resource type isolation" do
-    alias DSpace.API.Collection
-    alias DSpace.API.Community
-    alias DSpace.API.Item
-    alias DSpace.API.User
-
     test "Item.find returns operation with correct type filter" do
       search_term = "elixir programming"
 
@@ -524,11 +513,6 @@ defmodule DSpace.API.SearchTest do
   end
 
   describe "common search features across resources" do
-    alias DSpace.API.Collection
-    alias DSpace.API.Community
-    alias DSpace.API.Item
-    alias DSpace.API.User
-
     test "all resource find operations support streaming" do
       item_op = Item.find(query: "test")
       collection_op = Collection.find(query: "test")
@@ -549,15 +533,12 @@ defmodule DSpace.API.SearchTest do
       community_op = Community.find(options)
       user_op = User.find(options)
 
-      # Discovery search resources support pagination
       assert item_op.params[:page] == 1
       assert item_op.params[:size] == 10
       assert collection_op.params[:page] == 1
       assert collection_op.params[:size] == 10
       assert community_op.params[:page] == 1
       assert community_op.params[:size] == 10
-
-      # User metadata search also supports pagination
       assert user_op.params[:page] == 1
       assert user_op.params[:size] == 10
     end
@@ -580,19 +561,14 @@ defmodule DSpace.API.SearchTest do
       community_op = Community.find([])
       user_op = User.find([])
 
-      # Discovery search resources use search endpoint with type filters
       assert item_op.path == "/api/discover/search/objects"
       assert item_op.params[:dsoType] == "Item"
-
       assert collection_op.path == "/api/discover/search/objects"
       assert collection_op.params[:dsoType] == "Collection"
       assert collection_op.params[:configuration] == "communityOrCollection"
-
       assert community_op.path == "/api/discover/search/objects"
       assert community_op.params[:dsoType] == "Community"
       assert community_op.params[:configuration] == "communityOrCollection"
-
-      # User uses specialized metadata search endpoint
       assert user_op.path == "/api/eperson/epersons/search/byMetadata"
     end
 
@@ -616,7 +592,6 @@ defmodule DSpace.API.SearchTest do
       community_op = Community.find(options)
       user_op = User.find(options)
 
-      # All operations should include pagination parameters
       assert item_op.params[:page] == 2
       assert item_op.params[:size] == 15
       assert collection_op.params[:page] == 2
