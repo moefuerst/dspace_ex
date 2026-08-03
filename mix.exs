@@ -54,6 +54,7 @@ defmodule DSpace.MixProject do
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ex_slop, "~> 0.4", only: [:dev, :test], runtime: false},
+      {:jump_credo_checks, "~> 0.4", only: [:dev, :test], runtime: false},
       {:styler, "~> 1.4", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       {:muex, "~> 0.8.0", only: [:dev, :test], runtime: false},
