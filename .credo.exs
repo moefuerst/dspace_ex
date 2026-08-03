@@ -226,7 +226,43 @@
           {ExSlop.Check.Warning.QueryInEnumMap, []},
           {ExSlop.Check.Warning.GenserverAsKvStore, []},
           {ExSlop.Check.Warning.PathExpandPriv, []},
-          {ExSlop.Check.Warning.DualKeyAccess, []}
+          {ExSlop.Check.Warning.DualKeyAccess, []},
+
+          #
+          ## Jump
+          #
+          {Jump.CredoChecks.AssertReceiveTimeout, []},
+          {Jump.CredoChecks.AvoidFunctionLevelElse, []},
+          {Jump.CredoChecks.AvoidLoggerConfigureInTest, []},
+          {Jump.CredoChecks.ConditionalAssertion, []},
+          {Jump.CredoChecks.DoctestIExExamples,
+           [
+             # Tells Credo where to look for the `doctest` call. If you colocate your test files
+             # with your implementation, this would just be
+             # `&String.replace_trailing(&1, ".ex", "_test.exs")`
+             derive_test_path: fn filename ->
+               filename
+               |> String.replace_leading("lib/", "test/")
+               |> String.replace_trailing(".ex", "_test.exs")
+             end
+           ]},
+          {Jump.CredoChecks.ForbiddenFunction,
+           functions: [
+             {:erlang, :binary_to_term, "Use Plug.Crypto.non_executable_binary_to_term/2 instead."}
+           ]},
+          {Jump.CredoChecks.UndeclaredExternalResource, []},
+          {Jump.CredoChecks.TestHasNoAssertions, custom_assertion_functions: []},
+          {Jump.CredoChecks.TooManyAssertions, [max_assertions: 20]},
+          {Jump.CredoChecks.TopLevelAliasImportRequire, []},
+          {Jump.CredoChecks.VacuousTest,
+           [
+             # When true, tests that destructure setup context (3-arity test blocks) are
+             # considered not vacuous.
+             ignore_setup_only_tests?: false,
+             # Additional library namespaces whose calls should not count as production code.
+             library_modules: []
+           ]},
+          {Jump.CredoChecks.WeakAssertion, []}
         ],
         disabled: [
           #
@@ -259,7 +295,29 @@
           # {Credo.Check.Warning.UnusedOperation, [{MyMagicModule, [:fun1, :fun2]}]}
           # {Credo.Check.Refactor.MapInto, []},
 
-          {ExSlop.Check.Readability.DocFalseOnPublicFunction, []}
+          # ExSlop
+          {ExSlop.Check.Readability.DocFalseOnPublicFunction, []},
+
+          # Jump
+          {Jump.CredoChecks.AssertElementSelectorCanNeverFail, []},
+          # Default exclusion list is empty
+          {Jump.CredoChecks.AvoidSocketAssignsInTest, excluded: ["test/app_web/plugs/"]},
+          {Jump.CredoChecks.LiveViewFormCanBeRehydrated, excluded: ["lib/my_app/"]},
+          # Exclude files that intentionally decode fully-trusted (never attacker-controlled) input
+          {Jump.CredoChecks.SafeBinaryToTerm, files: %{excluded: ["lib/my_app/trusted_decoder.ex"]}},
+          # Default start_after is "0"
+          {Jump.CredoChecks.PreferChangeOverUpDownMigrations, start_after: "20240101000000"},
+          {Jump.CredoChecks.PreferTextColumns, start_after: "20240101000000"},
+          {Jump.CredoChecks.UnusedLiveViewAssign,
+           [
+             ignored_assigns: [:active_path],
+             # Optional helpers that write assigns like Phoenix.Component.assign/3
+             custom_assign_functions: [
+               {:assign_current_user, 3},
+               {MyApp.LiveHelpers, :assign_tenant, 3}
+             ]
+           ]},
+          {Jump.CredoChecks.UseObanProWorker, []}
 
           #
           # Custom checks can be created using `mix credo.gen.check`.
