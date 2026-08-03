@@ -86,7 +86,9 @@ defmodule DSpace.API.Metadata do
 
     %Operation.JSON{
       path: @ep_fields_search,
-      params: pagination ++ other_options
+      params: pagination ++ other_options,
+      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "metadatafields"]),
+      stream_impl: &StreamBuilder.new/3
     }
   end
 
