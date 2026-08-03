@@ -121,7 +121,8 @@ defmodule DSpace.API.Auth do
     %Operation.JSON{
       path: @ep_api_key,
       http_method: :delete,
-      supported_versions: %{cris: ">= 2023.1.1"}
+      supported_versions: %{cris: ">= 2023.1.1"},
+      transformer: fn _ -> :ok end
     }
   end
 
