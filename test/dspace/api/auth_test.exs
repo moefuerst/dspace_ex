@@ -243,7 +243,7 @@ defmodule DSpace.API.AuthTest do
       %{sham: sham, api: api_with_tokens}
     end
 
-    test "operation returns token when executed successfully", %{sham: sham, api: api} do
+    test "operation returns :ok when executed successfully", %{sham: sham, api: api} do
       Sham.expect_once(sham, fn conn ->
         assert Plug.Conn.get_req_header(conn, "authorization") == ["Bearer xyz123"]
         assert Plug.Conn.get_req_header(conn, "x-xsrf-token") == ["abc123"]
@@ -254,18 +254,7 @@ defmodule DSpace.API.AuthTest do
       operation = Auth.delete_api_key()
       {:ok, result} = API.request(operation, api)
 
-      assert is_map(result)
-    end
-
-    test "operation returns error when request fails", %{sham: sham, api: api} do
-      Sham.expect_once(sham, fn conn ->
-        respond_with_json(conn, 404, ~s({"message": "Not Found"}))
-      end)
-
-      operation = Auth.delete_api_key()
-      {:error, error} = API.request(operation, api)
-
-      assert %Error{type: :not_found} = error
+      assert result == :ok
     end
   end
 

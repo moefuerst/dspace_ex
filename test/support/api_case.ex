@@ -49,11 +49,15 @@ defmodule DSpace.API.Case do
   @doc """
   Asserts that a paginated API response has the expected structure.
   """
-  def assert_valid_paginated_response({items, metadata, next_url}) when is_list(items) do
-    assert is_list(items)
+  def assert_valid_paginated_response({items, metadata, nil}) when is_list(items) do
     assert is_map(metadata)
     assert Map.has_key?(metadata, "page")
-    assert is_binary(next_url) or is_nil(next_url)
+  end
+
+  def assert_valid_paginated_response({items, metadata, next_url}) when is_list(items) do
+    assert is_map(metadata)
+    assert Map.has_key?(metadata, "page")
+    assert is_binary(next_url)
   end
 
   @doc """

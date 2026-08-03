@@ -38,7 +38,7 @@ defmodule DSpace.Utils do
   end
 
   @doc """
-  Puts the given key/value pair into the into the map or keyword list if the value is not nil.
+  Puts the given key/value pair into the map or keyword list if the value is not nil.
   """
   @spec maybe_put(map(), term(), term()) :: map()
   @spec maybe_put(keyword(), atom(), term()) :: keyword()

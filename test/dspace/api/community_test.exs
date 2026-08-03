@@ -82,8 +82,9 @@ defmodule DSpace.API.CommunityTest do
         |> API.request(api)
 
       {communities, metadata, next_url} = result
+
       assert_valid_paginated_response({communities, metadata, next_url})
-      assert is_list(communities)
+      assert communities != []
     end
   end
 
@@ -104,7 +105,8 @@ defmodule DSpace.API.CommunityTest do
       {:ok, result} = API.request(Community.find(), api)
 
       {objects, _metadata, _next_url} = result
-      assert is_list(objects)
+
+      assert objects != []
     end
 
     test "searches communities by query term", %{sham: sham, api: api} do
@@ -127,7 +129,8 @@ defmodule DSpace.API.CommunityTest do
         |> API.request(api)
 
       {objects, _metadata, _next_url} = result
-      assert is_list(objects)
+
+      assert objects != []
     end
 
     test "applies filters and pagination to search", %{sham: sham, api: api} do
@@ -295,8 +298,9 @@ defmodule DSpace.API.CommunityTest do
         |> API.request(api)
 
       {collections, metadata, next_url} = result
+
       assert_valid_paginated_response({collections, metadata, next_url})
-      assert is_list(collections)
+      assert collections != []
     end
 
     test "retrieves subcommunities within community", %{sham: sham, api: api} do
@@ -317,8 +321,8 @@ defmodule DSpace.API.CommunityTest do
         |> API.request(api)
 
       {subcommunities, metadata, next_url} = result
+
       assert_valid_paginated_response({subcommunities, metadata, next_url})
-      assert is_list(subcommunities)
     end
 
     test "retrieves parent community", %{sham: sham, api: api} do

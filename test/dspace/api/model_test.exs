@@ -6,6 +6,10 @@ defmodule DSpace.API.ModelTest do
   alias DSpace.API.ModelTest.ModelB
   alias DSpace.API.ModelTest.ModelC
 
+  # Some tests in these module indeed don't call any library code directly, but verify the macro
+  # provides the expected behavior and implementations for standard library functionality
+  # credo:disable-for-this-file Jump.CredoChecks.VacuousTest
+
   defmodule ModelA do
     @moduledoc false
     use Model
@@ -58,15 +62,6 @@ defmodule DSpace.API.ModelTest do
     end
   end
 
-  test "macro provides a JSON.Encoder implementation" do
-    assert JSON.Encoder.impl_for(%ModelA{})
-  end
-
-  test "macro provides a Jason.Encoder implementation when Jason is available" do
-    # Jason is available, transitive dependency (Req)
-    assert Jason.Encoder.impl_for(%ModelA{})
-  end
-
   test "to_map/1 uses @wire map to convert, and drops nil values by default" do
     model = struct(ModelA)
 
@@ -92,5 +87,14 @@ defmodule DSpace.API.ModelTest do
 
     assert json == ~s({"model":{"baz":"qux","camelCase":"bar"}})
     refute json == ~s({"model":{"baz":"qux","camelCase":"bar"}},"baz":"qux")
+  end
+
+  test "macro provides a JSON.Encoder implementation" do
+    assert JSON.Encoder.impl_for(%ModelA{})
+  end
+
+  test "macro provides a Jason.Encoder implementation when Jason is available" do
+    # Jason is available, transitive dependency (Req)
+    assert Jason.Encoder.impl_for(%ModelA{})
   end
 end

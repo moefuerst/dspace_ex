@@ -66,10 +66,10 @@ defmodule DSpace.API.ItemTest do
       {:ok, result} = API.request(Item.list(), api)
 
       {items, metadata, next_url} = result
+      first_item = Enum.at(items, 0)
+
       assert_valid_paginated_response({items, metadata, next_url})
       assert items != []
-
-      first_item = Enum.at(items, 0)
       assert_valid_dspace_resource(first_item, "item")
     end
 
@@ -101,7 +101,8 @@ defmodule DSpace.API.ItemTest do
         |> API.request(api)
 
       {items, _metadata, _next_url} = result
-      assert is_list(items)
+
+      assert items != []
     end
 
     test "supports custom pagination parameters", %{sham: sham, api: api} do
@@ -130,6 +131,7 @@ defmodule DSpace.API.ItemTest do
         |> API.request(api)
 
       {_items, metadata, _next_url} = result
+
       assert metadata["page"]["number"] == 2
       assert metadata["page"]["size"] == 10
     end
@@ -151,7 +153,8 @@ defmodule DSpace.API.ItemTest do
       {:ok, result} = API.request(Item.find(), api)
 
       {objects, _metadata, _next_url} = result
-      assert is_list(objects)
+
+      assert objects != []
     end
 
     test "searches items by query term", %{sham: sham, api: api} do
@@ -173,7 +176,8 @@ defmodule DSpace.API.ItemTest do
         |> API.request(api)
 
       {objects, _metadata, _next_url} = result
-      assert is_list(objects)
+
+      assert objects != []
     end
 
     test "applies filters and pagination to search", %{sham: sham, api: api} do
@@ -206,7 +210,8 @@ defmodule DSpace.API.ItemTest do
         |> API.request(api)
 
       {objects, _metadata, _next_url} = result
-      assert is_list(objects)
+
+      assert objects != []
     end
   end
 
@@ -380,7 +385,7 @@ defmodule DSpace.API.ItemTest do
 
       assert result["id"] == 239_514
       assert result["type"] == "workspaceitem"
-      assert is_map(result["sections"])
+      assert Map.values(result["sections"]) != []
     end
 
     test "requires a collection option" do
@@ -418,7 +423,7 @@ defmodule DSpace.API.ItemTest do
 
       assert result["id"] == 239_514
       assert result["type"] == "workspaceitem"
-      assert is_map(result["sections"])
+      assert Map.values(result["sections"]) != []
     end
   end
 
@@ -707,10 +712,8 @@ defmodule DSpace.API.ItemTest do
       wf_fixture = parse_fixture("workflow_items.json")
       result = operation.transformer.(%DSpace.API.HTTP.Response{status: 200, body: wf_fixture})
 
-      {items, metadata, _next} = result
-      assert is_list(items)
+      {items, _metadata, _next} = result
       assert length(items) == 2
-      assert is_map(metadata)
       assert Enum.at(items, 0)["type"] == "workflowitem"
     end
 
@@ -749,10 +752,10 @@ defmodule DSpace.API.ItemTest do
       {:ok, result} = API.request(Item.list_in_workflow(), api)
 
       {items, metadata, next_url} = result
+      first_item = Enum.at(items, 0)
+
       assert_valid_paginated_response({items, metadata, next_url})
       assert length(items) == 2
-
-      first_item = Enum.at(items, 0)
       assert first_item["id"] == 1911
       assert first_item["type"] == "workflowitem"
     end
@@ -773,6 +776,7 @@ defmodule DSpace.API.ItemTest do
         |> API.request(api)
 
       {items, _metadata, _next} = result
+
       assert length(items) == 2
     end
   end
