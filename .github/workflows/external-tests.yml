@@ -35,36 +35,36 @@ jobs:
 
       - name: Create Docker volumes
         run: |
-          docker volume create ${PROJECT}_pgdata || true
-          docker volume create ${PROJECT}_solr_data || true
-          docker volume create ${PROJECT}_assetstore || true
+          docker volume create "${PROJECT}_pgdata" || true
+          docker volume create "${PROJECT}_solr_data" || true
+          docker volume create "${PROJECT}_assetstore" || true
 
       - name: Restore snapshot into volumes
         if: steps.cache.outputs.cache-hit == 'true'
         run: |
           docker run --rm \
-            -v ${PROJECT}_pgdata:/pgdata \
-            -v ${PROJECT}_solr_data:/solr \
-            -v ${PROJECT}_assetstore:/assetstore \
-            -v $PWD:/backup alpine \
+            -v "${PROJECT}_pgdata":/pgdata \
+            -v "${PROJECT}_solr_data":/solr \
+            -v "${PROJECT}_assetstore":/assetstore \
+            -v "$PWD":/backup alpine \
             sh -c "tar xzf /backup/dspace-snapshot.tar.gz -C /"
 
       - name: Show resolved compose config
-        run: docker compose -f docker/compose-dspace.yml -p ${PROJECT} config
+        run: docker compose -f docker/compose-dspace.yml -p "${PROJECT}" config
 
       - name: Bootstrap DSpace
         run: |
           docker compose -f docker/compose-dspace.yml \
-            -p ${PROJECT} up -d --wait --wait-timeout 600
+            -p "${PROJECT}" up -d --wait --wait-timeout 600
 
       - name: Create snapshot archive
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           docker run --rm \
-            -v ${PROJECT}_pgdata:/pgdata \
-            -v ${PROJECT}_solr_data:/solr \
-            -v ${PROJECT}_assetstore:/assetstore \
-            -v $PWD:/backup alpine \
+            -v "${PROJECT}_pgdata":/pgdata \
+            -v "${PROJECT}_solr_data":/solr \
+            -v "${PROJECT}_assetstore":/assetstore \
+            -v "$PWD":/backup alpine \
             sh -c "
               tar czf /backup/dspace-snapshot.tar.gz \
                 /pgdata /solr /assetstore
