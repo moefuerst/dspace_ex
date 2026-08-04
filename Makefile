@@ -49,7 +49,7 @@ test.external: ## Run the external tests against a bootstrapped DSpace instance
 		--env DSPACE_CRIS_VERSION=2025.02.00 \
 		--env DSPACE_ADMIN_EMAIL=admin@admin.com \
 		--env DSPACE_ADMIN_PASSWORD=admin \
-		test mix test --only external
+		test sh -c "mix deps.get --check-locked && mix deps.compile && mix test --only external"
 
 test.external.clean: ## Stop and remove the external test DSpace stack
 	$(COMPOSE_DS) -p dspace-ex-e2e down --volumes --remove-orphans
