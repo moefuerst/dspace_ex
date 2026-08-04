@@ -77,5 +77,8 @@ jobs:
           path: dspace-snapshot.tar.gz
           key: dspace-snapshot-${{ env.DSPACE_VER }}-${{ hashFiles('docker/compose-dspace.yml') }}
 
+      - name: Install dependencies
+        run: make test.deps
+
       - name: Run external tests
         run: make test.external
