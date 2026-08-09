@@ -5,7 +5,7 @@
 *.ez
 
 # package tarball (built via "mix hex.build").
-dspace-*.tar
+dspace_ex-*.tar
 
 # dependencies sources
 /deps/

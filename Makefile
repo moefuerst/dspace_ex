@@ -4,7 +4,7 @@ COMPOSE_DS   = docker compose -f docker/compose-dspace.yml
 RUN          = $(COMPOSE) run --rm dev
 RUN_TEST     = $(COMPOSE_TEST) run --rm test
 
-.PHONY: help dev dev.clean deps compile precommit check test test.ci test.clean test.deps test.external test.external.clean
+.PHONY: help dev dev.clean deps compile precommit check test test.ci test.clean test.deps test.external test.external.clean dspace.up dspace.down dspace.clean
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_.-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-16s %s\n", $$1, $$2}'
@@ -36,7 +36,7 @@ test: ## Run the test suite
 test.ci: ## Run the test suite + mutation testing
 	$(RUN_TEST) sh -c "mix deps.get --check-locked && mix test.ci"
 
-test.clean: ## Remove test container and cached build volumes
+test.clean: ## Remove test container + cached build volumes
 	$(COMPOSE_TEST) down --volumes --remove-orphans
 
 test.deps: ## Install test dependencies
@@ -51,6 +51,15 @@ test.external: ## Run the external tests against a bootstrapped DSpace instance
 		--env DSPACE_ADMIN_PASSWORD=admin \
 		test sh -c "mix deps.get --check-locked && mix deps.compile && mix test --only external"
 
-test.external.clean: ## Stop and remove the external test DSpace stack
+test.external.clean: ## Stop and remove the external test containers + volumes
 	$(COMPOSE_DS) -p dspace-ex-e2e down --volumes --remove-orphans
 	$(COMPOSE_TEST) -p dspace-ex-e2e down --volumes --remove-orphans
+
+dspace.up: ## Start the DSpace stack
+	$(COMPOSE_DS) up
+
+dspace.down: ## Stop the DSpace stack
+	$(COMPOSE_DS) down
+
+dspace.clean: ## Stop the DSpace stack and remove containers + volumes
+	$(COMPOSE_DS) down --volumes --remove-orphans
