@@ -13,7 +13,7 @@ idiomatic Elixir interface to DSpace's JSON API.
 
 It translates DSpace's idiosyncratic API surface into plain, consistent terms: files are files
 (not "bitstreams"), users are users (not "EPersons"), search is search, and a missing resource is
-always `:not_found`— You don't need to learn DSpace's *NIH* terminology or work around the API's
+always `:not_found`. You don't need to learn DSpace's *NIH* terminology or work around the API's
 quirks to build against it.
 
 - Ingest & enrichment: submit records, update metadata, and manage files programmatically
@@ -34,8 +34,8 @@ default HTTP adapter used by the library.
 ```elixir
 def deps do
   [
-    {:dspace_ex, "~> 0.1"},
-    {:req, "~> 0.5 or ~> 1.0"}
+    {:dspace_ex, "~> 0.2"},
+    {:req, "~> 0.5 or ~> 0.6 or ~> 1.0"}
   ]
 end
 ```
@@ -46,10 +46,9 @@ end
 
 ## Basic usage
 
-API interactions are composed in a functional manner. Each interaction is described as a data 
-structure that can be inspected, transformed, or reused before execution. API calls are not 
-executed until passed to `DSpace.API.request/3`, `DSpace.API.request!/3` or 
-`DSpace.API.stream!/3`.
+Each API interaction is described as a data structure that can be inspected, transformed, or
+reused before execution. API calls are not executed until passed to `DSpace.API.request/3`,
+`DSpace.API.request!/3` or `DSpace.API.stream!/3`.
 
 ```elixir
 client = DSpace.API.new("https://example.com/server")
