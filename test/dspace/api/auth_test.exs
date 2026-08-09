@@ -306,7 +306,7 @@ defmodule DSpace.API.AuthTest do
     end
   end
 
-  describe "extract_csrf/1" do
+  describe "CSRF token extraction" do
     test "extracts token from cookie header when xsrf-token header is absent", %{sham: sham, api: api} do
       api = %{api | api_version: "7.6.2"}
 
