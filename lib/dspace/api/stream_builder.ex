@@ -37,12 +37,9 @@ defmodule DSpace.API.StreamBuilder do
   # Private helpers
 
   @spec fetch_page({nil, client, opts}) :: {:halt, nil}
-        when client: API.t(),
-             opts: keyword()
+        when client: API.t(), opts: keyword()
   @spec fetch_page({operation, client, opts}) :: {list(), {operation, client, opts}}
-        when operation: Operation.t(),
-             client: API.t(),
-             opts: keyword()
+        when operation: Operation.t(), client: API.t(), opts: keyword()
   defp fetch_page({nil, _client, _options}), do: {:halt, nil}
 
   defp fetch_page({operation, client, options}) do
