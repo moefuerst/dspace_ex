@@ -2,9 +2,10 @@ defmodule DSpace.API.File do
   @moduledoc """
   Functions for working with DSpace Files.
 
-  In DSpace-speak a file is called a "Bitstream". Every "Bitstream" lives inside a "Bundle", a
-  named grouping of different files attached to an Item (the most common are `ORIGINAL` for the
-  deposited files, `THUMBNAIL` for generated previews, and `LICENSE`).
+  In DSpace-speak a file is called a "Bitstream". Every "Bitstream" lives inside a "Bundle"
+  attached to an Item, a named grouping of different files "that are somehow closely related".
+  The most common "Bundles" are `ORIGINAL` for the deposited files, `THUMBNAIL` for generated
+  image previews, `TEXT` for extracted full-text, and `LICENSE`.
 
   In dspace_ex, a file is called a "file". You're welcome.
   """
@@ -73,7 +74,7 @@ defmodule DSpace.API.File do
         properties: %{"metadata" => %{"dc.description" => [%{"value" => "Final report"}]}}
       )
   """
-  @spec upload(upload(), keyword()) :: Operation.t()
+  @spec upload(upload(), keyword()) :: Operation.Chain.t()
   def upload(file, options \\ []) when is_list(options) do
     parent = Keyword.fetch!(options, :parent)
     bundle = Keyword.get(options, :bundle, %{})
