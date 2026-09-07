@@ -35,7 +35,7 @@ default HTTP adapter used by the library.
 def deps do
   [
     {:dspace_ex, "~> 0.2"},
-    {:req, "~> 0.5 or ~> 0.6 or ~> 1.0"}
+    {:req, "0.7 or ~> 1.0"}
   ]
 end
 ```

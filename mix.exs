@@ -48,7 +48,7 @@ defmodule DSpace.MixProject do
 
   defp deps do
     [
-      {:req, "~> 0.5 or ~> 0.6 or ~> 1.0", optional: true},
+      {:req, "~> 0.5 or ~> 0.6 or ~> 0.7 or ~> 1.0", optional: true},
 
       # Development and Testing
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},

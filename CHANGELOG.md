@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+  * Compatibility with Req 0.7
+
+
 ## [v0.2.0] – 2026-08-09
 
 ### Added
