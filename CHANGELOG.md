@@ -6,7 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-  * Compatibility with Req 0.7
+  * Compatibility with Req 0.7.
+
+### Changed
+
+  * Updated `Version` with lates DSpace and CRIS fork versions.
 
 
 ## [v0.2.0] – 2026-08-09
