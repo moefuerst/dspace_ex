@@ -37,10 +37,11 @@ defmodule DSpace.API.Version do
 
   @ep_api "/api"
 
-  @latest "10.0.0"
+  @latest "10.1.0"
 
   @cris_release_map %{
     # DSpace 9.x
+    "2025.02.01" => "9.3.0",
     "2025.02.00" => "9.2.0",
     # DSpace 8.x
     "2024.02.04" => "8.2.0",
