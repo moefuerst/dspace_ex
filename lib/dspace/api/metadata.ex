@@ -13,6 +13,7 @@ defmodule DSpace.API.Metadata do
   @ep_fields_search @ep_fields <> "/search/byFieldName"
   @ep_fields_by_schema @ep_fields <> "/search/bySchema"
   @ep_schemas "/api/core/metadataschemas"
+  @ep_security "/api/core/securitysettings"
 
   # Public API
 
@@ -201,6 +202,19 @@ defmodule DSpace.API.Metadata do
       path: @ep_schemas <> "/" <> id,
       http_method: :delete,
       transformer: fn _ -> :ok end
+    }
+  end
+
+  @doc """
+  Retrieves the metadata security_level configuration for a given entity type.
+  """
+  @doc since: "0.2.1"
+  @spec security_config(binary()) :: Operation.t()
+  def security_config(entity_type) when is_nonempty_binary(entity_type) do
+    %Operation.JSON{
+      path: @ep_security <> "/" <> entity_type,
+      http_method: :get,
+      supported_versions: %{dspace: ">= 8.5.0", cris: ">= 2023.1.1"}
     }
   end
 

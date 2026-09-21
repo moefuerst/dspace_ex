@@ -459,6 +459,23 @@ defmodule DSpace.API.MetadataTest do
     end
   end
 
+  test "security_config/1 fetches metadata security level config", %{sham: sham, api: api} do
+    fixture = load_fixture("fetch_metadata_security.json")
+    entity = "Person"
+
+    Sham.expect_once(sham, "GET", "/api/core/securitysettings/" <> entity, fn conn ->
+      respond_with_json(conn, 200, fixture)
+    end)
+
+    {:ok, result} =
+      entity
+      |> Metadata.security_config()
+      |> API.request(api)
+
+    assert result["type"] == "securitysetting"
+    assert result["id"] == entity
+  end
+
   # Private helpers
 
   defp test_field_data(overrides \\ %{}) do
