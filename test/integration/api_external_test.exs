@@ -71,4 +71,30 @@ defmodule DSpace.APIExternalTest do
       end
     end
   end
+
+  describe "configuration" do
+    @describetag :requires_auth
+    setup do
+      client = dspace_test_api(authenticate: true)
+
+      {:ok, client: client}
+    end
+
+    test "fetches metadata security level config", %{client: client} do
+      entity = "Person"
+
+      result =
+        entity
+        |> API.Metadata.security_config()
+        |> API.request!(client)
+
+      [security_default] = result["metadataSecurityDefault"]
+      custom_security = %{} = result["metadataCustomSecurity"]
+
+      assert result["type"] == "securitysetting"
+      assert result["id"] == entity
+      assert security_default in [0, 1, 2]
+      assert Enum.all?(Map.keys(custom_security), &is_binary/1)
+    end
+  end
 end

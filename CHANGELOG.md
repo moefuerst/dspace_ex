@@ -7,10 +7,13 @@ All notable changes to this project will be documented in this file.
 ### Added
 
   * Compatibility with Req 0.7.
+  * Added `Item.list_duplicates/2`
+  * Added `Metadata.security_config/1` to fetch the metadata security level configuration for an
+    entity type. This operation is compatible with DSpace 8.5 and up.
 
 ### Changed
 
-  * Updated `Version` with lates DSpace and CRIS fork versions.
+  * Updated `Version` struct with latest DSpace and CRIS fork versions.
 
 
 ## [v0.2.0] – 2026-08-09

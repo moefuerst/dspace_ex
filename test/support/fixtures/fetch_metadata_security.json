@@ -1,0 +1,29 @@
+{
+  "id": "Person",
+  "metadataSecurityDefault": [
+    0
+  ],
+  "metadataCustomSecurity": {
+    "person.birthDate": [
+      0,
+      1
+    ],
+    "person.email": [
+      0,
+      1
+    ],
+    "oairecerif.affiliation.startDate": [
+      1
+    ],
+    "oairecerif.affiliation.endDate": [
+      1
+    ]
+  },
+  "type": "securitysetting",
+  "uniqueType": "core.securitysetting",
+  "_links": {
+    "self": {
+      "href": "https://example.com/server/api/core/securitysettings/Person"
+    }
+  }
+}
