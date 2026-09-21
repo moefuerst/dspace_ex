@@ -15,6 +15,10 @@ All notable changes to this project will be documented in this file.
 
   * Updated `Version` struct with latest DSpace and CRIS fork versions.
 
+### Fixed
+
+  * Fixed a bug where `Item.metrics/1` wasn't streamable.
+
 
 ## [v0.2.0] – 2026-08-09
 

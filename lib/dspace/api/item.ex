@@ -56,7 +56,8 @@ defmodule DSpace.API.Item do
   def metrics(uuid) when is_nonempty_binary(uuid) do
     %Operation.JSON{
       path: @ep_core <> "/" <> uuid <> "/metrics",
-      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "metrics"])
+      transformer: &Transform.transform_collection(&1, extract: ["_embedded", "metrics"]),
+      stream_impl: &StreamBuilder.new/3
     }
   end
 
