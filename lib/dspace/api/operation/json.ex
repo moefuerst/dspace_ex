@@ -50,6 +50,14 @@ defmodule DSpace.API.Operation.JSON do
   end
 
   @doc """
+  Updates the operation with the given transformer function.
+  """
+  @spec put_transformer(t(), function()) :: t()
+  def put_transformer(%__MODULE__{} = op, transformer) when is_function(transformer) do
+    %{op | transformer: transformer}
+  end
+
+  @doc """
   Updates the operation with the given header.
   """
   @spec put_header(t(), atom(), binary() | list()) :: t()

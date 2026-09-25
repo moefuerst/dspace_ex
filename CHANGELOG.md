@@ -6,10 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-  * Compatibility with Req 0.7.
+  * Added `Operation.JSON.put_transformer/2` for pipe-friendly response transformer configuration.
   * Added `Item.list_duplicates/2`
   * Added `Metadata.security_config/1` to fetch the metadata security level configuration for an
     entity type. This operation is compatible with DSpace 8.5 and up.
+  * Compatibility with Req 0.7.
 
 ### Changed
 
