@@ -31,6 +31,7 @@ defmodule DSpace.API.Item do
   @ep_pids "/api/pid/identifiers"
   @ep_workspace "/api/submission/workspaceitems"
   @ep_workflow "/api/workflow/workflowitems"
+  @ep_duplicates "/api/submission/duplicates"
 
   @default_file_bundle_name DSpace.API.File.default_bundle_name()
 
@@ -386,6 +387,19 @@ defmodule DSpace.API.Item do
       path: @ep_core <> "/" <> uuid <> "/bundles",
       transformer: &Transform.transform_collection(&1, extract: ["_embedded", "bundles"]),
       stream_impl: &StreamBuilder.new/3
+    }
+  end
+
+  @doc """
+  Lists potential duplicates for an item.
+  """
+  @spec list_duplicates(binary(), keyword()) :: Operation.JSON.t()
+  def list_duplicates(uuid, _options \\ []) when is_nonempty_binary(uuid) do
+    %Operation.JSON{
+      path: @ep_duplicates <> "/search/findByItem",
+      params: [uuid: uuid],
+      transformer: &Transform.get(&1, "potentialDuplicates"),
+      supported_versions: %{any: ">= 8.2.0", cris: ">= 2024.2.0"}
     }
   end
 
