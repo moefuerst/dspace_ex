@@ -6,7 +6,7 @@ defmodule DSpace.API.Model.ResourceUpdate do
   [RFC6902](https://tools.ietf.org/html/rfc6902). Be aware that DSpace defines custom semantics on
   top of JSON Patch, and "copy" and "test" operations are not implemented.
 
-  ## Examples
+  ## Example
 
       %DSpace.API.Resource{
         op: :replace,
@@ -28,6 +28,8 @@ defmodule DSpace.API.Model.ResourceUpdate do
 
   @typedoc """
   A single update to a resource.
+
+  ## Fields
 
     * `op` - The update operation to perform:
       * `:add` - Sets the value at the target path. Replaces the value if it already exists.
@@ -97,9 +99,6 @@ defmodule DSpace.API.Model.ResourceUpdate do
 
   # Callbacks
 
-  @doc """
-  Creates a new update structure from a wire format map.
-  """
   @impl Model
   @spec from_map(map()) :: t()
   def from_map(map) do
@@ -111,13 +110,10 @@ defmodule DSpace.API.Model.ResourceUpdate do
     })
   end
 
-  @doc """
-  Converts an update structure to a wire format map.
-  """
-  # Also accept a plain map to maintain backwards compatibility.
   @impl Model
   @spec to_map(t() | map()) :: map()
   def to_map(%__MODULE__{} = update), do: Model.to_map(update)
+  # Also accept a plain map to maintain backwards compatibility.
   def to_map(update) when is_map(update), do: update
 
   # Private helpers

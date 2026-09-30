@@ -20,6 +20,10 @@ All notable changes to this project will be documented in this file.
 
   * Fixed a bug where `Item.metrics/1` wasn't streamable.
 
+### Documentation
+
+  * Various improvements to documentation.
+
 
 ## [v0.2.0] – 2026-08-09
 
