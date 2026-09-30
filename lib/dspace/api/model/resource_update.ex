@@ -18,8 +18,6 @@ defmodule DSpace.API.Model.ResourceUpdate do
 
   use DSpace.API.Model
 
-  alias DSpace.API.Model
-
   @ops [:add, :remove, :replace, :move]
   @ops_strings Enum.map(@ops, &to_string/1)
 

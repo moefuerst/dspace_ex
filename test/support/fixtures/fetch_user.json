@@ -49,6 +49,7 @@
   "selfRegistered": false,
   "machineTokenGenerated": true,
   "type": "eperson",
+  "uniqueType": "eperson.eperson",
   "_links": {
     "groups": {
       "href": "https://example.com/server/api/eperson/epersons/8a010aaa-e8cb-44e3-b24a-b9df8be5bd0e/groups"

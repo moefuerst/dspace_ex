@@ -536,6 +536,7 @@
   "lastModified": "2024-10-11T17:38:08.671+00:00",
   "entityType": "Publication",
   "type": "item",
+  "uniqueType": "core.item",
   "_links": {
     "accessStatus": {
       "href": "https://example.com/server/api/core/items/8f62713a-c495-467b-a918-2e392f781d2e/accessStatus"

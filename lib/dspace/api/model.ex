@@ -5,29 +5,37 @@ defmodule DSpace.API.Model do
   @typedoc """
   A map with string keys in wire format, with JSON-serializable values.
   """
-  @type wire :: %{required(binary()) => term()}
+  @type wire_map :: %{required(binary()) => term()}
 
   @doc """
   Creates a structure from a wire format map.
+
+  The conversion is lenient, attempting to transform values into richer Elixir types where
+  possible. Values that can't be converted are retained as-is, and the API contract is not
+  enforced. For example, a field specified as non-null by the API contract *may* still be `nil`
+  after conversion.
   """
-  @callback from_map(wire()) :: struct()
+  @callback from_map(wire_map()) :: struct()
 
   @doc """
   Creates a wire format map from a structure.
   """
-  @callback to_map(struct()) :: wire()
+  @callback to_map(struct()) :: wire_map()
 
   defmacro __using__(options) do
     quote location: :keep, bind_quoted: [options: options] do
       @behaviour DSpace.API.Model
-      @before_compile DSpace.API.Model
+
+      alias DSpace.API.Model
+
+      @before_compile Model
 
       @dspace_model_options Keyword.validate!(options, drop_nil_on_wire: true)
 
-      @impl DSpace.API.Model
+      @impl Model
       @spec to_map(struct()) :: %{required(binary()) => term()}
       def to_map(struct) when is_struct(struct, __MODULE__) do
-        DSpace.API.Model.to_map(struct, @dspace_model_options)
+        Model.to_map(struct, @dspace_model_options)
       end
 
       defoverridable to_map: 1
@@ -77,7 +85,7 @@ defmodule DSpace.API.Model do
   # c1ca0943e1042c75d221a0c0afb229bb593f077d/templates/client/encoder.ex.eex#L10-L20 The initial
   # developer is Matt Sutton. Copyright 2026 Rabbet, Inc. Googly source code is licensed under
   # the Apache License, Version 2.0, see https://github.com/Rabbet/googly/blob/main/LICENSE
-  @spec to_map(struct(), keyword()) :: wire()
+  @spec to_map(struct(), keyword()) :: wire_map()
   def to_map(%{__struct__: module} = struct, options \\ []) do
     wire = module.__wire__()
     drop_nil = Keyword.get(options, :drop_nil_on_wire, true)

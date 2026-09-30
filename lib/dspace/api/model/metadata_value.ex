@@ -31,14 +31,11 @@ defmodule DSpace.API.Model.MetadataValue do
 
   import DSpace.Utils, only: [is_nonempty_binary: 1]
 
-  alias DSpace.API.Model
-
   @wire %{security_level: "securityLevel"}
 
   # Value placeholder sentinel for positional correlation
   @no_value_placeholder "#PLACEHOLDER_PARENT_METADATA_VALUE#"
 
-  @enforce_keys [:value]
   defstruct [:value, :language, :authority, :confidence, :place, :security_level]
 
   @typedoc """
@@ -53,7 +50,7 @@ defmodule DSpace.API.Model.MetadataValue do
     * `security_level` - Access restriction level
   """
   @type t :: %__MODULE__{
-          value: binary(),
+          value: binary() | nil,
           language: binary() | nil,
           authority: binary() | nil,
           confidence: confidence_score() | nil,
@@ -241,18 +238,17 @@ defmodule DSpace.API.Model.MetadataValue do
 
   def placeholder?(%__MODULE__{}, _placeholder), do: false
 
+  @doc false
+  @spec no_value_placeholder() :: binary()
+  def no_value_placeholder, do: @no_value_placeholder
+
   # Callbacks
 
-  @doc """
-  Creates a value structure from a wire format map.
-
-  Missing keys default to `nil`.
-  """
   @impl Model
   @spec from_map(map()) :: t()
-  def from_map(%{"value" => value} = map) when is_binary(value) do
+  def from_map(%{} = map) do
     %__MODULE__{
-      value: value,
+      value: map["value"],
       language: map["language"],
       authority: map["authority"],
       confidence: decode_confidence(map["confidence"]),
@@ -261,13 +257,9 @@ defmodule DSpace.API.Model.MetadataValue do
     }
   end
 
-  @doc """
-  Converts a value structure to a wire format map.
-
-  All fields are always emitted. The only exception is `"securityLevel"`: it is omitted
-  when `nil`, because DSpace-CRIS treats its absence differently from an explicit `null` (absence
-  means "no access restriction set"; `null` is not a valid wire value for that field).
-  """
+  # All fields are always emitted. The only exception is `"securityLevel"`: it is omitted when
+  # `nil`, because DSpace-CRIS treats its absence differently from an explicit `null` (absence
+  # means "access restriction unspecified"; `null` is not a valid wire value for that field).
   @impl Model
   @spec to_map(t()) :: map()
   def to_map(%__MODULE__{} = value) do
@@ -281,10 +273,6 @@ defmodule DSpace.API.Model.MetadataValue do
 
     maybe_put_security_level(map, value.security_level)
   end
-
-  @doc false
-  @spec no_value_placeholder() :: binary()
-  def no_value_placeholder, do: @no_value_placeholder
 
   # Private helpers
 
