@@ -3,7 +3,7 @@ defmodule DSpace.API.Operation.Error do
   Represents an error when the operation can't be executed
 
   This error is returned when dspace_ex detects the desired operation would fail because the
-  targeted DSpace instance would not support it or the client configuration would be insufficient
+  targeted DSpace instance would not support it, or the client configuration would be insufficient
   to execute the operation successfully.
   """
 

@@ -94,17 +94,16 @@ defmodule DSpace.API.Transform do
   end
 
   @doc """
-  Returns a `:not_found` error when the response status is 204 (No Content).
+  Returns a not found error when the response status is 204.
 
-  Some endpoints that conceptually fetch a single resource are implemented as searches
-  (e.g. `/api/eperson/epersons/search/byEmail`). When no match is found, the API returns 204
-  reflecting an "empty search result" rather than a missing resource.
+  Some endpoints that conceptually fetch a single resource are implemented as searches (e.g.
+  `/api/eperson/epersons/search/byEmail`). When no match is found, the API returns 204 "No
+  Content" reflecting an "empty search result" rather than a missing resource.
 
   From the caller's perspective, however, these are unique-key lookups: an email uniquely
   identifies at most one user (this is enforced by DSpace), so an absent result is semantically
   a missing resource, not an empty collection. This function can be used to normalize that
-  behaviour by converting 204 responses into a `:not_found` error, giving callers a consistent
-  signal.
+  behaviour by converting 204 responses into a `:not_found` error for a consistent signal.
   """
   @spec not_found_on_no_content(Response.t(), binary()) :: map() | Error.t()
   def not_found_on_no_content(response, message \\ "Resource not found")
@@ -256,7 +255,7 @@ defmodule DSpace.API.Transform do
 
   defp extract_csrf(_response), do: {:error, :csrf_token_missing}
 
-  # DSpace returns the access token in an `authorization` response header. This differs from the
+  # ! DSpace returns the access token in an `authorization` response header. This differs from the
   # standard OAuth token response (RFC 6749-style flow), which typically places tokens in the
   # response body.
   defp extract_access_token(%{headers: %{"authorization" => ["Bearer " <> token | _]}}) when is_nonempty_binary(token) do

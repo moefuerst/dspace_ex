@@ -1,14 +1,10 @@
 defmodule DSpace.API.Model.MetadataValue do
   @moduledoc """
-  Represents a single DSpace metadata value.
+  Represents a single metadata value.
 
   A metadata value in DSpace can have additional properties like language, an authority key, and
-  security level alongside its main text content.
-
-  This struct is not used internally by dspace_ex, API responses are returned as plain maps
-  and deserialisation is left to the caller. You can use the module for building, converting and
-  querying metadata values in your application if you want a typed representation when
-  constructing or inspecting metadata values.
+  security level alongside its main text content. Metadata values might also be grouped by
+  positional correlation with other values.
 
   ## Example
 
@@ -40,6 +36,8 @@ defmodule DSpace.API.Model.MetadataValue do
 
   @typedoc """
   A single DSpace metadata value.
+
+  ## Fields
 
     * `value` - The actual content (required)
     * `language` - Language code (optional)
