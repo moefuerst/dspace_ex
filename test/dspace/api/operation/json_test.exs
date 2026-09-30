@@ -32,6 +32,12 @@ defmodule DSpace.API.Operation.JSONTest do
       refute Map.has_key?(operation.headers, :accept_language)
     end
 
+    test "leaves explicit language and projection settings alone when lang is nil" do
+      operation = JSONOp.new(params: [projection: "custom"], headers: %{accept_language: ["de"]})
+
+      assert JSONOp.put_lang(operation, lang: nil) == operation
+    end
+
     test "sets Accept-Language header with quality values for multiple languages" do
       operation =
         [path: "/api/test"]
@@ -173,6 +179,63 @@ defmodule DSpace.API.Operation.JSONTest do
       assert_received {:http_request, options}
       assert options[:headers][:x_xsrf_token] == ["test-csrf-token"]
     end
+
+    test "adds the CSRF cookie without discarding unrelated cookies", %{client: client} do
+      operation = JSONOp.new(headers: %{cookie: ["JSESSIONID=session; preference=en"]})
+
+      assert {:ok, _} = Operation.perform(operation, client, [])
+      assert_received {:http_request, options}
+
+      assert options[:headers][:cookie] == [
+               "DSPACE-XSRF-COOKIE=test-csrf-token",
+               "JSESSIONID=session; preference=en"
+             ]
+    end
+
+    test "does not duplicate a CSRF cookie embedded among other cookies", %{client: client} do
+      cookies = ["JSESSIONID=session; DSPACE-XSRF-COOKIE=existing-token", "preference=en"]
+      operation = JSONOp.new(headers: %{cookie: cookies})
+
+      assert {:ok, _} = Operation.perform(operation, client, [])
+      assert_received {:http_request, options}
+      assert options[:headers][:cookie] == cookies
+    end
+
+    test "does not synthesize a CSRF cookie when the client has no token", %{client: client} do
+      client = %{client | csrf_token: nil}
+      operation = JSONOp.new(headers: %{cookie: ["JSESSIONID=session"]})
+
+      assert {:ok, _} = Operation.perform(operation, client, [])
+      assert_received {:http_request, options}
+      assert options[:headers][:cookie] == ["JSESSIONID=session"]
+    end
+  end
+
+  describe "request credentials" do
+    test "client credentials replace stale operation headers", %{client: client} do
+      operation =
+        JSONOp.new(headers: %{authorization: ["Bearer stale"], x_xsrf_token: ["stale-csrf"]})
+
+      assert {:ok, _} = Operation.perform(operation, client, [])
+      assert_received {:http_request, options}
+      assert options[:headers][:authorization] == ["Bearer test-access-token"]
+      assert options[:headers][:x_xsrf_token] == ["test-csrf-token"]
+    end
+
+    test "a response without a refreshed token does not call the response hook", %{client: client} do
+      test_pid = self()
+
+      client =
+        %{client | on_response_hook: fn tokens -> send(test_pid, {:refreshed_tokens, tokens}) end}
+
+      result =
+        []
+        |> JSONOp.new()
+        |> Operation.perform(client, [])
+
+      assert {:ok, %{"response" => "ok"}} = result
+      refute_received {:refreshed_tokens, _}
+    end
   end
 
   describe "HTTP support" do
@@ -258,7 +321,7 @@ defmodule DSpace.API.Operation.JSONTest do
     end
 
     test "does not include body options when data is nil", %{client: client} do
-      operation = JSONOp.new(path: "/api/test")
+      operation = JSONOp.new(path: "/api/test", data: nil)
 
       assert {:ok, _} = Operation.perform(operation, client, [])
 
@@ -339,6 +402,36 @@ defmodule DSpace.API.Operation.JSONTest do
 
       assert_received {:http_request, options}
       assert options[:headers][:x_xsrf_token] == ["callback-injected-token"]
+    end
+  end
+
+  describe "operation overrides" do
+    test "replaces an existing parameter without losing unrelated parameters" do
+      operation =
+        [params: [page: 1, size: 10]]
+        |> JSONOp.new()
+        |> JSONOp.put_param(:page, 2)
+
+      assert Keyword.get_values(operation.params, :page) == [2]
+      assert operation.params[:size] == 10
+    end
+
+    test "replaces existing header values when given a list" do
+      operation =
+        [headers: %{accept_language: ["en"], x_custom: ["keep"]}]
+        |> JSONOp.new()
+        |> JSONOp.put_header(:accept_language, ["de", "fr"])
+
+      assert operation.headers == %{accept_language: ["de", "fr"], x_custom: ["keep"]}
+    end
+
+    test "uses the replacement transformer on the response", %{client: client} do
+      operation =
+        [path: "/api/test"]
+        |> JSONOp.new()
+        |> JSONOp.put_transformer(fn response -> response.body["response"] end)
+
+      assert {:ok, "ok"} = Operation.perform(operation, client, [])
     end
   end
 

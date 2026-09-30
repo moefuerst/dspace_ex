@@ -134,5 +134,7 @@ defmodule DSpace.API.StreamBuilderTest do
     end
   end
 
+  # Private helpers
+
   defp url(sham), do: "http://localhost:#{sham.port}"
 end

@@ -30,8 +30,9 @@ defmodule DSpace.API.Operation.ChainTest do
           end
         ])
 
-      assert {:ok, :second} = Operation.perform(chain, client, [])
+      result = Operation.perform(chain, client, [])
 
+      assert {:ok, :second} = result
       assert_received {:http_request, step1_options}
       assert_received {:http_request, step2_options}
       assert String.ends_with?(step1_options[:url].path, "/step1")
@@ -50,8 +51,9 @@ defmodule DSpace.API.Operation.ChainTest do
           end
         ])
 
-      assert {:ok, _} = Operation.perform(chain, client, [])
+      result = Operation.perform(chain, client, [])
 
+      assert {:ok, _} = result
       assert_received {:http_request, _token_options}
       assert_received {:http_request, login_options}
       assert login_options[:headers][:x_xsrf_token] == ["fetched-token"]
@@ -67,8 +69,9 @@ defmodule DSpace.API.Operation.ChainTest do
           end
         ])
 
-      assert {:ok, :done} = Operation.perform(chain, client, [])
+      result = Operation.perform(chain, client, [])
 
+      assert {:ok, :done} = result
       assert_received {:http_request, options}
       assert String.ends_with?(options[:url].path, "/only")
       refute_received {:http_request, _other}
@@ -85,8 +88,9 @@ defmodule DSpace.API.Operation.ChainTest do
           end
         ])
 
-      assert {:error, :boom} = Operation.perform(chain, client, [])
+      result = Operation.perform(chain, client, [])
 
+      assert {:error, :boom} = result
       assert_received {:http_request, _boom_options}
       refute_received {:http_request, _never_options}
     end
@@ -100,8 +104,9 @@ defmodule DSpace.API.Operation.ChainTest do
           fn _prev, ctx -> {JSONOp.new(path: "/step2"), ctx} end
         ])
 
-      assert {:ok, _} = Operation.perform(chain, client, retry: false)
+      result = Operation.perform(chain, client, retry: false)
 
+      assert {:ok, _} = result
       assert_received {:http_request, step1_options}
       assert_received {:http_request, step2_options}
       assert step1_options[:retry] == false
@@ -121,8 +126,10 @@ defmodule DSpace.API.Operation.ChainTest do
           end
         ])
 
-      # transform: false means the final step returns the raw response, untransformed.
-      assert {:ok, %Response{}} = Operation.perform(chain, client, transform: false)
+      result = Operation.perform(chain, client, transform: false)
+
+      # transform: false means the final step returns the raw response struct, untransformed.
+      assert {:ok, %Response{}} = result
     end
 
     test "applies :into only to the final step", %{client: client} do
@@ -132,8 +139,9 @@ defmodule DSpace.API.Operation.ChainTest do
           fn _prev, ctx -> {JSONOp.new(path: "/step2"), ctx} end
         ])
 
-      assert {:ok, _} = Operation.perform(chain, client, into: :sentinel)
+      result = Operation.perform(chain, client, into: :sentinel)
 
+      assert {:ok, _} = result
       assert_received {:http_request, step1_options}
       assert_received {:http_request, step2_options}
       refute Keyword.has_key?(step1_options, :into)

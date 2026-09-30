@@ -89,6 +89,18 @@ defmodule DSpace.API.ModelTest do
     refute json == ~s({"model":{"baz":"qux","camelCase":"bar"}},"baz":"qux")
   end
 
+  test "nested models respect their custom wire serialization" do
+    result = ModelA.to_map(%ModelA{baz: %ModelB{model: "nested-value", baz: "must-not-leak"}})
+
+    assert %{"baz" => %{"model" => "nested-value"}} = result
+  end
+
+  test "nested non-model structs are serialized as field maps" do
+    result = ModelA.to_map(%ModelA{baz: ~D[2026-09-30]})
+
+    assert %{"baz" => %{year: 2026, month: 9, day: 30}} = result
+  end
+
   test "macro provides a JSON.Encoder implementation" do
     assert JSON.Encoder.impl_for(%ModelA{})
   end
@@ -96,5 +108,24 @@ defmodule DSpace.API.ModelTest do
   test "macro provides a Jason.Encoder implementation when Jason is available" do
     # Jason is available, transitive dependency (Req)
     assert Jason.Encoder.impl_for(%ModelA{})
+  end
+
+  test "Jason serialization uses the same wire representation as the built-in JSON encoder" do
+    model = %ModelC{snake_case: "title", baz: nil}
+
+    jason_result =
+      model
+      |> Jason.encode!()
+      |> Jason.decode!()
+
+    json_result =
+      model
+      |> JSON.encode!()
+      |> JSON.decode!()
+
+    expected = %{"camelCase" => "title", "baz" => nil}
+
+    assert jason_result == expected
+    assert json_result == expected
   end
 end
