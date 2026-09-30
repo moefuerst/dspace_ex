@@ -49,6 +49,7 @@
   },
   "sequenceId": 1,
   "type": "bitstream",
+  "uniqueType": "core.bitstream",
   "_links": {
     "content": {
       "href": "https://example.com/server/api/core/bitstreams/022b1828-db4e-4f55-a1fc-ba1f3fea0c2f/content"

@@ -3,6 +3,7 @@
   "prefix": "dc",
   "namespace": "http://dublincore.org/documents/dcmi-terms/",
   "type": "metadataschema",
+  "uniqueType": "core.metadataschema",
   "_links": {
     "self": {
       "href": "https://example.com/server/api/core/metadataschemas/1"

@@ -168,6 +168,61 @@ defmodule DSpace.API.Transform do
     end
   end
 
+  @doc """
+  Casts each value in a map through the given module's `from_map/1` transformation.
+  """
+  @spec cast_map(map() | nil, module()) :: map() | nil
+  def cast_map(nil, _module), do: nil
+
+  def cast_map(%{} = map, module) do
+    Map.new(map, fn
+      {key, values} when is_list(values) -> {key, Enum.map(values, &module.from_map/1)}
+      {key, value} -> {key, module.from_map(value)}
+    end)
+  end
+
+  @doc """
+  Transforms a value into a Date struct.
+  """
+  @spec date(nil | Date.t() | binary()) :: nil | Date.t() | binary()
+  def date(nil), do: nil
+  def date(%Date{} = date), do: date
+
+  def date(value) when is_nonempty_binary(value) do
+    case Date.from_iso8601(value) do
+      {:ok, date} -> date
+      _ -> value
+    end
+  end
+
+  @doc """
+  Transforms a value into a DateTime struct.
+  """
+  @spec datetime(nil | DateTime.t() | binary()) :: nil | DateTime.t() | binary()
+  def datetime(nil), do: nil
+  def datetime(%DateTime{} = datetime), do: datetime
+
+  def datetime(value) when is_nonempty_binary(value) do
+    case DateTime.from_iso8601(value) do
+      {:ok, datetime, _offset} -> datetime
+      _ -> value
+    end
+  end
+
+  @doc """
+  Transforms a value into a URI struct.
+  """
+  @spec uri(nil | binary()) :: nil | URI.t() | binary()
+  def uri(nil), do: nil
+  def uri(%URI{} = uri), do: uri
+
+  def uri(binary) when is_nonempty_binary(binary) do
+    case URI.new(binary) do
+      {:ok, uri} -> uri
+      _ -> binary
+    end
+  end
+
   # Private helpers
 
   defp extract_resources(map, nil), do: [map]

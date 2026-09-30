@@ -47,6 +47,7 @@
     "publication_bibliographic_details": {}
   },
   "type": "workspaceitem",
+  "uniqueType": "submission.workspaceitem",
   "_links": {
     "supervisionOrders": {
       "href": "https://example.com/server/api/submission/workspaceitems/239514/supervisionOrders"

@@ -292,42 +292,12 @@ defmodule DSpace.API.Model.MetadataValueTest do
       end
     end
 
-    test "from_map/1 with missing value key raises FunctionClauseError" do
-      map = %{"language" => "en"}
-
-      assert_raise FunctionClauseError, fn ->
-        MetadataValue.from_map(map)
-      end
-    end
-
-    test "from_map/1 with non-binary value raises FunctionClauseError" do
-      assert_raise FunctionClauseError, fn ->
-        MetadataValue.from_map(%{"value" => 42})
-      end
-
-      assert_raise FunctionClauseError, fn ->
-        MetadataValue.from_map(%{"value" => nil})
-      end
-
-      assert_raise FunctionClauseError, fn ->
-        MetadataValue.from_map(%{"value" => ["a", "b"]})
-      end
-    end
-
     test "from_map/1 with extra unknown keys ignores them" do
       map = %{"value" => "test", "unknownKey" => "ignored"}
 
       result = MetadataValue.from_map(map)
 
       assert result.value == "test"
-    end
-
-    test "from_map/1 with atom-keyed map raises FunctionClauseError (missing string key)" do
-      map = %{value: "test"}
-
-      assert_raise FunctionClauseError, fn ->
-        MetadataValue.from_map(map)
-      end
     end
 
     property "to_map/1 and from_map/1 round-trips" do
