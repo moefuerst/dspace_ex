@@ -57,7 +57,7 @@ defmodule DSpace.MixProject do
       {:jump_credo_checks, "~> 0.4", only: [:dev, :test], runtime: false},
       {:styler, "~> 1.4", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
-      {:muex, "~> 0.8.0", only: [:dev, :test], runtime: false},
+      {:muex, "~> 0.11", only: [:dev, :test], runtime: false},
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
       {:stream_data, "~> 1.2", only: :test},
       {:sham, "~> 1.0", only: :test},
