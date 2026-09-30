@@ -50,9 +50,9 @@ defmodule DSpace.ItemExternalTest do
       # Actually expected: the American title
       # assert Enum.any?(titles, &(&1["value"] == "American Title"))
 
-      # A en_US-tagged value is effectively shadowed by the en-tagged value when both exist
-      # and en is a supported locale: the algorithm stops at the first non-empty match, and the
-      # language-prefix wins before the exact-match-on-original-input is ever tried.
+      # A en_US-tagged value is shadowed by the en-tagged value when both exist and en is a
+      # supported locale: algorithm stops at the first non-empty match, and the language-prefix
+      # wins before the exact-match-on-original-input is ever tried.
       #
       # See dspace-api/src/main/java/org/dspace/content/DSpaceObjectServiceImpl.java,
       # filterMetadataValuesByLanguage/3
@@ -91,12 +91,24 @@ defmodule DSpace.ItemExternalTest do
     end
   end
 
-  describe "create_draft/1" do
+  describe "submission" do
     setup do
       client = dspace_test_api(authenticate: true)
       hierarchy = Fixtures.create_collection_hierarchy(client)
 
       {:ok, client: client, collection: hierarchy.collection}
+    end
+
+    test "creates an empty draft", %{client: client, collection: collection} do
+      parent = collection["uuid"]
+
+      draft =
+        [parent: parent]
+        |> Item.create_draft()
+        |> API.request!(client)
+
+      assert is_integer(draft["id"])
+      assert draft["type"] == "workspaceitem"
     end
 
     @tag :requires_third_party_api
@@ -123,13 +135,13 @@ defmodule DSpace.ItemExternalTest do
       {:ok, client: client, item: hierarchy.item}
     end
 
-    test "replaces metadata values given their full path", %{client: client, item: item} do
+    test "replaces metadata values given their value path", %{client: client, item: item} do
       uuid = item["uuid"]
 
       update_operations = [
-        full_path_replace_operation("dc.title", "Updated External Title"),
-        full_path_replace_operation("dc.date.issued", "2024-01-15"),
-        full_path_replace_operation("dc.type", "Article")
+        value_path_replace_operation("dc.title", "Updated External Title"),
+        value_path_replace_operation("dc.date.issued", "2024-01-15"),
+        value_path_replace_operation("dc.type", "Article")
       ]
 
       updated_item =
@@ -259,7 +271,7 @@ defmodule DSpace.ItemExternalTest do
     }
   end
 
-  def full_path_replace_operation(field, value, place \\ 0) do
+  def value_path_replace_operation(field, value, place \\ 0) do
     %{
       "op" => "replace",
       "path" => "/metadata/#{field}/#{place}/value",

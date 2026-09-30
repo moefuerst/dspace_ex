@@ -73,5 +73,6 @@ defmodule DSpace.API.HTTPTest do
   end
 
   # Private helpers
+
   defp url(sham), do: "http://localhost:#{sham.port}"
 end

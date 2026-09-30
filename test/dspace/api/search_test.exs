@@ -281,6 +281,7 @@ defmodule DSpace.API.SearchTest do
       assert_valid_dspace_resource(first_item, "item")
 
       # Meta
+      refute meta["_embedded"]["_links"]
       assert Map.has_key?(meta, "scope")
       assert Map.has_key?(meta, "query")
       assert Map.has_key?(meta, "appliedFilters")

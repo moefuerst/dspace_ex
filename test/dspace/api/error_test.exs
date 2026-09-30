@@ -21,7 +21,7 @@ defmodule DSpace.API.ErrorTest do
 
       assert error_429.type == :too_many_requests
       assert error_429.status == 429
-      assert error_429.request_url == "/endpoint", "Error should contain requested endpoint"
+      assert error_429.request_url == "/endpoint"
     end
 
     test "maps unknown 4xx status codes to :api_unexpected_client_error" do

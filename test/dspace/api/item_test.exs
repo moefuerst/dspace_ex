@@ -2,6 +2,7 @@ defmodule DSpace.API.ItemTest do
   use DSpace.API.Case, async: true
 
   alias DSpace.API.Error
+  alias DSpace.API.HTTP.Response
   alias DSpace.API.Item
 
   describe "retrieving an item by UUID" do
@@ -241,6 +242,23 @@ defmodule DSpace.API.ItemTest do
       assert result["uuid"] == "8f62713a-c495-467b-a918-2e392f781d2e"
     end
 
+    test "adds default properties" do
+      operation = Item.create(test_item_data(), parent: "parent-collection-uuid")
+
+      assert %{
+               "inArchive" => true,
+               "discoverable" => true,
+               "withdrawn" => false,
+               "type" => "item"
+             } = operation.data
+    end
+
+    test "preserves explicit properties instead of replacing it with defaults" do
+      item = test_item_data(%{"inArchive" => false, "discoverable" => false, "withdrawn" => true})
+
+      assert Item.create(item, parent: "parent-collection-uuid").data == Map.put(item, "type", "item")
+    end
+
     test "requires owning collection for creation" do
       item_data = test_item_data()
 
@@ -251,6 +269,36 @@ defmodule DSpace.API.ItemTest do
   end
 
   describe "modifying existing items" do
+    test "withdraws an item by replacing its withdrawn flag", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "PATCH", "/api/core/items/item-id", fn conn ->
+        {:ok, body, conn} = Plug.Conn.read_body(conn)
+        assert JSON.decode!(body) == [%{"op" => "replace", "path" => "/withdrawn", "value" => true}]
+        respond_with_json(conn, 200, ~s({"uuid":"item-id","withdrawn":true}))
+      end)
+
+      result =
+        "item-id"
+        |> Item.withdraw()
+        |> API.request(api)
+
+      assert {:ok, %{"withdrawn" => true}} = result
+    end
+
+    test "hides an item by replacing its discoverable flag", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "PATCH", "/api/core/items/item-id", fn conn ->
+        {:ok, body, conn} = Plug.Conn.read_body(conn)
+        assert JSON.decode!(body) == [%{"op" => "replace", "path" => "/discoverable", "value" => false}]
+        respond_with_json(conn, 200, ~s({"uuid":"item-id","discoverable":false}))
+      end)
+
+      result =
+        "item-id"
+        |> Item.hide()
+        |> API.request(api)
+
+      assert {:ok, %{"discoverable" => false}} = result
+    end
+
     test "updates item with patch operations", %{sham: sham, api: api} do
       uuid = "8f62713a-c495-467b-a918-2e392f781d2e"
       update_operations = test_update_operations("dc.title", "Updated Item Title")
@@ -366,6 +414,35 @@ defmodule DSpace.API.ItemTest do
       assert operation.path == "/api/submission/workspaceitems"
       assert operation.http_method == :post
       assert Keyword.get(operation.params, :owningCollection) == collection_uuid
+    end
+
+    test "creates a draft from an external source identified by an atom" do
+      operation =
+        Item.create_draft(
+          parent: "05457c63-b392-4629-a373-f2d66ee9ee33",
+          from: %{id: "42391361", source: :pubmed}
+        )
+
+      assert %{
+               content_type: :uri_list,
+               data: "/api/integration/externalsources/pubmed/entryValues/42391361"
+             } = operation
+    end
+
+    test "sends the full external-source URI when creating a draft", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "POST", "/api/submission/workspaceitems", fn conn ->
+        {:ok, body, conn} = Plug.Conn.read_body(conn)
+        assert Plug.Conn.get_req_header(conn, "content-type") == ["text/uri-list"]
+        assert body == url(sham) <> "/api/integration/externalsources/pubmed/entryValues/42391361"
+        respond_with_json(conn, 201, ~s({"id":1234}))
+      end)
+
+      result =
+        [parent: "collection-id", from: %{id: "42391361", source: "pubmed"}]
+        |> Item.create_draft()
+        |> API.request(api)
+
+      assert {:ok, %{"id" => 1234}} = result
     end
 
     test "creates workspace item in specified collection", %{sham: sham, api: api} do
@@ -568,6 +645,26 @@ defmodule DSpace.API.ItemTest do
       assert operation.data == [1234, 5678]
     end
 
+    test "preserves a workflow response", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "POST", "/api/workflow/workflowitems", fn conn ->
+        respond_with_json(conn, 201, ~s({"id":1911}))
+      end)
+
+      result =
+        1234
+        |> Item.submit_draft()
+        |> API.request(api)
+
+      assert {:ok, %{"id" => 1911}} = result
+    end
+
+    test "treats an empty response map as immediate publication" do
+      operation = Item.submit_draft(1234)
+      response = %Response{body: %{}}
+
+      assert operation.transformer.(response) == :published
+    end
+
     test "before_step callback builds full workspace item URI for single ID", %{sham: sham, api: api} do
       ws_id = 1234
       expected_uri = url(sham) <> "/api/submission/workspaceitems/#{ws_id}"
@@ -714,7 +811,7 @@ defmodule DSpace.API.ItemTest do
       operation = Item.list_in_workflow()
 
       wf_fixture = parse_fixture("workflow_items.json")
-      result = operation.transformer.(%DSpace.API.HTTP.Response{status: 200, body: wf_fixture})
+      result = operation.transformer.(%Response{status: 200, body: wf_fixture})
 
       {items, _metadata, _next} = result
       assert length(items) == 2
@@ -837,6 +934,43 @@ defmodule DSpace.API.ItemTest do
         |> API.request(api)
 
       assert result == :ok
+    end
+  end
+
+  describe "creating file bundles" do
+    test "uses the default name and empty metadata when no attributes are supplied", %{sham: sham, api: api} do
+      Sham.expect_once(sham, "POST", "/api/core/items/item-id/bundles", fn conn ->
+        {:ok, body, conn} = Plug.Conn.read_body(conn)
+        assert JSON.decode!(body) == %{"name" => "ORIGINAL", "metadata" => %{}}
+        respond_with_json(conn, 201, ~s({"uuid":"bundle-id"}))
+      end)
+
+      result =
+        "item-id"
+        |> Item.create_file_bundle()
+        |> API.request(api)
+
+      assert {:ok, %{"uuid" => "bundle-id"}} = result
+    end
+
+    test "preserves a custom bundle name and metadata", %{sham: sham, api: api} do
+      attributes = %{
+        "name" => "THUMBNAIL",
+        "metadata" => %{"dc.description" => [%{"value" => "Preview images"}]}
+      }
+
+      Sham.expect_once(sham, "POST", "/api/core/items/item-id/bundles", fn conn ->
+        {:ok, body, conn} = Plug.Conn.read_body(conn)
+        assert JSON.decode!(body) == attributes
+        respond_with_json(conn, 201, ~s({"uuid":"bundle-id"}))
+      end)
+
+      result =
+        "item-id"
+        |> Item.create_file_bundle(attributes)
+        |> API.request(api)
+
+      assert {:ok, %{"uuid" => "bundle-id"}} = result
     end
   end
 
