@@ -375,6 +375,10 @@ defmodule DSpace.API.ItemTest do
       Sham.expect_once(sham, "POST", "/api/submission/workspaceitems", fn conn ->
         params = Plug.Conn.fetch_query_params(conn).query_params
         assert params["owningCollection"] == collection_uuid
+
+        # sic, DSpace would refuse with a 415 otherwise even if there is no payload
+        assert Plug.Conn.get_req_header(conn, "content-type") == ["application/json"]
+
         respond_with_json(conn, 201, ws_fixture)
       end)
 
