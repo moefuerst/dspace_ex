@@ -22,7 +22,7 @@ defmodule DSpace.API.User do
   # Public API
 
   @doc """
-  Fetches a user by their email address.
+  Fetches a single user by email address.
 
   ## Parameters
 

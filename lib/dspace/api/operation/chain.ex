@@ -13,6 +13,8 @@ defmodule DSpace.API.Operation.Chain do
   first error.
   """
 
+  alias DSpace.API.Operation.Chain.Context
+
   defstruct steps: []
 
   @type t :: %__MODULE__{
@@ -29,9 +31,9 @@ defmodule DSpace.API.Operation.Chain do
   Returning `{operation, ctx}` runs `operation` and passes its result to the next step. Returning
   `{:skip, ctx}` runs nothing for this step and passes `prev_result` through unchanged.
   """
-  @type link :: (prev_result :: term(), ctx :: DSpace.API.Operation.Chain.Context.t() ->
-                   {operation :: DSpace.API.Operation.t(), ctx :: DSpace.API.Operation.Chain.Context.t()}
-                   | {:skip, ctx :: DSpace.API.Operation.Chain.Context.t()})
+  @type link :: (prev_result :: term(), ctx :: Context.t() ->
+                   {operation :: DSpace.API.Operation.t(), ctx :: Context.t()}
+                   | {:skip, ctx :: Context.t()})
 
   defmodule Context do
     @moduledoc """
@@ -39,13 +41,13 @@ defmodule DSpace.API.Operation.Chain do
     """
     defstruct [:client, :options]
 
+    # Public API
+
     @type t :: %__MODULE__{
             client: DSpace.API.t(),
             options: keyword()
           }
   end
-
-  # Public API
 
   @doc """
   Creates a new chain operation from a list of link functions.
