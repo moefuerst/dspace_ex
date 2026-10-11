@@ -8,7 +8,7 @@ defmodule DSpace.API.Model.ResourceUpdate do
 
   ## Example
 
-      %DSpace.API.Resource{
+      %DSpace.API.Model.ResourceUpdate{
         op: :replace,
         path: "/metadata/dc.title/0/value",
         value: "New Title"
