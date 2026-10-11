@@ -69,8 +69,8 @@ defmodule DSpace.Utils do
   """
   @spec wrap({:ok, value} | {:error, reason} | value | exception) :: {:ok, value} | {:error, reason}
         when value: term(), reason: term(), exception: Exception.t()
-  def wrap({:ok, value}), do: {:ok, value}
-  def wrap({:error, reason}), do: {:error, reason}
+  def wrap({:ok, _value} = result), do: result
+  def wrap({:error, _reason} = result), do: result
   def wrap(error) when is_exception(error), do: {:error, error}
   def wrap(value), do: {:ok, value}
 

@@ -14,6 +14,7 @@ defmodule DSpace.API.Error do
     403 => :forbidden,
     404 => :not_found,
     405 => :method_not_allowed,
+    415 => :unsupported_media_type,
     422 => :unprocessable_entity,
     429 => :too_many_requests
   }
@@ -35,6 +36,7 @@ defmodule DSpace.API.Error do
           | :forbidden
           | :not_found
           | :method_not_allowed
+          | :unsupported_media_type
           | :unprocessable_entity
           | :too_many_requests
           | :server_error
