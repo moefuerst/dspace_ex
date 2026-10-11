@@ -4,27 +4,36 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+
+## [v0.2.1] – 2026-10-11
+
 ### Added
 
   * Added `Operation.JSON.put_transformer/2` for pipe-friendly response transformer configuration.
-  * Added `Item.list_duplicates/2`
+  * Added `Item.list_duplicates/2`.
   * Added `Metadata.security_config/1` to fetch the metadata security level configuration for an
     entity type. This operation is compatible with DSpace 8.5 and up.
-  * Compatibility with Req 0.7.
 
 ### Changed
 
+  * Compatibility with Req 0.7.
   * Updated `Version` struct with latest DSpace and CRIS fork versions.
 
 ### Fixed
 
   * Fixed a bug where `Item.metrics/1` wasn't streamable.
+  * Fixed a bug where `Item.create_draft/1` didn't create an empty draft.
 
 ### Documentation
 
-  * Various improvements to documentation.
+  * Various minor improvements to documentation.
 
+### Development
 
+  * Updated dev dependencies.
+  * Improved test coverage. 
+
+  
 ## [v0.2.0] – 2026-08-09
 
 ### Added
@@ -176,7 +185,8 @@ All notable changes to this project will be documented in this file.
   * Hex package setup.
 
 
-[Unreleased]: https://github.com/moefuerst/dspace_ex/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/moefuerst/dspace_ex/compare/v0.2.1...HEAD
+[v0.2.1]: https://github.com/moefuerst/dspace_ex/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/moefuerst/dspace_ex/compare/v0.1.1...v0.2.0
 [v0.1.1]: https://github.com/moefuerst/dspace_ex/compare/v0.1.0...v0.1.1
 [v0.1.0]: https://github.com/moefuerst/dspace_ex/compare/v0.1.0-alpha2...v0.1.0

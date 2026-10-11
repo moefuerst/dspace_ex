@@ -2,19 +2,18 @@
 
 An Elixir library for working with [DSpace](https://dspace.org) repositories.
 
+
 ## Who Is This For?
 
 dspace_ex is designed for Elixir developers building integrations, batch processing pipelines or
 migration tooling for DSpace repositories.
 
 Whether you're moving content between institutional repositories or other data management systems,
-automating metadata enrichment, or designing custom submission interfaces, dspace_ex provides an 
-idiomatic Elixir interface to DSpace's JSON API. 
-
-It translates DSpace's idiosyncratic API surface into plain, consistent terms: files are files
-(not "bitstreams"), users are users (not "EPersons"), search is search, and a missing resource is
-always `:not_found`. You don't need to learn DSpace's *NIH* terminology or work around the API's
-quirks to build against it.
+automating metadata enrichment, or designing custom submission interfaces, dspace_ex provides an
+idiomatic Elixir interface to DSpace's JSON API. It translates the idiosyncratic API surface into
+plain terms: files are files (not "bitstreams"), users are users (not "EPersons"), search is
+search, and a missing resource is always `:not_found`. You don't need to learn DSpace's *NIH*
+terminology or work around the API's quirks to build against it.
 
 - Ingest & enrichment: submit records, update metadata, and manage files programmatically
 - Export & migration: retrieve DSpace content for import into a CRIS, another repository solution
@@ -59,8 +58,7 @@ client = DSpace.API.new("https://example.com/server")
   |> DSpace.API.request(client)
 ```
 
-Results are returned as string-keyed maps parsed from the response body, rather than cast into
-domain structs, leaving that responsibility to the consuming application. DSpace is overly
+Results are returned as string-keyed maps parsed from the response body. DSpace is overly
 configurable (metadata schemas, resource types, and available fields vary significantly between
 instances) making a fixed struct representation difficult across the diversity of real-world
 deployments.
