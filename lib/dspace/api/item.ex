@@ -181,7 +181,11 @@ defmodule DSpace.API.Item do
     base_op = %Operation.JSON{
       path: @ep_workspace,
       http_method: :post,
-      params: params
+      params: params,
+      # This API endpoint returns an error on POST requests without application/json content-type
+      # header, even when it's without a body that could have a content type. We set data to empty
+      # map to force the header.
+      data: %{}
     }
 
     case maybe_from do
