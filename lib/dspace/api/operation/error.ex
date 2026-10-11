@@ -18,17 +18,16 @@ defmodule DSpace.API.Operation.Error do
 
   @spec message(t()) :: binary()
   @impl true
-  def message(%{not_supported: dist_or_version, missing_property: missing})
-      when is_binary(dist_or_version) and not is_nil(missing) do
-    "a #{dist_or_version} instance doesn't support this operation " <>
-      "and executing this operation requires #{inspect(missing)})"
-  end
-
-  def message(%{not_supported: dist_or_version}) when is_binary(dist_or_version) do
+  def message(%{not_supported: dist_or_version, missing_property: nil}) when is_binary(dist_or_version) do
     "a #{dist_or_version} instance doesn't support this operation"
   end
 
-  def message(%{missing_property: missing}) when not is_nil(missing) do
+  def message(%{not_supported: dist_or_version, missing_property: missing}) when is_binary(dist_or_version) do
+    "a #{dist_or_version} instance doesn't support this operation " <>
+      "and executing this operation requires #{inspect(missing)}"
+  end
+
+  def message(%{missing_property: missing, not_supported: nil}) do
     "executing this operation requires #{inspect(missing)}"
   end
 end

@@ -242,7 +242,9 @@ defimpl DSpace.API.Operation, for: DSpace.API.Operation.JSON do
     {:ok, {http_impl, request_options}}
   end
 
-  defp build_content_options(%{data: nil}), do: {%{}, []}
+  defp build_content_options(%{data: nil}) do
+    {%{}, []}
+  end
 
   defp build_content_options(%{content_type: :uri_list, data: data}) when is_binary(data) do
     build_content_options(%{content_type: :uri_list, data: [data]})
